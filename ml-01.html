@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>머신러닝으로 해결할 수 있는 문제 유형</title>
+    <style>
+        :root {
+            --bg-color: #fcfdfd;
+            --card-bg: #ffffff;
+            --text-main: #1e293b;
+            --text-sub: #64748b;
+            --accent: #818cf8;
+            --accent-hover: #6366f1;
+            --border: #f1f5f9;
+            --border-card: #e2e8f0;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 40px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 45px;
+            max-width: 800px;
+        }
+
+        h1 {
+            font-size: 2.3rem;
+            margin-bottom: 12px;
+            background: linear-gradient(to right, #6366f1, #0d9488);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        p.subtitle {
+            color: var(--text-sub);
+            font-size: 1.1rem;
+            line-height: 1.6;
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+            gap: 25px;
+            max-width: 1200px;
+            width: 100%;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 28px;
+            border: 1px solid var(--border-card);
+            box-shadow: 0 10px 25px -5px rgb(0 0 0 / 0.03);
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent);
+            box-shadow: 0 12px 28px -5px rgb(0 0 0 / 0.06);
+        }
+
+        .card-title {
+            font-size: 1.35rem;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #1e293b;
+        }
+
+        .badge {
+            font-size: 0.75rem;
+            background: #e0e7ff;
+            color: #4338ca;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-weight: 600;
+        }
+
+        .desc-section {
+            font-size: 0.92rem;
+            color: var(--text-main);
+            line-height: 1.5;
+            background: #f8fafc;
+            padding: 12px 14px;
+            border-radius: 10px;
+            border-left: 3px solid var(--accent);
+            border-top: 1px solid var(--border);
+            border-right: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .example-box {
+            font-size: 0.88rem;
+            color: var(--text-sub);
+            line-height: 1.5;
+        }
+
+        .example-box strong {
+            color: #0284c7;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>🤖 머신러닝으로 해결할 수 있는 문제 유형</h1>
+        <p class="subtitle">인공지능이 세상을 이해하고 문제를 해결하는 6가지 핵심 방식을 알아보세요!</p>
+    </header>
+
+    <div class="container">
+        
+        <!-- 1. 분류 문제 -->
+        <div class="card">
+            <div class="card-title">
+                <span>🏷️ 1. 분류 문제</span>
+            </div>
+            <span class="badge">지도 학습 (Supervised Learning)</span>
+            <div class="desc-section">
+                <strong>개념:</strong> 데이터가 어떤 '범주(그룹)'에 속하는지 딱 정해진 이름표를 붙여 판별하는 문제예요.
+            </div>
+            <div class="example-box">
+                <strong>💡 실생활 예시:</strong><br>
+                • 이 메일이 정상 메일일까, <strong>스팸 메일</strong>일까?<br>
+                • 사진 속 동물이 <strong>고양이</strong>일까, <strong>강아지</strong>일까?<br>
+                • 이 사람이 웃고 있을까, 슬퍼하고 있을까? (감정 분류)
+            </div>
+        </div>
+
+        <!-- 2. 예측 문제 -->
+        <div class="card">
+            <div class="card-title">
+                <span>📈 2. 예측 문제</span>
+            </div>
+            <span class="badge">지도 학습 (Supervised Learning)</span>
+            <div class="desc-section">
+                <strong>개념:</strong> 과거의 데이터 흐름을 바탕으로 연속적인 '숫자 값'이나 '미래의 결과'를 추정하는 문제예요.
+            </div>
+            <div class="example-box">
+                <strong>💡 실생활 예시:</strong><br>
+                • 내일 낮 최고 <strong>기온은 몇 도</strong>가 될까?<br>
+                • 내년 이 아파트의 <strong>집값</strong>은 얼마나 오를까?<br>
+                • 이번 달 우리 가게 <strong>매출액</strong>은 얼마일까?
+            </div>
+        </div>
+
+        <!-- 3. 군집 문제 -->
+        <div class="card">
+            <div class="card-title">
+                <span>🎯 3. 군집 문제</span>
+            </div>
+            <span class="badge">비지도 학습 (Unsupervised Learning)</span>
+            <div class="desc-section">
+                <strong>개념:</strong> 정답(라벨)이 없는 상태에서, 성향이나 특징이 서로 비슷한 데이터끼리 묶어 무리를 짓는 문제예요.
+            </div>
+            <div class="example-box">
+                <strong>💡 실생활 예시:</strong><br>
+                • 쇼핑몰에서 <strong>비슷한 취향의 구매 패턴</strong>을 가진 고객들끼리 그룹 묶기<br>
+                • 지역별 인구 이동 및 <strong>감소 추세가 유사한 지역</strong>끼리 묶어 지도에 표현하기
+            </div>
+        </div>
+
+        <!-- 4. 인식 문제 -->
+        <div class="card">
+            <div class="card-title">
+                <span>🚗 4. 인식 문제</span>
+            </div>
+            <span class="badge">컴퓨터 비전 (Computer Vision)</span>
+            <div class="desc-section">
+                <strong>개념:</strong> 이미지나 영상 속에서 사물을 정확히 찾아내거나(객체 검출), 픽셀 단위로 구역을 쪼개어 이해하는 문제예요.
+            </div>
+            <div class="example-box">
+                <strong>💡 실생활 예시:</strong><br>
+                • 자율주행차가 도로 위 <strong>보행자와 신호등을 실시간으로 인식</strong>하기<br>
+                • 사진 속에서 사람과 배경을 정교하게 도려내기 (<strong>이미지 분할</strong>)
+            </div>
+        </div>
+
+        <!-- 5. 자연어 처리 -->
+        <div class="card">
+            <div class="card-title">
+                <span>💬 5. 자연어 처리</span>
+            </div>
+            <span class="badge">텍스트 및 언어 지능 (NLP)</span>
+            <div class="desc-section">
+                <strong>개념:</strong> 인간이 사용하는 언어(말과 글)를 컴퓨터가 이해하고, 문맥을 분석하거나 번역하는 문제예요.
+            </div>
+            <div class="example-box">
+                <strong>💡 실생활 예시:</strong><br>
+                • 외국어 문장을 자연스러운 우리말로 <strong>번역</strong>하기<br>
+                • 사용자가 입력한 리뷰 글을 읽고 긍정/부정 <strong>감정 분석</strong>하기<br>
+                • 인공지능 챗봇과 자연스럽게 대화 나누기
+            </div>
+        </div>
+
+        <!-- 6. 생성 문제 -->
+        <div class="card">
+            <div class="card-title">
+                <span>🎨 6. 생성 문제</span>
+            </div>
+            <span class="badge">생성형 AI (Generative AI)</span>
+            <div class="desc-section">
+                <strong>개념:</strong> 방대한 데이터를 학습한 뒤, 세상에 존재하지 않던 새로운 오리지널 콘텐츠를 뚝딱 만들어내는 문제예요.
+            </div>
+            <div class="example-box">
+                <strong>💡 실생활 예시:</strong><br>
+                • "우주를 여행하는 고양이"라고 문장을 쓰면 <strong>새로운 이미지를 뚝딱 그려주기</strong><br>
+                • 분위기에 맞는 배경 음악이나 사람 목소리 합성하기
+            </div>
+        </div>
+
+    </div>
+
+</body>
+</html>

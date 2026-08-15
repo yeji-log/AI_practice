@@ -1,0 +1,813 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🚗 왜 인공지능이 필요할까? - 자율주행 시뮬레이터</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --primary:#6C63FF;--secondary:#FF6584;
+  --success:#43E97B;--warning:#F7971E;
+  --dark:#1a1a2e;--card:#16213e;--text:#e0e0e0;
+}
+body{font-family:'Segoe UI',sans-serif;background:var(--dark);color:var(--text);min-height:100vh;}
+
+/* ── HEADER ── */
+header{background:linear-gradient(135deg,#1a1a2e,#16213e,#0f3460);padding:18px 30px;text-align:center;border-bottom:2px solid var(--primary);position:relative;overflow:hidden;}
+header::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(108,99,255,0.15),transparent 70%);}
+header h1{font-size:1.9rem;color:#fff;position:relative;}
+header h1 span{color:var(--primary);}
+header p{color:#aaa;margin-top:4px;font-size:0.95rem;position:relative;}
+
+/* ── TABS ── */
+.tabs{display:flex;justify-content:center;gap:8px;padding:14px 20px;background:var(--card);border-bottom:1px solid #333;flex-wrap:wrap;}
+.tab{padding:9px 24px;border-radius:30px;border:2px solid #444;background:transparent;color:#aaa;font-size:0.92rem;cursor:pointer;transition:all 0.3s;font-weight:600;}
+.tab:hover{border-color:var(--primary);color:var(--primary);}
+.tab.active{background:var(--primary);border-color:var(--primary);color:#fff;}
+.section{display:none;padding:24px;max-width:1100px;margin:0 auto;}
+.section.active{display:block;}
+
+/* ── COMMON ── */
+.callout{background:linear-gradient(135deg,rgba(108,99,255,0.15),rgba(255,101,132,0.1));border:2px solid var(--primary);border-radius:16px;padding:22px 28px;margin:24px 0;font-size:1rem;line-height:1.8;color:#ddd;}
+.callout strong{color:var(--primary);}
+.start-btn{display:inline-block;margin-top:28px;padding:13px 38px;background:linear-gradient(135deg,var(--primary),#a855f7);color:#fff;border:none;border-radius:40px;font-size:1.05rem;font-weight:700;cursor:pointer;transition:all 0.3s;}
+.start-btn:hover{transform:scale(1.05);box-shadow:0 8px 30px rgba(108,99,255,0.4);}
+
+/* ── INTRO ── */
+.intro-hero{text-align:center;padding:36px 20px;}
+.intro-hero .big{font-size:4.5rem;display:block;margin-bottom:14px;}
+.intro-hero h2{font-size:1.9rem;color:#fff;margin-bottom:10px;}
+.intro-hero p{font-size:1.05rem;color:#bbb;max-width:680px;margin:0 auto;line-height:1.7;}
+.scene-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-top:24px;}
+.scene-card{background:var(--card);border:2px solid #333;border-radius:16px;padding:20px;text-align:center;transition:all 0.3s;}
+.scene-card:hover{border-color:var(--primary);transform:translateY(-3px);}
+.scene-card .ic{font-size:2.4rem;margin-bottom:10px;}
+.scene-card h3{font-size:0.95rem;color:#fff;margin-bottom:6px;}
+.scene-card p{font-size:0.82rem;color:#999;line-height:1.5;}
+
+/* ── SIMULATOR ── */
+.sim-layout{display:grid;grid-template-columns:1fr 330px;gap:18px;align-items:start;}
+@media(max-width:880px){.sim-layout{grid-template-columns:1fr;}}
+.sim-panel{background:var(--card);border-radius:16px;overflow:hidden;border:2px solid #333;}
+.panel-hdr{padding:12px 16px;display:flex;align-items:center;gap:10px;border-bottom:1px solid #333;}
+.panel-hdr h3{font-size:0.95rem;color:#fff;}
+.mbadge{padding:4px 11px;border-radius:20px;font-size:0.78rem;font-weight:700;margin-left:auto;}
+.badge-r{background:rgba(247,151,30,0.2);color:var(--warning);border:1px solid var(--warning);}
+.badge-a{background:rgba(67,233,123,0.2);color:var(--success);border:1px solid var(--success);}
+#cv{display:block;width:100%;background:#111;}
+
+/* ── NEW ① AI 사고과정 말풍선 ── */
+#thought-wrap{
+  background:#0a0f1a;border-top:1px solid #1e2a3a;
+  padding:10px 16px;min-height:40px;
+  display:flex;align-items:center;gap:10px;
+}
+.thought-icon{font-size:1.1rem;flex-shrink:0;}
+#thought{font-size:0.8rem;font-family:monospace;line-height:1.5;flex:1;}
+#thought.ai-t{color:#43E97B;}
+#thought.rule-t{color:var(--warning);}
+.thought-bar{width:6px;height:6px;border-radius:50%;flex-shrink:0;animation:blink 1s infinite;}
+.thought-bar.ai-dot{background:#43E97B;}
+.thought-bar.rule-dot{background:var(--warning);}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:0.2;}}
+
+/* ── CONTROL ── */
+.ctrl{padding:14px;}
+.mtoggle{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;}
+.mbtn{padding:9px;border-radius:10px;border:2px solid #444;background:transparent;color:#aaa;font-size:0.8rem;font-weight:700;cursor:pointer;transition:all 0.3s;text-align:center;line-height:1.4;}
+.mbtn:hover{border-color:#666;}
+.mbtn.ar{border-color:var(--warning);background:rgba(247,151,30,0.1);color:var(--warning);}
+.mbtn.aa{border-color:var(--success);background:rgba(67,233,123,0.1);color:var(--success);}
+.srow{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid #1e1e2e;font-size:0.85rem;}
+.srow:last-child{border-bottom:none;}
+.sl{color:#777;}.sv{color:#fff;font-weight:700;}
+.sv.g{color:var(--success);}.sv.r{color:var(--secondary);}.sv.y{color:var(--warning);}
+.pbw{height:5px;background:#2a2a2a;border-radius:3px;margin-top:7px;overflow:hidden;}
+.pbf{height:100%;border-radius:3px;transition:width 0.4s;}
+.pg{background:linear-gradient(90deg,var(--success),#0aff9d);}
+.pr{background:linear-gradient(90deg,var(--secondary),#ff6b6b);}
+.sbtn{width:100%;padding:10px;margin-top:8px;border-radius:10px;border:none;font-size:0.92rem;font-weight:700;cursor:pointer;transition:all 0.2s;}
+.sbtn:hover{transform:scale(1.02);}
+.bs{background:linear-gradient(135deg,var(--primary),#a855f7);color:#fff;}
+.bx{background:linear-gradient(135deg,var(--secondary),#ff4444);color:#fff;}
+.br{background:#252535;color:#aaa;border:1px solid #444;}
+.logbox{background:#0d1117;border:1px solid #1e1e2e;border-radius:10px;padding:9px 11px;margin-top:10px;height:110px;overflow-y:auto;font-size:0.74rem;font-family:monospace;}
+.le{padding:2px 0;border-bottom:1px solid #151525;}
+.lw{color:#ff9800;}.lg{color:var(--success);}.lr{color:var(--secondary);}.li{color:#777;}
+
+/* ── CODE COMPARE ── */
+.code-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:16px;}
+@media(max-width:600px){.code-row{grid-template-columns:1fr;}}
+.ccard{border-radius:14px;padding:14px;border:2px solid;}
+.ccard.r{border-color:var(--warning);background:rgba(247,151,30,0.04);}
+.ccard.a{border-color:var(--success);background:rgba(67,233,123,0.04);}
+.ccard h3{font-size:0.9rem;margin-bottom:8px;}
+.ccard.r h3{color:var(--warning);}.ccard.a h3{color:var(--success);}
+.cb{background:#0d1117;border:1px solid #1e1e2e;border-radius:8px;padding:10px;font-size:0.74rem;font-family:monospace;line-height:1.65;color:#ccc;overflow-x:auto;}
+.ce{color:#ff6584;}.co{color:#43e97b;}
+
+/* ── NEW ② 30초 챌린지 ── */
+.challenge-wrap{background:var(--card);border:2px solid var(--primary);border-radius:16px;padding:20px;margin-top:16px;}
+.challenge-wrap>h3{color:var(--primary);font-size:1rem;margin-bottom:4px;}
+.challenge-wrap>.sub{font-size:0.82rem;color:#888;margin-bottom:12px;}
+.chl-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
+@media(max-width:600px){.chl-grid{grid-template-columns:1fr;}}
+.chl-card{background:#0a0f1a;border-radius:12px;padding:14px;text-align:center;}
+.chl-card h4{font-size:0.85rem;margin-bottom:8px;}
+.chl-card.rule h4{color:var(--warning);}.chl-card.ai h4{color:var(--success);}
+.chl-num{font-size:2rem;font-weight:800;margin:4px 0;}
+.chl-card.rule .chl-num{color:var(--warning);}.chl-card.ai .chl-num{color:var(--success);}
+.chl-sub{font-size:0.72rem;color:#888;}
+.chl-bar{height:7px;background:#1a1a2e;border-radius:4px;margin-top:7px;overflow:hidden;}
+.chl-bar-r{height:100%;background:var(--warning);border-radius:4px;transition:width 0.4s;width:0%;}
+.chl-bar-a{height:100%;background:var(--success);border-radius:4px;transition:width 0.4s;width:0%;}
+.chl-crash{font-size:0.73rem;color:#888;margin-top:4px;}
+#chlTimer{font-size:1.4rem;font-weight:800;color:#fff;text-align:center;margin:8px 0;}
+.chl-status{text-align:center;font-size:0.83rem;color:#aaa;min-height:20px;padding:4px 0;}
+.chl-status.win{color:var(--success);font-weight:700;}
+.chl-btns{display:flex;gap:8px;margin-top:10px;}
+
+/* ── NEW ③ 규칙 에디터 ── */
+.editor-wrap{background:var(--card);border:2px solid #333;border-radius:16px;padding:20px;margin-top:16px;}
+.editor-wrap>h3{font-size:1rem;color:#fff;margin-bottom:4px;}
+.editor-wrap>.sub{font-size:0.82rem;color:#888;margin-bottom:12px;}
+.rule-list{display:flex;flex-direction:column;gap:8px;margin-bottom:10px;}
+.rule-item{display:flex;align-items:center;gap:7px;background:#0a0f1a;border:1px solid #2a2a3a;border-radius:10px;padding:9px 12px;font-size:0.8rem;flex-wrap:wrap;}
+.rule-item select,.rule-item input[type=number]{background:#1a1a2e;border:1px solid #3a3a4a;border-radius:6px;color:#fff;padding:4px 7px;font-size:0.8rem;}
+.ri-label{color:#888;white-space:nowrap;}
+.ri-then{color:var(--success);}
+.rule-del{background:transparent;border:none;color:#555;cursor:pointer;font-size:1rem;margin-left:auto;}
+.rule-del:hover{color:var(--secondary);}
+.add-rule-btn{background:#1a1a2e;border:1px dashed #444;border-radius:10px;color:#888;padding:9px;width:100%;cursor:pointer;font-size:0.83rem;transition:all 0.2s;}
+.add-rule-btn:hover{border-color:var(--primary);color:var(--primary);}
+.editor-btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;}
+.rule-test-btn{padding:9px 18px;background:rgba(108,99,255,0.2);border:1px solid var(--primary);border-radius:8px;color:var(--primary);font-size:0.83rem;font-weight:700;cursor:pointer;transition:all 0.2s;}
+.rule-test-btn:hover{background:rgba(108,99,255,0.35);}
+.rule-reset-btn{padding:9px 14px;background:transparent;border:1px solid #444;border-radius:8px;color:#666;font-size:0.83rem;cursor:pointer;transition:all 0.2s;}
+.rule-reset-btn:hover{border-color:#666;color:#aaa;}
+.rule-result{margin-top:10px;padding:10px 12px;border-radius:8px;font-size:0.83rem;display:none;line-height:1.6;}
+
+/* ── COMPARE ── */
+.cmp-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:20px;}
+@media(max-width:680px){.cmp-grid{grid-template-columns:1fr;}}
+.cmp-card{border-radius:16px;padding:20px;border:2px solid;}
+.cmp-card.rr{border-color:var(--warning);background:rgba(247,151,30,0.05);}
+.cmp-card.aa{border-color:var(--success);background:rgba(67,233,123,0.05);}
+.cmp-card h3{font-size:1.05rem;margin-bottom:12px;}
+.cmp-card.rr h3{color:var(--warning);}.cmp-card.aa h3{color:var(--success);}
+.ci{display:flex;gap:9px;margin-bottom:9px;font-size:0.87rem;line-height:1.5;}
+.ci .ix{flex-shrink:0;font-size:1rem;}.ci p{color:#ccc;}
+.thinkbox{background:var(--card);border-left:4px solid var(--primary);border-radius:0 12px 12px 0;padding:18px 22px;margin-top:16px;}
+.thinkbox h4{color:var(--primary);margin-bottom:8px;font-size:0.95rem;}
+.thinkbox p{color:#bbb;font-size:0.88rem;line-height:1.7;}
+
+/* ── QUIZ ── */
+.qsec{margin-top:28px;}
+.qsec h3{font-size:1.2rem;color:#fff;margin-bottom:14px;text-align:center;}
+.qcard{background:var(--card);border:2px solid #333;border-radius:16px;padding:20px;margin-bottom:12px;}
+.qcard p{font-size:0.92rem;color:#ddd;margin-bottom:12px;line-height:1.6;}
+.qopts{display:flex;flex-direction:column;gap:7px;}
+.qopt{padding:9px 14px;border-radius:8px;border:1px solid #444;background:#1a1a2e;color:#ccc;cursor:pointer;font-size:0.86rem;text-align:left;transition:all 0.2s;}
+.qopt:hover:not(:disabled){border-color:var(--primary);color:#fff;}
+.qopt.ok{border-color:var(--success);background:rgba(67,233,123,0.1);color:var(--success);}
+.qopt.no{border-color:var(--secondary);background:rgba(255,101,132,0.1);color:var(--secondary);}
+.qfb{margin-top:9px;font-size:0.82rem;padding:9px;border-radius:8px;display:none;}
+.qfb.show{display:block;}
+.qfb.ok{background:rgba(67,233,123,0.08);color:var(--success);}
+.qfb.no{background:rgba(255,101,132,0.08);color:var(--secondary);}
+
+::-webkit-scrollbar{width:6px;}
+::-webkit-scrollbar-track{background:#1a1a2e;}
+::-webkit-scrollbar-thumb{background:#444;border-radius:3px;}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🤖 왜 <span>인공지능</span>이 필요할까?</h1>
+  <p>자율주행 자동차로 배우는 AI의 필요성 — 직접 체험하고 생각해봐요!</p>
+</header>
+
+<div class="tabs">
+  <button class="tab active" id="tab-intro"    onclick="showTab('intro')">📖 도입</button>
+  <button class="tab"        id="tab-simulator" onclick="showTab('simulator')">🚗 시뮬레이터</button>
+  <button class="tab"        id="tab-compare"   onclick="showTab('compare')">📊 비교 &amp; 퀴즈</button>
+</div>
+
+<!-- ═══════════ INTRO ═══════════ -->
+<div id="intro" class="section active">
+  <div class="intro-hero">
+    <span class="big">🤔</span>
+    <h2>만약 사람이 직접 모든 규칙을 코딩한다면?</h2>
+    <p>자율주행 자동차가 안전하게 달리려면 수없이 많은 상황에 대응해야 합니다.<br>
+       과연 사람이 모든 규칙을 직접 작성할 수 있을까요?</p>
+  </div>
+  <div class="callout">
+    💡 <strong>"만약 사람이 직접 자율주행 자동차의 모든 운전 규칙을 코딩한다면,<br>
+    갑자기 튀어나오는 고양이까지 계산할 수 있을까요?"</strong><br><br>
+    규칙 기반 코딩으로는 <strong>예상치 못한 상황</strong>에 대응하기가 매우 어렵습니다.
+    이것이 <strong>인공지능</strong>이 필요한 이유입니다!
+  </div>
+  <div class="scene-grid">
+    <div class="scene-card"><div class="ic">🐱</div><h3>갑자기 튀어나온 고양이</h3><p>"고양이가 나타나면?"이라는 규칙을 미리 만들었나요? AI는 이미지를 인식해 스스로 판단합니다.</p></div>
+    <div class="scene-card"><div class="ic">🌧️</div><h3>갑작스러운 폭우</h3><p>비·눈·안개·역광… 모든 날씨 조건을 규칙으로 미리 쓸 수 있을까요?</p></div>
+    <div class="scene-card"><div class="ic">🚧</div><h3>예상 밖의 공사 구간</h3><p>지도에 없는 임시 공사 구간! 규칙엔 없지만 AI는 상황을 보고 판단합니다.</p></div>
+    <div class="scene-card"><div class="ic">👶</div><h3>아이가 갑자기 뛰어들면</h3><p>센서 데이터와 이미지를 종합해 "위험한 상황"임을 학습으로 인식합니다.</p></div>
+  </div>
+  <div style="text-align:center;">
+    <button class="start-btn" onclick="showTab('simulator')">🚗 시뮬레이터 체험하기 →</button>
+  </div>
+</div>
+
+<!-- ═══════════ SIMULATOR ═══════════ -->
+<div id="simulator" class="section">
+  <div class="sim-layout">
+
+    <!-- 캔버스 패널 -->
+    <div class="sim-panel">
+      <div class="panel-hdr">
+        <span>🛣️</span><h3>자율주행 시뮬레이터</h3>
+        <span id="modeBadge" class="mbadge badge-r">규칙 기반 모드</span>
+      </div>
+      <canvas id="cv" width="680" height="420"></canvas>
+
+      <!-- ① AI 사고과정 말풍선 -->
+      <div id="thought-wrap">
+        <span class="thought-icon" id="thoughtIcon">📋</span>
+        <div id="thought" class="rule-t">[ 대기 중 ] 시뮬레이션을 시작하세요</div>
+        <div class="thought-bar rule-dot" id="thoughtDot"></div>
+      </div>
+    </div>
+
+    <!-- 제어판 -->
+    <div class="sim-panel">
+      <div class="panel-hdr"><span>⚙️</span><h3>제어판</h3></div>
+      <div class="ctrl">
+        <p style="font-size:0.77rem;color:#666;margin-bottom:10px;">모드를 선택하고 시작하세요</p>
+        <div class="mtoggle">
+          <button class="mbtn ar" id="btnR" onclick="setMode('rule')">
+            📋 규칙 기반<br><span style="font-size:0.68rem;font-weight:400;">(IF-THEN)</span>
+          </button>
+          <button class="mbtn" id="btnA" onclick="setMode('ai')">
+            🧠 AI 기반<br><span style="font-size:0.68rem;font-weight:400;">(학습 기반)</span>
+          </button>
+        </div>
+        <div class="srow"><span class="sl">현재 모드</span><span class="sv y" id="stMode">규칙 기반</span></div>
+        <div class="srow"><span class="sl">주행 시간</span><span class="sv" id="stTime">0.0 초</span></div>
+        <div class="srow"><span class="sl">장애물 회피</span><span class="sv g" id="stAvoid">0 회</span></div>
+        <div class="srow"><span class="sl">충돌 / 실패</span><span class="sv r" id="stCrash">0 회</span></div>
+        <div class="srow"><span class="sl">현재 속도</span><span class="sv" id="stSpeed">0 km/h</span></div>
+        <div class="srow"><span class="sl">안전도</span><span class="sv" id="stSafe">—</span></div>
+        <div class="pbw"><div class="pbf pg" id="safeBar" style="width:80%"></div></div>
+        <button class="sbtn bs" id="btnSS" onclick="toggleSim()">▶ 시뮬레이션 시작</button>
+        <button class="sbtn br" onclick="resetSim()">↺ 초기화</button>
+        <div class="logbox" id="lb">
+          <div class="le li">[ 시스템 ] 시뮬레이터 준비 완료</div>
+          <div class="le li">[ 안내 ] 모드를 선택하고 시작하세요</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 코드 비교 -->
+  <div class="code-row">
+    <div class="ccard r">
+      <h3>📋 규칙 기반 코드 예시</h3>
+      <div class="cb">IF 앞에_장애물 AND 거리 &lt; 30m<br>&nbsp;&nbsp;THEN STOP<br>ELSE IF 차선이탈 THEN 핸들_조정<br>ELSE IF 신호등==빨강 THEN BRAKE<br><span class="ce">// 🐱 고양이? 👶 어린이? 🦊 여우?<br>// 규칙 없으면 충돌! ❌<br>// 새 상황마다 사람이 직접 추가 필요</span></div>
+    </div>
+    <div class="ccard a">
+      <h3>🧠 AI 기반 접근 예시</h3>
+      <div class="cb">// 수천 시간 주행 데이터로 학습<br>model.train(수백만_주행_장면)<br><br>// 새로운 상황도 스스로 판단!<br>action = model.predict(카메라_영상)<br><span class="co">// 고양이든 공사장이든 폭우든<br>// 학습한 패턴으로 스스로 판단 ✅<br>// 경험이 쌓일수록 더 정확해짐</span></div>
+    </div>
+  </div>
+
+  <!-- ② 30초 챌린지 -->
+  <div class="challenge-wrap">
+    <h3>⚔️ 30초 대결 챌린지 — 규칙 기반 vs AI, 누가 더 안전할까?</h3>
+    <p class="sub">같은 조건으로 30초씩 자동 주행 → 회피·충돌 횟수를 직접 비교해보세요!</p>
+    <div class="chl-grid">
+      <div class="chl-card rule">
+        <h4>📋 규칙 기반</h4>
+        <div class="chl-num" id="chlRAvoid">—</div>
+        <div class="chl-sub">회피 횟수</div>
+        <div class="chl-bar"><div class="chl-bar-r" id="chlRBar"></div></div>
+        <div class="chl-crash">충돌: <span id="chlRCrash">—</span></div>
+      </div>
+      <div class="chl-card ai">
+        <h4>🧠 AI 기반</h4>
+        <div class="chl-num" id="chlAAvoid">—</div>
+        <div class="chl-sub">회피 횟수</div>
+        <div class="chl-bar"><div class="chl-bar-a" id="chlABar"></div></div>
+        <div class="chl-crash">충돌: <span id="chlACrash">—</span></div>
+      </div>
+    </div>
+    <div id="chlTimer">⏱ 30.0 초</div>
+    <div class="chl-status" id="chlStatus">챌린지 시작 → 규칙 기반 30초 → AI 기반 30초 순서로 자동 진행됩니다</div>
+    <div class="chl-btns">
+      <button class="sbtn bs" style="flex:1" id="btnChl" onclick="startChallenge()">🏁 챌린지 시작</button>
+      <button class="sbtn br" style="flex:0 0 70px" onclick="resetChallenge()">↺</button>
+    </div>
+  </div>
+
+  <!-- ③ 규칙 직접 작성 에디터 -->
+  <div class="editor-wrap">
+    <h3>✍️ 내가 직접 규칙을 추가해보자!</h3>
+    <p class="sub">고양이·어린이 같은 돌발 상황에 규칙을 직접 작성해보세요. 과연 모든 상황을 다 쓸 수 있을까요?</p>
+    <div class="rule-list" id="ruleList"></div>
+    <button class="add-rule-btn" onclick="addRule()">+ 새 규칙 추가하기</button>
+    <div class="editor-btns">
+      <button class="rule-test-btn" onclick="testRules()">🧪 규칙 테스트하기</button>
+      <button class="rule-reset-btn" onclick="resetRules()">↺ 초기화</button>
+    </div>
+    <div class="rule-result" id="ruleResult"></div>
+  </div>
+</div>
+
+<!-- ═══════════ COMPARE & QUIZ ═══════════ -->
+<div id="compare" class="section">
+  <h2 style="text-align:center;font-size:1.45rem;margin-bottom:20px;color:#fff;">📊 규칙 기반 vs AI 기반 비교</h2>
+  <div class="cmp-grid">
+    <div class="cmp-card rr">
+      <h3>📋 규칙 기반 (IF-THEN)</h3>
+      <div class="ci"><span class="ix">✅</span><p>예측 가능하고 이해하기 쉬움</p></div>
+      <div class="ci"><span class="ix">✅</span><p>규칙이 명확해 오류 추적 가능</p></div>
+      <div class="ci"><span class="ix">❌</span><p>예상치 못한 상황에 대응 불가</p></div>
+      <div class="ci"><span class="ix">❌</span><p>규칙 수가 폭발적으로 증가</p></div>
+      <div class="ci"><span class="ix">❌</span><p>새 환경엔 사람이 직접 수정 필요</p></div>
+      <div class="ci"><span class="ix">🐱</span><p>고양이 등장 → 규칙 없으면 충돌!</p></div>
+    </div>
+    <div class="cmp-card aa">
+      <h3>🧠 AI 기반 (머신러닝)</h3>
+      <div class="ci"><span class="ix">✅</span><p>새로운 상황도 학습 데이터로 대응</p></div>
+      <div class="ci"><span class="ix">✅</span><p>데이터가 쌓일수록 스스로 개선</p></div>
+      <div class="ci"><span class="ix">✅</span><p>수백만 규칙을 일일이 작성 불필요</p></div>
+      <div class="ci"><span class="ix">❌</span><p>판단 이유를 설명하기 어려울 수 있음</p></div>
+      <div class="ci"><span class="ix">❌</span><p>편향된 데이터 → 잘못된 판단 가능</p></div>
+      <div class="ci"><span class="ix">🐱</span><p>고양이 → 유사 상황 학습 시 회피!</p></div>
+    </div>
+  </div>
+  <div class="thinkbox">
+    <h4>🤔 AI는 만능이 아닙니다</h4>
+    <p>AI도 학습하지 못한 상황에서는 실수합니다. 그래서 현실에서는 <strong style="color:var(--primary)">규칙 기반 + AI</strong>를 함께 사용하거나 사람이 감독하는 방식으로 발전하고 있습니다. 완전한 자율주행을 위해서는 더 많은 연구와 윤리적 고민이 필요합니다.</p>
+  </div>
+
+  <div class="qsec">
+    <h3>🧠 퀴즈로 확인해봐요!</h3>
+    <div class="qcard">
+      <p><strong>Q1.</strong> 자율주행 자동차가 처음 본 상황(갑자기 나타난 고양이)에 잘 대응하려면?</p>
+      <div class="qopts">
+        <button class="qopt" onclick="ans(this,false,'q1','규칙 기반은 미리 작성한 규칙에만 반응합니다. 새로운 상황에는 대응하기 어렵습니다.')">① 규칙 기반 (IF-THEN) 방식</button>
+        <button class="qopt" onclick="ans(this,true,'q1','정답! AI는 학습 데이터를 통해 새로운 상황도 패턴으로 인식해 유연하게 대응합니다.')">② AI 기반 (머신러닝) 방식</button>
+        <button class="qopt" onclick="ans(this,false,'q1','사람은 수천 가지 상황을 실시간으로 처리하기 어렵습니다.')">③ 사람이 직접 운전</button>
+      </div>
+      <div class="qfb" id="fb-q1"></div>
+    </div>
+    <div class="qcard">
+      <p><strong>Q2.</strong> 규칙 기반 시스템의 가장 큰 문제점은?</p>
+      <div class="qopts">
+        <button class="qopt" onclick="ans(this,false,'q2','처리 속도는 오히려 규칙 기반이 빠를 수 있습니다.')">① 처리 속도가 너무 느림</button>
+        <button class="qopt" onclick="ans(this,true,'q2','정답! 세상 모든 상황을 규칙으로 만들 수 없습니다. 예외가 생길 때마다 사람이 수정해야 합니다.')">② 예상치 못한 상황 대응 불가</button>
+        <button class="qopt" onclick="ans(this,false,'q2','전기 소모는 주로 AI 학습 과정에서 발생합니다.')">③ 전기를 너무 많이 소모함</button>
+      </div>
+      <div class="qfb" id="fb-q2"></div>
+    </div>
+    <div class="qcard">
+      <p><strong>Q3.</strong> AI가 잘못된 판단을 내릴 수 있는 가장 큰 원인은?</p>
+      <div class="qopts">
+        <button class="qopt" onclick="ans(this,false,'q3','인터넷 속도는 판단 품질과 직접 관계가 없습니다.')">① 인터넷 속도가 느려서</button>
+        <button class="qopt" onclick="ans(this,false,'q3','배터리는 동작 여부와 관련 있지만 판단 품질과는 다른 문제입니다.')">② 배터리가 부족해서</button>
+        <button class="qopt" onclick="ans(this,true,'q3','정답! 학습 데이터가 편향되거나 부족하면 잘못된 판단을 내릴 수 있습니다.')">③ 학습 데이터 부족 또는 편향</button>
+      </div>
+      <div class="qfb" id="fb-q3"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ SCRIPT ═══════════ -->
+<script>
+/* ── Canvas ── */
+const canvas=document.getElementById('cv');
+const ctx=canvas.getContext('2d');
+function resizeCanvas(){const w=canvas.parentElement.clientWidth;canvas.style.width=w+'px';canvas.style.height=(w*420/680)+'px';}
+resizeCanvas();window.addEventListener('resize',resizeCanvas);
+
+/* ── State ── */
+let mode='rule',running=false,animId=null;
+let elapsedTime=0,avoidCount=0,crashCount=0;
+let lastTime=0,spawnTimer=0,flashTimer=0,logCount=0;
+const LANES=[108,210,312];
+const car={x:80,y:210,w:52,h:26,speed:0,targetSpeed:110,lane:1,braking:false,avoiding:false,avoidTimer:0};
+let obstacles=[],particles=[];
+
+const OBS=[
+  {emoji:'🐱',label:'고양이',  w:28,h:22,spd:1.7,known:false},
+  {emoji:'🚗',label:'차량',    w:50,h:28,spd:2.3,known:true },
+  {emoji:'🚧',label:'공사구간',w:46,h:30,spd:1.2,known:true },
+  {emoji:'👶',label:'어린이',  w:24,h:30,spd:2.1,known:false},
+  {emoji:'🐕',label:'강아지',  w:26,h:20,spd:2.2,known:false},
+  {emoji:'⬛',label:'장애물',  w:38,h:28,spd:1.9,known:true },
+  {emoji:'🦊',label:'여우',    w:30,h:22,spd:1.8,known:false},
+  {emoji:'🏀',label:'공',      w:22,h:22,spd:2.4,known:false},
+];
+
+/* ═══════════════════════════════
+   ① AI 사고과정 말풍선
+═══════════════════════════════ */
+const TH={
+  rule:{
+    idle :'[ 대기 ] IF-THEN 규칙 준비 완료 — 알려진 장애물만 처리 가능',
+    brake:'⚠️ IF 앞에_장애물 THEN BRAKE → 제동 실행 중...',
+    stop :'🛑 IF 거리 < 16m THEN STOP → 완전 정지!',
+    cruise:'✅ 조건 이상 없음 → ELSE 주행 유지',
+    crash:'❌ 규칙 없는 장애물 등장! 처리 불가 → 충돌 발생!',
+  },
+  ai:{
+    idle  :'[ 대기 ] AI 센서 활성화 — 360° 탐지 준비 완료',
+    scan  :'🔍 카메라 & 라이다 스캔 중... 전방 패턴 분석 대기',
+    detect:'🎯 장애물 감지! 종류 분류 & 위험도 계산 중...',
+    avoid :'🧠 안전 차선 계산 완료 → 최적 경로 선택 → 회피 실행!',
+    cruise:'✅ 전방 안전 확인 — 학습 기반 최적 속도 유지 중',
+  },
+};
+
+function setThought(key){
+  const el=document.getElementById('thought');
+  const icon=document.getElementById('thoughtIcon');
+  const dot=document.getElementById('thoughtDot');
+  el.textContent=TH[mode][key]||TH[mode].idle;
+  if(mode==='ai'){
+    el.className='ai-t'; icon.textContent='🧠'; dot.className='thought-bar ai-dot';
+  }else{
+    el.className='rule-t'; icon.textContent='📋'; dot.className='thought-bar rule-dot';
+  }
+}
+
+/* ── Draw ── */
+function drawRoad(){
+  ctx.fillStyle='#111';ctx.fillRect(0,0,680,420);
+  const sky=ctx.createLinearGradient(0,0,0,72);sky.addColorStop(0,'#0d1b2a');sky.addColorStop(1,'#1a2a3a');
+  ctx.fillStyle=sky;ctx.fillRect(0,0,680,72);
+  ctx.fillStyle='#1e1e1e';ctx.fillRect(0,66,680,298);
+  ctx.setLineDash([28,18]);ctx.strokeStyle='#333';ctx.lineWidth=2;
+  [160,260].forEach(y=>{ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(680,y);ctx.stroke();});
+  ctx.setLineDash([]);
+  ctx.strokeStyle='#aa880033';ctx.lineWidth=3;
+  [70,360].forEach(y=>{ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(680,y);ctx.stroke();});
+  ctx.fillStyle='#161616';ctx.fillRect(0,362,680,58);
+  ctx.fillStyle='#ffffff18';ctx.font='10px monospace';
+  for(let i=0;i<7;i++)ctx.fillText((6-i)*100+'m',i*110+8,82);
+}
+
+function drawCar(){
+  ctx.fillStyle='rgba(0,0,0,0.2)';
+  ctx.beginPath();ctx.ellipse(car.x+car.w/2,car.y+car.h/2+4,car.w/2,5,0,0,Math.PI*2);ctx.fill();
+  if(car.braking){ctx.shadowColor='#ff3333';ctx.shadowBlur=20;}
+  if(mode==='ai'&&car.avoiding){ctx.shadowColor='#43E97B';ctx.shadowBlur=18;}
+  const g=ctx.createLinearGradient(car.x,car.y-car.h/2,car.x+car.w,car.y+car.h/2);
+  g.addColorStop(0,'#8a80ff');g.addColorStop(1,'#4a3fcc');
+  ctx.fillStyle=g;ctx.beginPath();ctx.roundRect(car.x,car.y-car.h/2,car.w,car.h,7);ctx.fill();
+  ctx.fillStyle='rgba(160,220,255,0.28)';
+  ctx.beginPath();ctx.roundRect(car.x+car.w*0.47,car.y-car.h/2+4,car.w*0.28,car.h-8,3);ctx.fill();
+  ctx.fillStyle='#0a0a0a';
+  [[car.x+7,car.y-car.h/2+1],[car.x+7,car.y+car.h/2-7],
+   [car.x+car.w-18,car.y-car.h/2+1],[car.x+car.w-18,car.y+car.h/2-7]].forEach(([wx,wy])=>{
+    ctx.beginPath();ctx.roundRect(wx,wy,11,6,2);ctx.fill();
+  });
+  ctx.fillStyle='#ffff99';ctx.shadowColor='#ffff99';ctx.shadowBlur=14;ctx.fillRect(car.x+car.w-3,car.y-6,4,12);
+  ctx.shadowBlur=0;ctx.shadowColor='transparent';
+  if(mode==='ai'){
+    [150,220].forEach((r,i)=>{
+      ctx.strokeStyle=`rgba(67,233,123,${0.2-i*0.07})`;ctx.lineWidth=1.5;
+      ctx.beginPath();ctx.arc(car.x+car.w,car.y,r,-0.46,0.46);ctx.stroke();
+    });
+  }
+}
+
+function drawObs(o){
+  if(mode==='ai'&&o.detected){
+    ctx.strokeStyle='#43E97Baa';ctx.lineWidth=2;ctx.setLineDash([4,3]);
+    ctx.strokeRect(o.x-5,o.y-5,o.w+10,o.h+10);ctx.setLineDash([]);
+    ctx.fillStyle='#43E97B';ctx.font='bold 9px sans-serif';ctx.fillText('인식: '+o.label,o.x-4,o.y-9);
+  }
+  ctx.font=`${Math.min(o.w,o.h)+8}px serif`;ctx.fillText(o.emoji,o.x,o.y+o.h);
+}
+
+function drawParticles(){
+  particles.forEach(p=>{ctx.globalAlpha=p.life;ctx.fillStyle=p.color;ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fill();p.x+=p.vx;p.y+=p.vy;p.life-=0.04;});
+  ctx.globalAlpha=1;particles=particles.filter(p=>p.life>0);
+}
+
+function drawHUD(){
+  ctx.fillStyle=mode==='ai'?'#43E97B':'#F7971E';ctx.font='bold 12px monospace';
+  ctx.fillText(mode==='ai'?'🧠 AI 기반 모드':'📋 규칙 기반 모드',10,400);
+  ctx.fillStyle='#ffffff55';ctx.font='11px monospace';
+  ctx.fillText(`${Math.round(car.speed)}km/h  t:${elapsedTime.toFixed(1)}s  회피:${avoidCount}  충돌:${crashCount}`,200,400);
+  if(flashTimer>0){ctx.fillStyle=`rgba(255,0,0,${flashTimer/22*0.35})`;ctx.fillRect(0,0,680,420);flashTimer--;}
+}
+
+/* ── Spawn ── */
+function spawn(){
+  const lane=Math.floor(Math.random()*3);
+  const type=OBS[Math.floor(Math.random()*OBS.length)];
+  obstacles.push({x:720,y:LANES[lane]-type.h/2,lane,...type,passed:false,detected:false});
+}
+
+/* ── AABB 충돌 감지 (실제 박스 겹침 판정) ── */
+function isHit(o){
+  const carLeft=car.x+6, carRight=car.x+car.w-6;
+  const carTop=car.y-car.h/2+4, carBottom=car.y+car.h/2-4;
+  const oLeft=o.x+2, oRight=o.x+o.w-2;
+  const oTop=o.y+2, oBottom=o.y+o.h-2;
+  return carRight>oLeft && carLeft<oRight && carBottom>oTop && carTop<oBottom;
+}
+
+/* ── Rule logic ── */
+function ruleUpdate(){
+  car.braking=false;car.avoiding=false;
+
+  // 실제 박스 충돌 먼저 체크 (known 여부 무관)
+  obstacles.filter(o=>!o.passed).forEach(o=>{
+    if(isHit(o)) doCollide(o);
+  });
+
+  const same=obstacles.filter(o=>o.lane===car.lane&&!o.passed).sort((a,b)=>a.x-b.x)[0];
+  if(same){
+    const dist=same.x-(car.x+car.w);
+    if(dist<65){
+      car.braking=true;car.speed=Math.max(car.speed-6,0);setThought('brake');
+    }else if(dist<155){
+      car.speed=Math.max(car.speed-2,40);setThought('brake');
+    }else{
+      car.speed=Math.min(car.speed+1.3,car.targetSpeed);setThought('cruise');
+    }
+  }else{car.speed=Math.min(car.speed+1.3,car.targetSpeed);setThought('cruise');}
+}
+
+/* ── AI logic ── */
+function aiUpdate(){
+  car.braking=false;car.avoiding=false;
+
+  // 실제 박스 충돌 체크 (AI도 모든 차선을 피하지 못할 때 대비)
+  obstacles.filter(o=>!o.passed).forEach(o=>{
+    if(isHit(o)) doCollide(o);
+  });
+
+  obstacles.forEach(o=>{if(o.x-(car.x+car.w)<260&&o.x>car.x)o.detected=true;});
+  const threats=obstacles.filter(o=>o.detected&&!o.passed&&o.x>car.x).sort((a,b)=>a.x-b.x);
+  if(threats.length>0){
+    const cl=threats[0];const dist=cl.x-(car.x+car.w);
+    setThought('detect');
+    if(dist<220&&car.avoidTimer<=0){
+      car.avoiding=true;
+      const safe=[0,1,2].filter(l=>!obstacles.some(o=>o.lane===l&&!o.passed&&(o.x-car.x)<240&&(o.x-car.x)>-30));
+      if(safe.length>0){
+        const best=safe.sort((a,b)=>Math.abs(a-car.lane)-Math.abs(b-car.lane))[0];
+        if(best!==car.lane){car.lane=best;car.avoidTimer=50;avoidCount++;addLog(`🧠 AI: "${cl.label}" 감지 → 차선 ${best+1}로 회피`,'lg');updateStats();setThought('avoid');}
+      }else{car.braking=true;car.speed=Math.max(car.speed-4,18);}
+    }
+    if(dist<60){car.braking=true;car.speed=Math.max(car.speed-5,15);}
+    else car.speed=Math.min(car.speed+0.9,car.targetSpeed);
+  }else{
+    car.speed=Math.min(car.speed+1,car.targetSpeed);
+    if(Math.random()<0.015)setThought('scan');else setThought('cruise');
+  }
+  if(car.avoidTimer>0)car.avoidTimer--;
+}
+
+function doCollide(o){
+  if(o.passed)return; // 중복 호출 방지
+  o.passed=true;
+  crashCount++;flashTimer=28;
+  // 충돌 파티클 — 장애물 중심 위치에서 폭발
+  const cx=o.x+o.w/2, cy=o.y+o.h/2;
+  for(let i=0;i<30;i++){
+    const a=Math.random()*Math.PI*2, s=1.5+Math.random()*4;
+    particles.push({
+      x:cx,y:cy,vx:Math.cos(a)*s,vy:Math.sin(a)*s,
+      r:2+Math.random()*6,life:1,
+      color:['#ff4444','#ffaa00','#ff8800','#ffdd00','#fff'][Math.floor(Math.random()*5)]
+    });
+  }
+  // 충격파 링 파티클
+  for(let i=0;i<12;i++){
+    const a=(i/12)*Math.PI*2;
+    particles.push({x:cx,y:cy,vx:Math.cos(a)*5,vy:Math.sin(a)*5,r:3,life:0.7,color:'#ffffff88'});
+  }
+  car.speed=10;
+  setThought('crash');
+  addLog(`💥 충돌! "${o.label}" — ${o.known?'알려진 장애물이지만 정지 실패!':'규칙에 없던 상황!'}`,'lr');
+  updateStats();
+}
+
+/* ── Main loop ── */
+function loop(ts){
+  if(!running)return;
+  const dt=(ts-lastTime)/16.67;lastTime=ts;
+  elapsedTime+=dt*16.67/1000;
+  spawnTimer++;
+  const interval=mode==='ai'?82:112;
+  if(spawnTimer>=interval){spawn();spawnTimer=0;}
+  obstacles.forEach(o=>{o.x-=o.spd*dt;if(o.x+o.w<0)o.passed=true;});
+  obstacles=obstacles.filter(o=>!o.passed||o.x+o.w>0);
+  mode==='rule'?ruleUpdate():aiUpdate();
+  car.y+=(LANES[car.lane]-car.y)*0.13;
+  ctx.clearRect(0,0,680,420);drawRoad();obstacles.forEach(drawObs);drawCar();drawParticles();drawHUD();
+  document.getElementById('stTime').textContent=elapsedTime.toFixed(1)+' 초';
+  document.getElementById('stSpeed').textContent=Math.round(car.speed)+' km/h';
+  const sp=Math.max(0,Math.min(100,80-crashCount*15+avoidCount*3));
+  document.getElementById('stSafe').textContent=sp+'%';
+  const bar=document.getElementById('safeBar');bar.style.width=sp+'%';bar.className='pbf '+(sp>50?'pg':'pr');
+  if(chlPhase>0)updateChallenge(dt);
+  animId=requestAnimationFrame(loop);
+}
+
+/* ── Controls ── */
+function setMode(m){
+  mode=m;
+  document.getElementById('btnR').className='mbtn '+(m==='rule'?'ar':'');
+  document.getElementById('btnA').className='mbtn '+(m==='ai'?'aa':'');
+  document.getElementById('modeBadge').className='mbadge '+(m==='ai'?'badge-a':'badge-r');
+  document.getElementById('modeBadge').textContent=m==='ai'?'AI 기반 모드':'규칙 기반 모드';
+  document.getElementById('stMode').textContent=m==='ai'?'AI 기반':'규칙 기반';
+  document.getElementById('stMode').className='sv '+(m==='ai'?'g':'y');
+  setThought('idle');
+  addLog(m==='ai'?'🧠 AI 모드 활성화':'📋 규칙 기반 모드 활성화','li');
+}
+
+function toggleSim(){
+  running=!running;
+  const btn=document.getElementById('btnSS');
+  btn.textContent=running?'⏸ 일시정지':'▶ 시뮬레이션 시작';
+  btn.className='sbtn '+(running?'bx':'bs');
+  if(running){lastTime=performance.now();addLog('▶ 시뮬레이션 시작!','li');animId=requestAnimationFrame(loop);}
+  else{cancelAnimationFrame(animId);addLog('⏸ 일시정지','li');}
+}
+
+function resetSim(){
+  running=false;cancelAnimationFrame(animId);
+  obstacles=[];particles=[];
+  Object.assign(car,{x:80,y:210,speed:0,lane:1,avoidTimer:0,braking:false,avoiding:false});
+  avoidCount=0;crashCount=0;elapsedTime=0;spawnTimer=0;flashTimer=0;
+  updateStats();
+  document.getElementById('btnSS').textContent='▶ 시뮬레이션 시작';
+  document.getElementById('btnSS').className='sbtn bs';
+  document.getElementById('stTime').textContent='0.0 초';
+  document.getElementById('stSpeed').textContent='0 km/h';
+  document.getElementById('stSafe').textContent='—';
+  document.getElementById('safeBar').style.width='80%';
+  document.getElementById('safeBar').className='pbf pg';
+  ctx.clearRect(0,0,680,420);drawRoad();drawCar();drawHUD();
+  document.getElementById('lb').innerHTML='<div class="le li">[ 초기화 완료 ]</div>';
+  setThought('idle');
+}
+
+function updateStats(){
+  document.getElementById('stAvoid').textContent=avoidCount+' 회';
+  document.getElementById('stCrash').textContent=crashCount+' 회';
+}
+
+function addLog(msg,cls){
+  const lb=document.getElementById('lb');
+  const d=document.createElement('div');d.className='le '+cls;
+  d.textContent=`[${elapsedTime.toFixed(1)}s] ${msg}`;
+  lb.appendChild(d);lb.scrollTop=lb.scrollHeight;
+  if(++logCount>120)lb.removeChild(lb.firstChild);
+}
+
+/* ═══════════════════════════════
+   ② 30초 챌린지
+═══════════════════════════════ */
+let chlPhase=0,chlTime=30;
+let chlR={avoid:0,crash:0},chlA={avoid:0,crash:0};
+
+function startChallenge(){
+  resetSim();setMode('rule');
+  chlR={avoid:0,crash:0};chlA={avoid:0,crash:0};
+  chlTime=30;chlPhase=1;
+  document.getElementById('chlStatus').textContent='📋 규칙 기반 주행 중... (30초)';
+  document.getElementById('chlStatus').className='chl-status';
+  document.getElementById('btnChl').disabled=true;
+  toggleSim();
+}
+
+function updateChallenge(dt){
+  chlTime=Math.max(0,chlTime-dt*16.67/1000);
+  document.getElementById('chlTimer').textContent='⏱ '+chlTime.toFixed(1)+' 초';
+
+  if(chlPhase===1){
+    chlR.avoid=avoidCount;chlR.crash=crashCount;
+    document.getElementById('chlRAvoid').textContent=avoidCount;
+    document.getElementById('chlRCrash').textContent=crashCount;
+    if(chlTime<=0){
+      chlPhase=2;chlTime=30;
+      document.getElementById('chlStatus').textContent='🧠 AI 기반 주행 중... (30초)';
+      setMode('ai');avoidCount=0;crashCount=0;updateStats();
+    }
+  }else if(chlPhase===2){
+    chlA.avoid=avoidCount;chlA.crash=crashCount;
+    document.getElementById('chlAAvoid').textContent=avoidCount;
+    document.getElementById('chlACrash').textContent=crashCount;
+    if(chlTime<=0){
+      chlPhase=3;running=false;cancelAnimationFrame(animId);
+      document.getElementById('btnSS').textContent='▶ 시뮬레이션 시작';
+      document.getElementById('btnSS').className='sbtn bs';
+      showChlResult();
+    }
+  }
+  const tot=Math.max(1,chlR.avoid+chlA.avoid);
+  document.getElementById('chlRBar').style.width=Math.round(chlR.avoid/tot*100)+'%';
+  document.getElementById('chlABar').style.width=Math.round(chlA.avoid/tot*100)+'%';
+}
+
+function showChlResult(){
+  const aiWin=chlA.avoid>=chlR.avoid&&chlA.crash<=chlR.crash;
+  const msg=aiWin
+    ?`🏆 AI 기반 우세! 회피 AI ${chlA.avoid}회 vs 규칙 ${chlR.avoid}회 / 충돌 AI ${chlA.crash}회 vs 규칙 ${chlR.crash}회`
+    :`📊 결과: AI 회피 ${chlA.avoid}·충돌 ${chlA.crash} / 규칙 회피 ${chlR.avoid}·충돌 ${chlR.crash} — 두 방식의 차이가 보였나요?`;
+  document.getElementById('chlStatus').textContent=msg;
+  document.getElementById('chlStatus').className='chl-status win';
+  document.getElementById('chlTimer').textContent='🏁 완료!';
+  document.getElementById('btnChl').disabled=false;
+}
+
+function resetChallenge(){
+  chlPhase=0;chlTime=30;running=false;cancelAnimationFrame(animId);resetSim();
+  ['chlRAvoid','chlAAvoid','chlRCrash','chlACrash'].forEach(id=>document.getElementById(id).textContent='—');
+  document.getElementById('chlTimer').textContent='⏱ 30.0 초';
+  document.getElementById('chlStatus').textContent='챌린지 시작 → 규칙 기반 30초 → AI 기반 30초 순서로 자동 진행됩니다';
+  document.getElementById('chlStatus').className='chl-status';
+  document.getElementById('btnChl').disabled=false;
+  ['chlRBar','chlABar'].forEach(id=>document.getElementById(id).style.width='0%');
+}
+
+/* ═══════════════════════════════
+   ③ 규칙 직접 작성 에디터
+═══════════════════════════════ */
+const CONDITIONS=['앞-차량','앞-공사구간','앞-고양이','앞-어린이','앞-강아지','앞-장애물','앞-여우','앞-공'];
+const ACTIONS=['브레이크','감속','차선변경','정지','경적'];
+let userRules=[
+  {cond:'앞-차량',   dist:50, action:'브레이크'},
+  {cond:'앞-공사구간',dist:60, action:'감속'},
+];
+
+function renderRules(){
+  const list=document.getElementById('ruleList');list.innerHTML='';
+  userRules.forEach((r,i)=>{
+    const div=document.createElement('div');div.className='rule-item';
+    div.innerHTML=
+      `<span class="ri-label">만약</span>`+
+      `<select onchange="userRules[${i}].cond=this.value">${CONDITIONS.map(c=>`<option${c===r.cond?' selected':''}>${c}</option>`).join('')}</select>`+
+      `<span class="ri-label">이고 거리 &lt;</span>`+
+      `<input type="number" value="${r.dist}" min="10" max="200" style="width:54px" onchange="userRules[${i}].dist=+this.value">`+
+      `<span class="ri-label">m 이면</span>`+
+      `<select class="ri-then" onchange="userRules[${i}].action=this.value">${ACTIONS.map(a=>`<option${a===r.action?' selected':''}>${a}</option>`).join('')}</select>`+
+      `<button class="rule-del" onclick="deleteRule(${i})">✕</button>`;
+    list.appendChild(div);
+  });
+}
+
+function addRule(){userRules.push({cond:'앞-고양이',dist:40,action:'차선변경'});renderRules();}
+function deleteRule(i){userRules.splice(i,1);renderRules();}
+function resetRules(){userRules=[{cond:'앞-차량',dist:50,action:'브레이크'},{cond:'앞-공사구간',dist:60,action:'감속'}];renderRules();}
+
+function testRules(){
+  const covered=new Set(userRules.map(r=>r.cond.replace('앞-','')));
+  const allObs=OBS.map(o=>o.label);
+  const missing=allObs.filter(o=>!covered.has(o));
+  const rr=document.getElementById('ruleResult');
+  rr.style.display='block';
+  if(missing.length===0){
+    rr.style.cssText='display:block;background:rgba(67,233,123,0.08);color:var(--success);border:1px solid var(--success);border-radius:8px;padding:10px 12px;';
+    rr.textContent=`✅ 모든 장애물 ${allObs.length}종에 규칙을 작성했어요! 하지만 현실에는 이보다 훨씬 많은 상황이 있습니다. AI가 필요한 이유가 느껴지나요?`;
+  }else{
+    rr.style.cssText='display:block;background:rgba(255,101,132,0.08);color:var(--secondary);border:1px solid var(--secondary);border-radius:8px;padding:10px 12px;';
+    rr.textContent=`❌ 규칙 없는 장애물: ${missing.join(', ')} (${covered.size}/${allObs.length}종 처리 중) — 이 상황에선 충돌이 발생합니다! 규칙을 더 추가해보세요.`;
+  }
+}
+
+renderRules();
+
+/* ── Quiz ── */
+function ans(btn,correct,qid,fb){
+  btn.parentElement.querySelectorAll('.qopt').forEach(b=>b.disabled=true);
+  btn.classList.add(correct?'ok':'no');
+  const el=document.getElementById('fb-'+qid);
+  el.textContent=(correct?'✅ ':'❌ ')+fb;
+  el.className='qfb show '+(correct?'ok':'no');
+}
+
+/* ── Tabs ── */
+function showTab(id){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.getElementById('tab-'+id).classList.add('active');
+}
+
+/* ── Init ── */
+ctx.clearRect(0,0,680,420);drawRoad();drawCar();drawHUD();setThought('idle');
+</script>
+</body>
+</html>

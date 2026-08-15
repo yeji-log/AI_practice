@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>데이터 탐색과 전처리</title>
+    <style>
+        :root {
+            --bg-color: #fcfdfd;
+            --card-bg: #ffffff;
+            --text-main: #1e293b;
+            --text-sub: #64748b;
+            --accent-1: #818cf8; /* 파스텔 톤 블루퍼플 */
+            --accent-2: #34d399; /* 파스텔 톤 민트 */
+            --accent-3: #38bdf8; /* 파스텔 톤 스카이 */
+            --border: #f1f5f9;
+            --border-card: #e2e8f0;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 40px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            max-width: 800px;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            margin-bottom: 12px;
+            background: linear-gradient(to right, #6366f1, #0d9488);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        p.subtitle {
+            color: var(--text-sub);
+            font-size: 1.05rem;
+            line-height: 1.6;
+        }
+
+        /* 파이프라인 흐름도 영역 */
+        .pipeline-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            max-width: 1200px;
+            width: 100%;
+            margin-bottom: 35px;
+        }
+
+        .pipeline-step {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 24px;
+            border: 1px solid var(--border-card);
+            flex: 1;
+            min-width: 260px;
+            box-shadow: 0 4px 12px -2px rgb(0 0 0 / 0.03);
+            position: relative;
+            cursor: pointer;
+            transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .pipeline-step:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 16px -4px rgb(0 0 0 / 0.05);
+        }
+
+        .step-badge {
+            display: inline-block;
+            font-size: 0.75rem;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .step-1 { border-top: 4px solid var(--accent-1); }
+        .step-1.active, .step-1:hover { border-color: var(--accent-1); }
+        .step-1 .step-badge { background: #e0e7ff; color: #4338ca; }
+
+        .step-2 { border-top: 4px solid var(--accent-2); }
+        .step-2.active, .step-2:hover { border-color: var(--accent-2); }
+        .step-2 .step-badge { background: #d1fae5; color: #065f46; }
+
+        .step-3 { border-top: 4px solid var(--accent-3); }
+        .step-3.active, .step-3:hover { border-color: var(--accent-3); }
+        .step-3 .step-badge { background: #e0f2fe; color: #0369a1; }
+
+        .pipeline-step.active {
+            background: #ffffff;
+            box-shadow: 0 0 0 2px var(--accent-1), 0 8px 16px -4px rgb(0 0 0 / 0.05);
+        }
+        .pipeline-step.step-2.active { box-shadow: 0 0 0 2px var(--accent-2), 0 8px 16px -4px rgb(0 0 0 / 0.05); }
+        .pipeline-step.step-3.active { box-shadow: 0 0 0 2px var(--accent-3), 0 8px 16px -4px rgb(0 0 0 / 0.05); }
+
+        .step-title {
+            font-size: 1.2rem;
+            margin: 0 0 12px 0;
+            color: #1e293b;
+        }
+
+        .step-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            font-size: 0.9rem;
+            color: var(--text-sub);
+            line-height: 1.6;
+        }
+
+        .step-list li {
+            margin-bottom: 6px;
+            position: relative;
+            padding-left: 15px;
+        }
+
+        .step-list li::before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            color: var(--text-main);
+        }
+
+        .arrow {
+            font-size: 1.5rem;
+            color: #cbd5e1;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .node-terminal {
+            background: #ffffff;
+            border: 2px dashed #cbd5e1;
+            border-radius: 14px;
+            padding: 20px;
+            text-align: center;
+            min-width: 120px;
+            font-weight: bold;
+            color: var(--text-sub);
+            box-shadow: 0 2px 4px rgb(0 0 0 / 0.01);
+        }
+
+        .node-terminal.start { color: #db2777; border-color: #fbcfe8; background: #fdf2f8; }
+        .node-terminal.end { color: #059669; border-color: #a7f3d0; background: #ecfdf5; }
+
+        /* 하단 상세 설명 패널 영역 */
+        .content-panel {
+            max-width: 1200px;
+            width: 100%;
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 35px;
+            border: 1px solid var(--border-card);
+            box-shadow: 0 10px 25px -5px rgb(0 0 0 / 0.03);
+            display: none;
+            animation: fadeIn 0.4s ease-in-out;
+            box-sizing: border-box;
+        }
+
+        .content-panel.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .panel-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 25px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 15px;
+        }
+
+        .panel-header h2 {
+            margin: 0;
+            font-size: 1.5rem;
+            color: #1e293b;
+        }
+
+        .section-block {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid #f1f5f9;
+        }
+
+        .section-block h3 {
+            margin-top: 0;
+            font-size: 1.1rem;
+            color: #0284c7;
+            margin-bottom: 10px;
+        }
+
+        .section-block p, .section-block li {
+            font-size: 0.95rem;
+            color: var(--text-sub);
+            line-height: 1.6;
+        }
+
+        .section-block ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+
+        .highlight-box {
+            background: #eef2ff;
+            border-left: 4px solid var(--accent-1);
+            padding: 14px 18px;
+            border-radius: 0 8px 8px 0;
+            margin: 15px 0;
+            font-size: 0.92rem;
+            color: #312e81;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>🧹 데이터 탐색과 전처리</h1>
+        <p class="subtitle">STEP 1, 2, 3 카드를 클릭해 데이터 탐색과 전처리 과정을 확인해 보세요.</p>
+    </header>
+
+    <!-- 파이프라인 흐름도 영역 (클릭 가능) -->
+    <div class="pipeline-container">
+        
+        <div class="node-terminal start">
+            📦 수집한 데이터<br><span style="font-size:0.75rem; font-weight:normal; opacity:0.8;">(Raw Data)</span>
+        </div>
+
+        <div class="arrow">➔</div>
+
+        <!-- STEP 1 카드 -->
+        <div class="pipeline-step step-1 active" id="card-1" onclick="selectStep(1)">
+            <span class="step-badge">STEP 01</span>
+            <h2 class="step-title">데이터 살펴보기</h2>
+            <ul class="step-list">
+                <li>확인하기 (구조 및 형태 파악)</li>
+                <li>통계 요약 (평균, 최솟값, 최댓값 등)</li>
+                <li>시각화 (그래프 경향 파악)</li>
+            </ul>
+        </div>
+
+        <div class="arrow">➔</div>
+
+        <!-- STEP 2 카드 -->
+        <div class="pipeline-step step-2" id="card-2" onclick="selectStep(2)">
+            <span class="step-badge">STEP 02</span>
+            <h2 class="step-title">데이터 전처리</h2>
+            <ul class="step-list">
+                <li>이상치, 결측치 제거 (오류 수정)</li>
+                <li>정규화 (데이터 크기 맞추기)</li>
+            </ul>
+        </div>
+
+        <div class="arrow">➔</div>
+
+        <!-- STEP 3 카드 -->
+        <div class="pipeline-step step-3" id="card-3" onclick="selectStep(3)">
+            <span class="step-badge">STEP 03</span>
+            <h2 class="step-title">핵심 속성 추출</h2>
+            <ul class="step-list">
+                <li>상관관계 분석 (연관성 찾기)</li>
+                <li>속성 검토 (불필요한 변수 제거)</li>
+            </ul>
+        </div>
+
+        <div class="arrow">➔</div>
+
+        <div class="node-terminal end">
+            ✨ 준비 완료<br><span style="font-size:0.75rem; font-weight:normal; opacity:0.8;">(ML 학습 시작)</span>
+        </div>
+
+    </div>
+
+    <!-- [STEP 1] 상세 설명 패널 -->
+    <div class="content-panel active" id="panel-1">
+        <div class="panel-header">
+            <span style="font-size: 1.8rem;">🔍</span>
+            <h2>STEP 1. 데이터 살펴보기</h2>
+        </div>
+        <div class="section-block">
+            <h3>1. 데이터 속성과 유형 파악</h3>
+            <p>데이터셋에 포함된 컬럼(변수)들이 어떤 형태인지 파악합니다. 숫자로 이루어진 수치형 데이터인지, 카테고리 형태의 범주형 데이터인지 확인하여 분석 방향을 설정합니다.</p>
+        </div>
+        <div class="section-block">
+            <h3>2. 통계적 요약을 통한 분포와 패턴 파악</h3>
+            <p>데이터 집합 전체의 성격을 수치로 요약해 거시적인 분포를 파악합니다.</p>
+            <ul>
+                <li><strong>데이터의 개수 (Count):</strong> 데이터가 누락되지 않고 잘 수집되었는지 확인</li>
+                <li><strong>평균 (Mean) 및 중앙값:</strong> 데이터의 중심 경향성 파악</li>
+                <li><strong>최솟값(Min) / 최댓값(Max):</strong> 데이터의 전체적인 범위 확인</li>
+                <li><strong>사분위 수 (Quartiles):</strong> 데이터를 4등분하여 값의 분포와 흩어진 정도를 파악</li>
+            </ul>
+        </div>
+        <div class="section-block">
+            <h3>3. 데이터 시각화를 통한 숨겨진 특성 탐색</h3>
+            <p>숫자만으로는 파악하기 힘든 데이터 속 특성과 관계를 시각 자료를 통해 직관적으로 탐색합니다.</p>
+            <ul>
+                <li><strong>선그래프 (Line Plot):</strong> 시간에 따른 연속적인 데이터 변화 추이 파악</li>
+                <li><strong>산점도 (Scatter Plot):</strong> 두 변수 간의 상관관계 및 분포 모양 확인</li>
+                <li><strong>막대그래프 (Bar Chart):</strong> 범주별 빈도수나 크기 비교</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- [STEP 2] 상세 설명 패널 -->
+    <div class="content-panel" id="panel-2">
+        <div class="panel-header">
+            <span style="font-size: 1.8rem;">🛠️</span>
+            <h2>STEP 2. 데이터 전처리</h2>
+        </div>
+        <div class="section-block">
+            <h3>1. 결측치와 이상치 처리</h3>
+            <p>데이터의 품질을 떨어뜨리는 오류를 수정하는 단계입니다.</p>
+            <ul>
+                <li><strong>결측치 (Missing Value):</strong> 데이터가 누락된 빈칸입니다. 행 전체를 삭제하거나 평균값, 최빈값 등으로 대치하여 채워넣습니다.</li>
+                <li><strong>이상치 (Outlier):</strong> 데이터 분포에서 벗어난 값으로, 전체 데이터에 영향을 미칠 수 있습니다. 제거하거나 대치하는 방법으로 처리할 수 있습니다.</li>
+            </ul>
+        </div>
+        
+        <div class="section-block">
+            <h3>2. 상자그림(Box Plot) 이해하기</h3>
+            <p>상자그림은 데이터의 분포를 시각화하는 방법 중 하나이다. 데이터를 정렬한 후, 1사분위수(Q1), 2사분위수(중앙값, Q2), 3사분위수(Q3)를 기준으로 상자를 그려 표현한다.</p>
+            
+            <!-- 상자그림 시뮬레이션 다이어그램 -->
+            <div style="margin: 30px auto; padding: 25px 20px; background: #ffffff; border-radius: 16px; max-width: 650px; border: 1px solid #e2e8f0; box-sizing: border-box; box-shadow: 0 2px 6px rgb(0 0 0 / 0.02);">
+                
+                <!-- 상단 라벨 영역 -->
+                <div style="display: flex; justify-content: center; gap: 25px; margin-bottom: 12px; font-weight: bold; font-size: 0.9rem;">
+                    <span style="color: #0284c7; margin-left: -90px;">1사분위수 Q₁</span>
+                    <span style="color: #e11d48; margin-left: -10px;">중앙값 Q₂</span>
+                    <span style="color: #ea580c;">3사분위수 Q₃</span>
+                </div>
+
+                <!-- 메인 그래프 컨테이너 -->
+                <div style="position: relative; height: 70px; display: flex; align-items: center; justify-content: center; margin-bottom: 10px;">
+                    
+                    <!-- 왼쪽 이상치 점들 -->
+                    <div style="position: absolute; left: 15px; display: flex; gap: 5px;">
+                        <div style="width: 10px; height: 10px; background: #fbbf24; border-radius: 50%;"></div>
+                        <div style="width: 10px; height: 10px; background: #fbbf24; border-radius: 50%;"></div>
+                    </div>
+                    <div style="position: absolute; left: 12px; top: -12px; font-size: 0.75rem; color: #d97706; font-weight: bold;">이상치</div>
+
+                    <!-- 최솟값 세로선 및 수염 -->
+                    <div style="position: absolute; left: 80px; width: 4px; height: 44px; background: #34d399; border-radius: 2px;"></div>
+                    <div style="position: absolute; left: 84px; height: 2px; width: 66px; background: #cbd5e1;"></div>
+
+                    <!-- 상자 (Q1 ~ Q3) -->
+                    <div style="position: absolute; left: 150px; width: 220px; height: 50px; border: 3px solid #38bdf8; background: #f0fdf4; border-radius: 4px; display: flex;">
+                        <div style="width: 50%; border-right: 2px dashed #bae6fd;"></div>
+                    </div>
+
+                    <!-- 중앙값(Q2) 레드라인 -->
+                    <div style="position: absolute; left: 258px; width: 4px; height: 50px; background: #fb7185; border-radius: 2px;"></div>
+
+                    <!-- 오른쪽 수염 및 최댓값 세로선 -->
+                    <div style="position: absolute; left: 370px; height: 2px; width: 66px; background: #cbd5e1;"></div>
+                    <div style="position: absolute; left: 436px; width: 4px; height: 44px; background: #34d399; border-radius: 2px;"></div>
+
+                    <!-- 오른쪽 이상치 점들 -->
+                    <div style="position: absolute; right: 15px; display: flex; gap: 5px;">
+                        <div style="width: 10px; height: 10px; background: #fbbf24; border-radius: 50%;"></div>
+                        <div style="width: 10px; height: 10px; background: #fbbf24; border-radius: 50%;"></div>
+                    </div>
+                    <div style="position: absolute; right: 12px; top: -12px; font-size: 0.75rem; color: #d97706; font-weight: bold;">이상치</div>
+                </div>
+
+                <!-- 하단 축 -->
+                <div style="position: relative; height: 30px; border-top: 2px solid #e2e8f0; margin-top: 5px; padding-top: 6px; display: flex; justify-content: space-between; font-size: 0.8rem;">
+                    <span style="color: #059669; font-weight: 500;">최솟값 (Q₁ - IQR × 1.5)</span>
+                    <span style="color: #059669; font-weight: 500; margin-right: 60px;">최댓값 (Q₃ + IQR × 1.5)</span>
+                </div>
+
+                <!-- 사분위수 범위 (IQR) 용어 -->
+                <div style="text-align: center; margin-top: 2px;">
+                    <span style="color: #8b5cf6; font-size: 0.85rem; font-weight: bold; margin-left: -90px;">사분위수 범위 (IQR, interquartile range)</span>
+                </div>
+            </div>
+            <!-- 다이어그램 끝 -->
+
+            <ul style="margin-top: 15px;">
+                <li><strong>최솟값:</strong> 1사분위수에서 IQR × 1.5를 뺀 값</li>
+                <li><strong>1사분위수 (Q₁):</strong> 25%의 값</li>
+                <li><strong>2사분위수 (Q₂):</strong> 50%의 값으로 중앙값 (median)</li>
+                <li><strong>3사분위수 (Q₃):</strong> 75%의 값</li>
+                <li><strong>최댓값:</strong> 3사분위수에서 IQR × 1.5를 더한 값</li>
+                <li><strong>사분위 수 범위 (IQR, interquartile range):</strong> 3사분위수(Q3) - 1사분위수(Q1)</li>
+            </ul>
+        </div>
+
+        <div class="section-block">
+            <h3>3. 상자그림으로 이상치 확인하기</h3>
+            <p>상자그림에서 이상치는 1, 3사분위수와 IQR값을 이용해 구할 수 있다. IQR은 3사분위수(Q3) - 1사분위수(Q1)로, 최솟값과 최댓값을 계산하는 데 사용된다.</p>
+            
+            <div class="highlight-box">
+                🚨 <strong>이상치 판정 기준:</strong> 상자그림에서 <strong>최솟값(Q1 - IQR × 1.5)</strong>, <strong>최댓값(Q3 + IQR × 1.5)</strong>을 벗어난 값은 <strong>이상치</strong>로 간주한다.
+            </div>
+        </div>
+
+        <div class="section-block">
+            <h3>4. 정규화 (Normalization)</h3>
+            <p>변수마다 데이터의 단위와 범위가 다를 경우 숫자의 크기 차이 때문에 머신러닝 모델이 특정 변수만 과도하게 중요하게 여기는 현상이 발생합니다. 이를 방지하기 위해 모든 데이터의 범위를 일정한 기준(예: 0과 1 사이)으로 압축하거나 변환해 주는 작업입니다.</p>
+        </div>
+    </div>
+
+    <!-- [STEP 3] 상세 설명 패널 -->
+    <div class="content-panel" id="panel-3">
+        <div class="panel-header">
+            <span style="font-size: 1.8rem;">🎯</span>
+            <h2>STEP 3. 핵심 속성 추출</h2>
+        </div>
+        <div class="section-block">
+            <h3>1. 정형 데이터의 핵심 속성 추출</h3>
+            <p>엑셀 표처럼 행과 열로 깔끔하게 정리된 정형 데이터에서 학습에 유용한 알짜배기 속성을 골라내는 방법입니다.</p>
+            
+            <!-- 수치형 데이터 분석 안내 블록 -->
+            <div style="background: #ffffff; border: 1px solid var(--border-card); border-radius: 12px; padding: 20px; text-align: left; margin-bottom: 20px; box-shadow: 0 2px 4px rgb(0 0 0 / 0.01);">
+                <p style="margin-top: 0; color: #0284c7; font-weight: bold; font-size: 1rem;">📈 수치형 데이터의 산점도와 상관관계 분석</p>
+                <p>부리 길이(mm)와 체질량(g) 같은 두 수치형 변수의 관계를 <strong>산점도(Scatter Plot)</strong>로 나타내면 데이터가 퍼져 있는 경향과 <strong>핵심 속성</strong>을 직관적으로 추출할 수 있습니다.</p>
+                
+                <div style="margin: 15px 0; padding: 12px; background: #f0f9ff; border-radius: 8px;">
+                    <p style="margin: 0 0 8px 0; color: #0f172a; font-weight: bold;">💡 상관관계와 상관계수란?</p>
+                    <ul style="margin: 0; padding-left: 20px; color: var(--text-sub);">
+                        <li><strong>상관관계 (Correlation):</strong> 두 변수 간에 어떤 선형적 연관성이 있는지 나타내는 관계입니다. 한쪽이 증가할 때 다른쪽도 증가하면 '양(+)', 감소하면 '음(-)'의 관계를 가집니다.</li>
+                        <li><strong>상관계수 (Correlation Coefficient):</strong> 두 변수의 연관성의 정도를 -1과 +1 사이의 수치로 정량화한 것입니다. 
+                            <br>• <strong>+1에 가까울수록:</strong> 강한 양의 상관관계 (우상향 추세선)
+                            <br>• <strong>-1에 가까울수록:</strong> 강한 음의 상관관계
+                            <br>• <strong>0에 가까울수록:</strong> 선형적 관계가 거의 없음
+                        </li>
+                    </ul>
+                </div>
+                <p style="margin-bottom: 0; font-size: 0.9rem; color: var(--text-sub);">속성 간의 상관계수를 히트맵으로 나타내면 상관관계를 보고 핵심 속성을 쉽게 파악할 수 있다.</p>
+            </div>
+
+            <!-- 범주형 데이터 분석 안내 블록 -->
+            <div style="background: #ffffff; border: 1px solid var(--border-card); border-radius: 12px; padding: 20px; text-align: left; box-shadow: 0 2px 4px rgb(0 0 0 / 0.01);">
+                <p style="margin-top: 0; color: #059669; font-weight: bold; font-size: 1rem;">📊 범주형 데이터(그룹별 특성)의 시각화와 속성 추출</p>
+                <p>범주형 데이터일 경우 산점도로 나타내면 핵심 속성을 파악하기 쉽다.<br>
+                    펭귄 데이터 예시처럼, 수치형 변수들을 조합한 산점도 위에 <strong>아델리펭귄, 턱끈펭귄, 젠투펭귄</strong> 같은 <strong>범주(종류)</strong> 정보를 색상 등으로 함께 표현하면 각 그룹 간의 분포 차이를 명확하게 확인할 수 있다.</p>
+                
+                <div style="margin: 15px 0; padding: 12px; background: #ecfdf5; border-radius: 8px;">
+                    <p style="margin: 0 0 8px 0; color: #0f172a; font-weight: bold;">💡 범주형 데이터 분석의 핵심 포인트</p>
+                    <ul style="margin: 0; padding-left: 20px; color: var(--text-sub);">
+                        <li><strong>그룹별 군집화 확인:</strong> 산점도 상에서 범주별로 데이터가 특정 구역에 모여 있는지(군집을 형성하는지) 확인합니다.</li>
+                        <li><strong>분류 기여도 판단:</strong> 부리 길이와 부리 깊이 등의 속성을 활용했을 때 펭귄의 세 가지 종을 쉽게 구분할 수 있는지 검토합니다.</li>
+                        <li><strong>범주형 변수의 수치화:</strong> 머신러닝 모델이 이해할 수 있도록 범주형 데이터를 원-핫 인코딩(One-Hot Encoding) 등의 방식으로 변환하여 핵심 속성으로 활용합니다.</li>
+                    </ul>
+                </div>
+                <p style="margin-bottom: 0; font-size: 0.9rem; color: var(--text-sub);">이처럼 범주 간의 분포 차이를 시각 자료로 비교함으로써 분류 모델 성능을 높이는 최적의 속성을 추출할 수 있습니다.</p>
+            </div>
+        </div>
+
+        <div class="section-block">
+            <h3>2. 비정형 데이터의 핵심 속성 추출</h3>
+            <p>글자 형태나 표로 정리되지 않은 데이터는 컴퓨터가 이해할 수 있는 핵심 특징으로 변환하는 과정이 필요합니다.</p>
+            
+            <!-- 이미지 데이터 분석 블록 -->
+            <div style="background: #ffffff; border: 1px solid var(--border-card); border-radius: 12px; padding: 20px; text-align: left; margin-bottom: 20px; box-shadow: 0 2px 4px rgb(0 0 0 / 0.01);">
+                <p style="margin-top: 0; color: #db2777; font-weight: bold; font-size: 1rem;">🖼️ 이미지 데이터의 특징 추출과 패턴 분석</p>
+                <p>이미지는 단순히 픽셀의 집합이지만, 인공지능은 이를 분석해 시각적 핵심 요소를 추출합니다.</p>
+                
+                <div style="margin: 15px 0; padding: 12px; background: #fdf2f8; border-radius: 8px;">
+                    <p style="margin: 0 0 8px 0; color: #0f172a; font-weight: bold;">💡 이미지 특징 추출 포인트</p>
+                    <ul style="margin: 0; padding-left: 20px; color: var(--text-sub);">
+                        <li><strong>모서리와 윤곽선 (Edges & Contours):</strong> 이미지 내 명암 변화가 큰 지점을 찾아 객체의 외곽 형태를 파악합니다.</li>
+                        <li><strong>질감과 패턴 (Textures):</strong> 표면의 거칠기나 반복되는 시각적 무늬를 수치화합니다.</li>
+                        <li><strong>공간적 구조:</strong> 합성곱 신경망(CNN) 등을 통해 저수준 특징(선, 곡선)부터 고수준 특징(부위, 전체 형태)까지 계층적으로 추출합니다.</li>
+                    </ul>
+                </div>
+                <p style="margin-bottom: 0; font-size: 0.9rem; color: var(--text-sub);">이러한 시각적 패턴 요소들을 추출함으로써 컴퓨터가 이미지 속 객체를 인식하고 분류할 수 있게 됩니다.</p>
+            </div>
+
+            <!-- 음성 데이터 분석 블록 -->
+            <div style="background: #ffffff; border: 1px solid var(--border-card); border-radius: 12px; padding: 20px; text-align: left; margin-bottom: 20px; box-shadow: 0 2px 4px rgb(0 0 0 / 0.01);">
+                <p style="margin-top: 0; color: #0284c7; font-weight: bold; font-size: 1rem;">🔊 음성 데이터의 주파수 변환과 특징 패치 분석</p>
+                <p>소리의 파동(Waveform) 형태 그대로는 모델 학습이 어려우므로 주파수 분석을 거쳐 핵심 특징을 추출합니다.</p>
+                
+                <div style="margin: 15px 0; padding: 12px; background: #f0f9ff; border-radius: 8px;">
+                    <p style="margin: 0 0 8px 0; color: #0f172a; font-weight: bold;">💡 음성 특징 추출 포인트</p>
+                    <ul style="margin: 0; padding-left: 20px; color: var(--text-sub);">
+                        <li><strong>스펙트로그램 (Spectrogram):</strong> 소리의 파동을 시간과 주파수 대역별 에너지 크기로 시각화하여 특징 패치로 변환합니다.</li>
+                        <li><strong>음색과 높낮이 패턴:</strong> 발화자의 고유한 목소리톤, 억양, 피치(Pitch) 변화 요소를 추출합니다.</li>
+                        <li><strong>MFCC (Mel-Frequency Cepstral Coefficients):</strong> 인간의 달팽이관 청각 특성을 반영하여 음성 인식에 가장 중요한 알짜배기 주파수 계수를 추출합니다.</li>
+                    </ul>
+                </div>
+                <p style="margin-bottom: 0; font-size: 0.9rem; color: var(--text-sub);">소리 파동을 주파수 대역별 특징 패치로 변환함으로써 음성 인식 및 화자 식별 모델의 성능을 극대화합니다.</p>
+            </div>
+
+            <!-- 텍스트 데이터 분석 블록 -->
+            <div style="background: #ffffff; border: 1px solid var(--border-card); border-radius: 12px; padding: 20px; text-align: left; box-shadow: 0 2px 4px rgb(0 0 0 / 0.01);">
+                <p style="margin-top: 0; color: #059669; font-weight: bold; font-size: 1rem;">📝 텍스트 데이터의 토큰화와 문맥적 벡터 변환</p>
+                <p>자연어 형태의 문장은 컴퓨터가 이해할 수 있도록 수치 벡터 형태로 변환하는 전과정이 필수적입니다.</p>
+                
+                <div style="margin: 15px 0; padding: 12px; background: #ecfdf5; border-radius: 8px;">
+                    <p style="margin: 0 0 8px 0; color: #0f172a; font-weight: bold;">💡 텍스트 특징 추출 포인트</p>
+                    <ul style="margin: 0; padding-left: 20px; color: var(--text-sub);">
+                        <li><strong>토큰화 (Tokenization):</strong> 문장을 의미 있는 최소 단위(단어 또는 형태소)로 잘게 쪼갭니다.</li>
+                        <li><strong>등장 빈도 및 중요도 (TF-IDF 등):</strong> 문서 내에서 특정 단어가 얼마나 자주 등장하며 유의미한 정보인지 계산합니다.</li>
+                        <li><strong>문맥적 벡터 변환 (Embedding):</strong> 단어 간의 의미적 유사도와 전후 문맥을 반영하여 다차원 공간의 수치 벡터로 변환합니다.</li>
+                    </ul>
+                </div>
+                <p style="margin-bottom: 0; font-size: 0.9rem; color: var(--text-sub);">문장을 단어 단위로 쪼개고 등장 빈도나 문맥적 중요도를 계산하여 수치 벡터 형태로 변환함으로써 텍스트 마이닝과 언어 모델 학습을 수행할 수 있습니다.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function selectStep(step) {
+            // 1. 모든 카드와 패널의 active 클래스 제거
+            for (let i = 1; i <= 3; i++) {
+                document.getElementById(`card-${i}`).classList.remove('active');
+                document.getElementById(`panel-${i}`).classList.remove('active');
+            }
+
+            // 2. 선택한 카드와 대응하는 패널에 active 클래스 추가
+            document.getElementById(`card-${step}`).classList.add('active');
+            document.getElementById(`panel-${step}`).classList.add('active');
+        }
+    </script>
+</body>
+</html>

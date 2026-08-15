@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔎다양한 탐색 알고리즘 시뮬레이터</title>
+    <style>
+        :root {
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --secondary: #e2e8f0;
+            --text-color: #1e293b;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 {
+            margin-bottom: 5px;
+            color: #0f172a;
+            font-size: 1.8rem;
+            text-align: center;
+        }
+
+        p.subtitle {
+            color: #64748b;
+            margin-top: 0;
+            margin-bottom: 30px;
+            font-size: 0.95rem;
+            text-align: center;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            gap: 35px;
+            max-width: 1200px;
+            width: 100%;
+        }
+
+        .category-section {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .category-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #0f172a;
+            border-left: 5px solid var(--primary);
+            padding-left: 12px;
+            margin: 0;
+        }
+
+        .grid-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(540px, 1fr));
+            gap: 25px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            padding: 24px;
+            border-radius: 16px;
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.05);
+            border: 1px solid #e2e8f0;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        h3 {
+            margin: 0;
+            color: #1e293b;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-bottom: 2px solid var(--secondary);
+            padding-bottom: 8px;
+        }
+
+        .theory-box {
+            font-size: 0.83rem;
+            color: #475569;
+            line-height: 1.55;
+            background: #f1f5f9;
+            padding: 12px;
+            border-radius: 8px;
+            border-left: 3px solid var(--primary);
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .theory-box strong {
+            color: #1e293b;
+        }
+
+        .sim-screen {
+            background: #0f172a;
+            border-radius: 10px;
+            padding: 12px;
+            color: #38bdf8;
+            font-family: monospace;
+            font-size: 0.82rem;
+            height: 85px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            line-height: 1.4;
+        }
+
+        canvas {
+            background: #f8fafc;
+            border-radius: 8px;
+            display: block;
+            margin: 0 auto;
+            border: 1px solid #cbd5e1;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+        }
+
+        button {
+            flex: 1;
+            padding: 10px;
+            border-radius: 8px;
+            border: none;
+            background: var(--primary);
+            color: white;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        button:hover {
+            background: var(--primary-hover);
+        }
+
+        button:disabled {
+            background: #cbd5e1;
+            cursor: not-allowed;
+        }
+
+        button.secondary {
+            background: #e2e8f0;
+            color: #475569;
+        }
+
+        button.secondary:hover {
+            background: #cbd5e1;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>🔎 다양한 탐색 알고리즘 시뮬레이터</h1>
+    <p class="subtitle">게임 트리 탐색과 지역 탐색 및 최적화 분야의 주요 인공지능 알고리즘의 이론과 동작 원리를 확인하세요.</p>
+
+    <div class="container">
+        
+        <!-- [분류 1] 게임 트리 탐색 (Game Tree Search) -->
+        <div class="category-section">
+            <h2 class="category-title">🎮 1. 게임 트리 탐색 </h2>
+            <div class="grid-cards">
+                
+                <!-- Min-Max 알고리즘 (트리 깊이 확장) -->
+                <div class="card">
+                    <h3>Min-Max 알고리즘 </h3>
+                    <div class="theory-box">
+                        <span><strong>이론 설명:</strong> 2인 체제 게임(체스, 틱택토 등)에서 자신(MAX)은 이득을 최대화하고, 상대방(MIN)은 자신의 이득을 최소화(즉 나의 이득을 방해)한다는 가정하에 최악의 상황을 대비하며 최적의 수를 찾는 트리 탐색법입니다.</span>
+                        <span><strong>동작 원리:</strong> 리프 노드 평가값을 시작으로 하위 노드에서 상위 노드로 값을 백트래킹하며, MAX 계층은 최대값을, MIN 계층은 최소값을 선택하여 최적 경로를 확정합니다.</span>
+                    </div>
+                    <canvas id="mmCanvas" width="510" height="190"></canvas>
+                    <div id="mmLog" class="sim-screen">> [대기] 확장형 Min-Max 트리 탐색을 시작하세요.</div>
+                    <div class="controls">
+                        <button onclick="runExpandedMM()">트리 탐색 실행</button>
+                        <button class="secondary" onclick="resetExpandedMM()">초기화</button>
+                    </div>
+                </div>
+
+                <!-- 확률적 방법 및 강화 학습 -->
+                <div class="card">
+                    <h3>확률적 방법 및 강화 학습</h3>
+                    <div class="theory-box">
+                        <span><strong>이론 설명:</strong> 체스나 바둑처럼 경우의 수가 너무 방대해 완전 탐색이 불가능할 때 사용합니다. 강화 학습(예: Q-Learning)은 에이전트가 환경과 상호작용하며 시행착오를 거치고, 보상(Reward)을 통해 최적의 행동 방침(Policy)을 학습합니다.</span>
+                        <span><strong>동작 원리:</strong> 에이전트가 상태 간을 이동하며 패널티 또는 보상을 받고, 가치 점수를 갱신하여 목표 지점까지의 최적 경로를 찾아냅니다.</span>
+                    </div>
+                    <canvas id="rlCanvas" width="510" height="190"></canvas>
+                    <div id="rlLog" class="sim-screen">> [대기] 에이전트 미로 학습 에피소드를 진행하세요.</div>
+                    <div class="controls">
+                        <button onclick="runRLStep()">학습 스텝 진행</button>
+                        <button class="secondary" onclick="resetRL()">초기화</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- [분류 2] 지역 탐색 및 최적화 알고리즘 (Local Search & Optimization) -->
+        <div class="category-section">
+            <h2 class="category-title">⛰️ 2. 지역 탐색 및 최적화 알고리즘 </h2>
+            <div class="grid-cards">
+                
+                <!-- 언덕 오르기 탐색 (지역성 문제 반영) -->
+                <div class="card">
+                    <h3>언덕 오르기 탐색 </h3>
+                    <div class="theory-box">
+                        <span><strong>이론 설명:</strong> 전체 해를 찾는 대신 현재 위치에서 인접한 이웃 해들을 탐색한 뒤, 경사를 따라 오직 값이 더 높아지는 방향(Greedy 방식)으로만 이동하는 대표적인 지역 탐색 기법입니다.</span>
+                        <span><strong>동작 원리:</strong> 현재 위치보다 높은 값이 존재하면 그곳으로 이동합니다. 단, 주변보다 높지만 전체 최고점은 아닌 <strong>국소 최적점(Local Maximum)</strong>에 도달하면 더 나아가지 못하고 멈추는 <strong>지역성(Locality)의 한계</strong>가 있습니다.</span>
+                    </div>
+                    <canvas id="hcCanvas" width="510" height="190"></canvas>
+                    <div id="hcLog" class="sim-screen">> [대기] 언덕 오르기 탐색을 시작하세요. (국소 최적점 함정 주의)</div>
+                    <div class="controls">
+                        <button onclick="runHC()">다음 이동 수행</button>
+                        <button class="secondary" onclick="resetHC()">초기화</button>
+                    </div>
+                </div>
+
+                <!-- 유전자 알고리즘 (수렴 완료 시 초록색 전환 및 버튼 비활성화) -->
+                <div class="card">
+                    <h3>유전자 알고리즘 </h3>
+                    <div class="theory-box">
+                        <span><strong>이론 설명:</strong> 다윈의 진화론(적자생존)을 모방한 메타휴리스틱 최적화 기법입니다. 단일 해가 아닌 해들의 집단(Population)을 유지하며 복잡한 최적화 문제를 해결합니다.</span>
+                        <span><strong>동작 원리:</strong> 적합도(Fitness)가 높은 우수 개체를 선발하는 <strong>선택(Selection)</strong>, 개체들의 유전자를 섞는 <strong>교차(Crossover)</strong>, 무작위 변화를 주는 <strong>돌연변이(Mutation)</strong> 연산을 거듭하여 세대를 진화시킵니다.</span>
+                    </div>
+                    <canvas id="gaCanvas" width="510" height="190"></canvas>
+                    <div id="gaLog" class="sim-screen">> [대기] 동적 유전 연산 진화를 시작하세요.</div>
+                    <div class="controls">
+                        <button id="gaBtn" onclick="runGA()">세대 진화 수행</button>
+                        <button class="secondary" onclick="resetGA()">초기화</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // --- 1. 깊이가 확장된 Min-Max 심층 트리 시뮬레이션 ---
+        const mmCtx = document.getElementById('mmCanvas').getContext('2d');
+        function drawExpandedMM(activeState = 0) {
+            mmCtx.clearRect(0, 0, 510, 190);
+            mmCtx.strokeStyle = '#cbd5e1'; mmCtx.lineWidth = 2;
+            
+            mmCtx.beginPath();
+            mmCtx.moveTo(255, 18); mmCtx.lineTo(130, 60);
+            mmCtx.moveTo(255, 18); mmCtx.lineTo(380, 60);
+            
+            mmCtx.moveTo(130, 60); mmCtx.lineTo(70, 110);
+            mmCtx.moveTo(130, 60); mmCtx.lineTo(190, 110);
+            
+            mmCtx.moveTo(380, 60); mmCtx.lineTo(320, 110);
+            mmCtx.moveTo(380, 60); mmCtx.lineTo(440, 110);
+            
+            mmCtx.moveTo(70, 110); mmCtx.lineTo(45, 165);
+            mmCtx.moveTo(70, 110); mmCtx.lineTo(95, 165);
+            mmCtx.moveTo(190, 110); mmCtx.lineTo(165, 165);
+            mmCtx.moveTo(190, 110); mmCtx.lineTo(215, 165);
+            mmCtx.moveTo(320, 110); mmCtx.lineTo(295, 165);
+            mmCtx.moveTo(320, 110); mmCtx.lineTo(345, 165);
+            mmCtx.moveTo(440, 110); mmCtx.lineTo(415, 165);
+            mmCtx.moveTo(440, 110); mmCtx.lineTo(465, 165);
+            mmCtx.stroke();
+
+            const drawNode = (x, y, text, type, threshold) => {
+                let bg = '#1e293b';
+                if (type === 'max') bg = '#4f46e5';
+                if (type === 'min') bg = '#0ea5e9';
+                if (type === 'leaf') bg = '#0d9488';
+                mmCtx.fillStyle = activeState >= threshold ? bg : '#94a3b8';
+                mmCtx.beginPath(); mmCtx.arc(x, y, 13, 0, Math.PI * 2); mmCtx.fill();
+                mmCtx.fillStyle = '#ffffff'; mmCtx.font = 'bold 9px sans-serif';
+                mmCtx.textAlign = 'center'; mmCtx.textBaseline = 'middle';
+                mmCtx.fillText(text, x, y);
+            };
+
+            drawNode(255, 18, activeState >= 10 ? "MAX=3" : "MAX", 'max', 1);
+            drawNode(130, 60, activeState >= 5 ? "MIN=3" : "MIN", 'min', 2);
+            drawNode(380, 60, activeState >= 9 ? "MIN=2" : "MIN", 'min', 6);
+            
+            drawNode(70, 110, "MAX", 'max', 3);
+            drawNode(190, 110, "MAX", 'max', 4);
+            drawNode(320, 110, "MAX", 'max', 5);
+            drawNode(440, 110, "MAX", 'max', 6);
+
+            drawNode(45, 165, "3", 'leaf', 7);
+            drawNode(95, 165, "5", 'leaf', 7);
+            drawNode(165, 165, "2", 'leaf', 8);
+            drawNode(215, 165, "8", 'leaf', 8);
+            drawNode(295, 165, "4", 'leaf', 9);
+            drawNode(345, 165, "2", 'leaf', 9);
+            drawNode(415, 165, "9", 'leaf', 10);
+            drawNode(465, 165, "6", 'leaf', 10);
+        }
+        drawExpandedMM(0);
+
+        function runExpandedMM() {
+            drawExpandedMM(10);
+            document.getElementById('mmLog').innerHTML = 
+                "> [분기 탐색] 하위 리프 노드들의 값 평가 완료 (깊이 3 확장)<br>" +
+                "> [백트래킹] MAX/MIN 계층을 거치며 각 서브트리의 최적 극단값 산출<br>" +
+                "> [최종 결정] 루트 노드에서 최적의 가치 <strong>3</strong> 도출 완료";
+        }
+        function resetExpandedMM() {
+            drawExpandedMM(0);
+            document.getElementById('mmLog').innerHTML = "> [대기] 확장형 Min-Max 트리 탐색을 시작하세요.";
+        }
+
+        // --- 2. 강화 학습 Q-Learning 시뮬레이션 ---
+        const rlCtx = document.getElementById('rlCanvas').getContext('2d');
+        let rlStep = 0;
+        function drawRL() {
+            rlCtx.clearRect(0, 0, 510, 190);
+            const states = ["S0", "S1", "S2", "S3", "Goal"];
+            states.forEach((s, idx) => {
+                rlCtx.fillStyle = (idx === rlStep) ? '#4f46e5' : (idx === 4 ? '#10b981' : '#e2e8f0');
+                rlCtx.fillRect(20 + idx * 95, 65, 75, 55);
+                rlCtx.fillStyle = (idx === 4 || idx === rlStep) ? '#fff' : '#1e293b';
+                rlCtx.font = 'bold 12px sans-serif';
+                rlCtx.textAlign = 'center'; rlCtx.textBaseline = 'middle';
+                rlCtx.fillText(s, 20 + idx * 95 + 37.5, 92.5);
+            });
+        }
+        drawRL();
+
+        function runRLStep() {
+            if (rlStep < 4) {
+                rlStep++;
+                drawRL();
+                document.getElementById('rlLog').innerHTML = 
+                    `> 에이전트 이동: State ${rlStep-1} ➔ State ${rlStep}<br>` +
+                    `> 보상 획득: ${rlStep === 4 ? '+100 (목표 도달!)' : '-1 (패널티)'}`;
+            } else {
+                rlStep = 0;
+                drawRL();
+                document.getElementById('rlLog').innerHTML = "> 에이전트 위치 초기화 완료.";
+            }
+        }
+        function resetRL() {
+            rlStep = 0; drawRL();
+            document.getElementById('rlLog').innerHTML = "> [대기] 에이전트 미로 학습 에피소드를 진행하세요.";
+        }
+
+        // --- 3. 언덕 오르기 탐색 (지역성 문제 / 국소 최적점 시뮬레이션) ---
+        const hcCtx = document.getElementById('hcCanvas').getContext('2d');
+        let hcStep = 0;
+        const terrainValues = [15, 45, 60, 40, 75, 95]; 
+        
+        function drawHC() {
+            hcCtx.clearRect(0, 0, 510, 190);
+            hcCtx.strokeStyle = '#64748b'; hcCtx.lineWidth = 2;
+            hcCtx.beginPath();
+            terrainValues.forEach((val, idx) => {
+                const x = 45 + idx * 82;
+                const y = 160 - val;
+                if (idx === 0) hcCtx.moveTo(x, y); else hcCtx.lineTo(x, y);
+            });
+            hcCtx.stroke();
+
+            terrainValues.forEach((val, idx) => {
+                const x = 45 + idx * 82;
+                const y = 160 - val;
+                hcCtx.fillStyle = idx === hcStep ? '#ef4444' : '#4f46e5';
+                hcCtx.beginPath(); hcCtx.arc(x, y, 6, 0, Math.PI * 2); hcCtx.fill();
+                hcCtx.fillStyle = '#1e293b'; hcCtx.font = '11px sans-serif';
+                hcCtx.textAlign = 'center';
+                hcCtx.fillText(`v:${val}`, x, y - 12);
+            });
+        }
+        drawHC();
+
+        function runHC() {
+            if (hcStep === 0) {
+                hcStep = 1; drawHC();
+                document.getElementById('hcLog').innerHTML = `> 이동 [인덱스 1]: 가치 45로 상승 (경사 탐색 중)`;
+            } else if (hcStep === 1) {
+                hcStep = 2; drawHC();
+                document.getElementById('hcLog').innerHTML = `> 이동 [인덱스 2]: 가치 60 도달. <br><span style="color:#f87171;">> [경고] 주변보다 높으나 전체 최고점이 아닌 <strong>국소 최적점(Local Maximum)</strong> 함정에 빠졌습니다!</span>`;
+            } else if (hcStep === 2) {
+                document.getElementById('hcLog').innerHTML = `> 탐색 실패: 더 이상 높은 방향이 없어 알고리즘이 멈췄습니다. (지역성의 한계)`;
+            } else {
+                document.getElementById('hcLog').innerHTML = `> 이미 탐색이 종료되었습니다. 초기화 후 다시 확인하세요.`;
+            }
+        }
+
+        function resetHC() {
+            hcStep = 0; drawHC();
+            document.getElementById('hcLog').innerHTML = "> [대기] 언덕 오르기 탐색을 시작하세요. (국소 최적점 함정 주의)";
+        }
+
+        // --- 4. 유전자 알고리즘 (수렴 완료 시 초록색 전환 및 비활성화) ---
+        const gaCtx = document.getElementById('gaCanvas').getContext('2d');
+        const startPos = {x: 50, y: 95};
+        const goalPos = {x: 450, y: 95};
+        let gaGen = 0;
+        let population = [];
+        let isConverged = false;
+
+        function initPopulation() {
+            population = [];
+            isConverged = false;
+            document.getElementById('gaBtn').disabled = false;
+            document.getElementById('gaBtn').style.background = 'var(--primary)';
+            for (let i = 0; i < 6; i++) {
+                population.push({
+                    x: startPos.x + Math.floor(Math.random() * 80) + 20,
+                    y: startPos.y + (Math.random() * 120 - 60)
+                });
+            }
+        }
+        initPopulation();
+
+        function drawGA() {
+            gaCtx.clearRect(0, 0, 510, 190);
+            
+            // 출발지
+            gaCtx.fillStyle = '#10b981';
+            gaCtx.fillRect(startPos.x - 15, startPos.y - 20, 30, 40);
+            gaCtx.fillStyle = '#fff'; gaCtx.font = 'bold 10px sans-serif';
+            gaCtx.textAlign = 'center'; gaCtx.textBaseline = 'middle';
+            gaCtx.fillText("START", startPos.x, startPos.y);
+
+            // 목표지
+            gaCtx.fillStyle = '#ef4444';
+            gaCtx.beginPath(); gaCtx.arc(goalPos.x, goalPos.y, 22, 0, Math.PI * 2); gaCtx.fill();
+            gaCtx.fillStyle = '#fff';
+            gaCtx.fillText("GOAL", goalPos.x, goalPos.y);
+
+            // 로봇 개체들 렌더링 (수렴 완료 시 초록색으로 표시)
+            population.forEach((ind) => {
+                gaCtx.strokeStyle = isConverged ? 'rgba(16, 185, 129, 0.6)' : 'rgba(79, 70, 229, 0.3)';
+                gaCtx.lineWidth = 1.2;
+                gaCtx.beginPath(); gaCtx.moveTo(startPos.x, startPos.y); gaCtx.lineTo(ind.x, ind.y); gaCtx.stroke();
+
+                gaCtx.fillStyle = isConverged ? '#10b981' : '#4f46e5';
+                gaCtx.beginPath(); gaCtx.arc(ind.x, ind.y, 6, 0, Math.PI * 2); gaCtx.fill();
+            });
+        }
+        drawGA();
+
+        function runGA() {
+            if (isConverged) return;
+            gaGen++;
+            
+            // 1. 적합도 평가
+            population.forEach(ind => {
+                let dist = Math.sqrt(Math.pow(goalPos.x - ind.x, 2) + Math.pow(goalPos.y - ind.y, 2));
+                ind.fitness = 1 / (dist + 1);
+            });
+
+            // 2. 선택 (Selection)
+            population.sort((a, b) => b.fitness - a.fitness);
+            let parent1 = population[0];
+            let parent2 = population[1];
+
+            // 3. 교차(Crossover) 및 변이(Mutation)
+            let newPopulation = [];
+            for (let i = 0; i < 6; i++) {
+                let childX = (parent1.x + parent2.x) / 2 + (Math.random() * 40 - 20) + (goalPos.x - (parent1.x + parent2.x) / 2) * 0.4;
+                let childY = (parent1.y + parent2.y) / 2 + (Math.random() * 50 - 25) + (goalPos.y - (parent1.y + parent2.y) / 2) * 0.4;
+                
+                childX = Math.max(80, Math.min(450, childX));
+                childY = Math.max(30, Math.min(160, childY));
+
+                newPopulation.push({ x: childX, y: childY });
+            }
+            population = newPopulation;
+
+            let avgDist = Math.round(population.reduce((acc, ind) => acc + Math.hypot(goalPos.x - ind.x, goalPos.y - ind.y), 0) / population.length);
+
+            // 수렴 완료 판정 (평균 오차가 임계값 이하일 때)
+            if (avgDist <= 25 || gaGen >= 5) {
+                // 완전히 목표 지점에 밀착시키기
+                population.forEach(ind => {
+                    ind.x = goalPos.x + (Math.random() * 10 - 5);
+                    ind.y = goalPos.y + (Math.random() * 10 - 5);
+                });
+                isConverged = true;
+                drawGA();
+                document.getElementById('gaBtn').disabled = true;
+                document.getElementById('gaBtn').style.background = '#10b981';
+                document.getElementById('gaLog').innerHTML = 
+                    `> [제 ${gaGen}세대] <strong>최적 해 수렴 완료!</strong><br>` +
+                    `> 선택➔교차➔변이 연산 성공으로 모든 개체가 목표에 도달했습니다.`;
+                return;
+            }
+
+            drawGA();
+            document.getElementById('gaLog').innerHTML = 
+                `> [제 ${gaGen}세대 진화 연산]<br>` +
+                `> 1.선택 ➔ 2.교차(Crossover) ➔ 3.돌연변이(Mutation) 반복 진행 중<br>` +
+                `> 현재 세대 평균 오차 거리: <strong>${avgDist}px</strong>`;
+        }
+
+        function resetGA() {
+            gaGen = 0;
+            initPopulation();
+            drawGA();
+            document.getElementById('gaLog').innerHTML = "> [대기] 동적 유전 연산 진화를 시작하세요.";
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🧩8퍼즐 A* 알고리즘 탐색 시뮬레이터</title>
+    <style>
+        :root {
+            --bg-color: #f1f5f9;
+            --card-bg: #ffffff;
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --secondary: #e2e8f0;
+            --text-color: #1e293b;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 {
+            margin-bottom: 5px;
+            color: #0f172a;
+            font-size: 1.8rem;
+        }
+
+        p.subtitle {
+            color: #64748b;
+            margin-top: 0;
+            margin-bottom: 25px;
+            font-size: 0.95rem;
+        }
+
+        .container {
+            display: flex;
+            gap: 25px;
+            max-width: 1350px;
+            width: 100%;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .panel {
+            background: var(--card-bg);
+            padding: 24px;
+            border-radius: 16px;
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.05), 0 4px 6px -4px rgb(0 0 0 / 0.05);
+            width: 320px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            border: 1px solid #e2e8f0;
+            height: fit-content;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .section-label {
+            font-weight: 700;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .section-label.start {
+            color: #4f46e5;
+        }
+
+        .section-label.goal {
+            color: #0d9488;
+        }
+
+        /* 그리드 감싸는 박스를 중앙 정렬 구조로 변경 */
+        .grid-wrapper {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+        }
+
+        /* 현대적인 3x3 그리드 입력기 스타일 */
+        .grid-input-container {
+            display: grid;
+            grid-template-columns: repeat(3, 56px);
+            grid-template-rows: repeat(3, 56px);
+            gap: 6px;
+            padding: 8px;
+            border-radius: 12px;
+        }
+
+        .grid-input-container.start-theme {
+            background: #e0e7ff;
+            border: 2px solid #c7d2fe;
+        }
+
+        .grid-input-container.goal-theme {
+            background: #ccfbf1;
+            border: 2px solid #99f6e4;
+        }
+
+        .grid-input-container input {
+            width: 100%;
+            height: 100%;
+            background: #ffffff;
+            border: 1px solid transparent;
+            text-align: center;
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #1e293b;
+            border-radius: 8px;
+            outline: none;
+            box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            transition: all 0.2s;
+        }
+
+        .grid-input-container input:focus {
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+        }
+
+        button {
+            padding: 12px;
+            border-radius: 10px;
+            border: none;
+            background: var(--primary);
+            color: white;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.2);
+        }
+
+        button:hover {
+            background: var(--primary-hover);
+        }
+
+        button.secondary {
+            background: #f1f5f9;
+            color: #475569;
+            box-shadow: none;
+            border: 1px solid #cbd5e1;
+        }
+
+        button.secondary:hover {
+            background: #e2e8f0;
+        }
+
+        .status-box {
+            background: #f8fafc;
+            padding: 12px;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            min-height: 60px;
+            max-height: 110px;
+            overflow-y: auto;
+            border: 1px solid #e2e8f0;
+            line-height: 1.5;
+            color: #334155;
+        }
+
+        /* 트리 뷰어 영역 스타일 */
+        .tree-view-container {
+            flex: 1;
+            background: var(--card-bg);
+            padding: 24px;
+            border-radius: 16px;
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.05), 0 4px 6px -4px rgb(0 0 0 / 0.05);
+            border: 1px solid #e2e8f0;
+            min-height: 650px;
+            max-height: 750px;
+            overflow: auto;
+            position: relative;
+        }
+
+        canvas {
+            display: block;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>🧩 8퍼즐 A* 알고리즘 탐색 시뮬레이터</h1>
+    <p class="subtitle">초기 상태와 목표 상태를 직접 설정하고 최적 탐색 트리를 확인해보기! (빈칸은 0 또는 공백)</p>
+
+    <div class="container">
+        <!-- 설정 패널 -->
+        <div class="panel">
+            <div class="control-group">
+                <span class="section-label start">🔹 초기 상태 설정 (Start)</span>
+                <div class="grid-wrapper">
+                    <div class="grid-input-container start-theme" id="startGrid">
+                        <input type="text" maxlength="1" value="2">
+                        <input type="text" maxlength="1" value="8">
+                        <input type="text" maxlength="1" value="3">
+                        <input type="text" maxlength="1" value="1">
+                        <input type="text" maxlength="1" value="6">
+                        <input type="text" maxlength="1" value="4">
+                        <input type="text" maxlength="1" value="7">
+                        <input type="text" maxlength="1" value="">
+                        <input type="text" maxlength="1" value="5">
+                    </div>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <span class="section-label goal">🎯 목표 상태 설정 (Goal)</span>
+                <div class="grid-wrapper">
+                    <div class="grid-input-container goal-theme" id="goalGrid">
+                        <input type="text" maxlength="1" value="1">
+                        <input type="text" maxlength="1" value="2">
+                        <input type="text" maxlength="1" value="3">
+                        <input type="text" maxlength="1" value="8">
+                        <input type="text" maxlength="1" value="">
+                        <input type="text" maxlength="1" value="4">
+                        <input type="text" maxlength="1" value="7">
+                        <input type="text" maxlength="1" value="6">
+                        <input type="text" maxlength="1" value="5">
+                    </div>
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 10px; margin-top: 5px;">
+                <button id="startBtn" style="flex: 2;">탐색 실행</button>
+                <button id="resetBtn" class="secondary" style="flex: 1;">초기화</button>
+            </div>
+
+            <div class="control-group">
+                <label style="font-weight: 700; font-size: 0.85rem; color: #475569;">진행 로그</label>
+                <div id="statusBox" class="status-box">준비 완료</div>
+            </div>
+        </div>
+
+        <!-- 탐색 트리 시각화 영역 -->
+        <div class="tree-view-container">
+            <div style="font-weight: 700; color: #0f172a; margin-bottom: 15px; font-size: 1rem; display: flex; align-items: center; justify-content: space-between;">
+                <span>A* 탐색 트리 구조 <br>[f(n): 최종 비용 추정치 / g(n): 초기 상태에서 현재 상태까지의 비용 / h(n): 휴리스틱값, 목표 상태와 일치하지 않는 숫자 타일의 수(공백 제외)]</span>
+            </div>
+            <canvas id="treeCanvas" width="850" height="600"></canvas>
+        </div>
+    </div>
+
+    <script>
+        const startInputs = document.querySelectorAll('#startGrid input');
+        const goalInputs = document.querySelectorAll('#goalGrid input');
+        const startBtn = document.getElementById('startBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const statusBox = document.getElementById('statusBox');
+        const canvas = document.getElementById('treeCanvas');
+        const ctx = canvas.getContext('2d');
+
+        let animationTimer = null;
+        let isRunning = false;
+
+        function getGridState(inputs) {
+            let str = "";
+            inputs.forEach(input => {
+                let val = input.value.trim();
+                str += (val === "" ? "0" : val);
+            });
+            return str;
+        }
+
+        function getH(state, goal) {
+            let count = 0;
+            for (let i = 0; i < 9; i++) {
+                if (state[i] !== '0' && state[i] !== goal[i]) {
+                    count++;
+                }
+            }
+            return count;
+        }
+
+        // 빈 타일 이동 순서: 위쪽(-3), 아래쪽(+3), 왼쪽(-1), 오른쪽(+1)
+        function getNeighbors(state) {
+            const neighbors = [];
+            const emptyIdx = state.indexOf('0');
+            const row = Math.floor(emptyIdx / 3);
+            const col = emptyIdx % 3;
+
+            const moves = [
+                { r: -1, c: 0, dir: '상' },
+                { r: 1, c: 0, dir: '하' },
+                { r: 0, c: -1, dir: '좌' },
+                { r: 0, c: 1, dir: '우' }
+            ];
+
+            for (let m of moves) {
+                const nRow = row + m.r;
+                const nCol = col + m.c;
+                if (nRow >= 0 && nRow < 3 && nCol >= 0 && nCol < 3) {
+                    const targetIdx = nRow * 3 + nCol;
+                    const arr = state.split('');
+                    const temp = arr[emptyIdx];
+                    arr[emptyIdx] = arr[targetIdx];
+                    arr[targetIdx] = temp;
+                    neighbors.push({ state: arr.join(''), dir: m.dir });
+                }
+            }
+            return neighbors;
+        }
+
+        function drawTree(nodesToDraw, edgesToDraw, currentNodeState) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            const levels = {};
+            nodesToDraw.forEach(node => {
+                if (!levels[node.depth]) levels[node.depth] = [];
+                levels[node.depth].push(node);
+            });
+
+            const maxDepth = Math.max(...nodesToDraw.map(n => n.depth), 0);
+            canvas.height = Math.max(650, (maxDepth + 1) * 140 + 50);
+
+            const nodePos = {};
+            const levelKeys = Object.keys(levels);
+            levelKeys.forEach(depthStr => {
+                const depth = parseInt(depthStr);
+                const nodesInLevel = levels[depth];
+                const y = 70 + depth * 140;
+                const totalWidth = canvas.width;
+                const spacing = totalWidth / (nodesInLevel.length + 1);
+
+                nodesInLevel.forEach((node, index) => {
+                    const x = spacing * (index + 1);
+                    nodePos[node.id] = { x, y };
+                });
+            });
+
+            // 간선 그리기 (+ 이동 방향 텍스트)
+            edgesToDraw.forEach(edge => {
+                const parentPos = nodePos[edge.parentId];
+                const childPos = nodePos[edge.childId];
+                if (parentPos && childPos) {
+                    ctx.beginPath();
+                    ctx.moveTo(parentPos.x, parentPos.y);
+                    ctx.lineTo(childPos.x, childPos.y);
+                    ctx.strokeStyle = '#cbd5e1';
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
+
+                    const midX = (parentPos.x + childPos.x) / 2;
+                    const midY = (parentPos.y + childPos.y) / 2;
+                    
+                    ctx.fillStyle = '#ffffff';
+                    ctx.fillRect(midX - 14, midY - 9, 28, 18);
+                    
+                    ctx.fillStyle = '#475569';
+                    ctx.font = 'bold 11px sans-serif';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText(edge.dir, midX, midY);
+                }
+            });
+
+            // 노드 그리기 (8퍼즐 미니 보드 및 f값)
+            nodesToDraw.forEach(node => {
+                const pos = nodePos[node.id];
+                if (!pos) return;
+
+                const boxWidth = 78;
+                const boxHeight = 78;
+                const startX = pos.x - boxWidth / 2;
+                const startY = pos.y - boxHeight / 2;
+
+                ctx.save();
+                ctx.shadowColor = 'rgba(0, 0, 0, 0.08)';
+                ctx.shadowBlur = 8;
+                ctx.shadowOffsetY = 4;
+
+                ctx.fillStyle = (node.state === 'current') ? '#ffe4e6' : (node.state === 'visited' ? '#e0f2fe' : '#ffffff');
+                if (node.puzzle === currentNodeState) ctx.fillStyle = '#fef08a';
+
+                ctx.strokeStyle = (node.puzzle === currentNodeState) ? '#eab308' : '#cbd5e1';
+                ctx.lineWidth = 2;
+                
+                ctx.beginPath();
+                ctx.roundRect(startX, startY, boxWidth, boxHeight, 8);
+                ctx.fill();
+                ctx.stroke();
+                ctx.restore();
+
+                // 3x3 미니 퍼즐 그리드
+                const tileSize = boxWidth / 3;
+                for (let i = 0; i < 9; i++) {
+                    const r = Math.floor(i / 3);
+                    const c = i % 3;
+                    const tx = startX + c * tileSize;
+                    const ty = startY + r * tileSize;
+
+                    ctx.strokeStyle = '#f1f5f9';
+                    ctx.lineWidth = 1;
+                    ctx.strokeRect(tx, ty, tileSize, tileSize);
+
+                    const val = node.puzzle[i];
+                    if (val !== '0' && val !== ' ') {
+                        ctx.fillStyle = '#1e293b';
+                        ctx.font = 'bold 13px sans-serif';
+                        ctx.textAlign = 'center';
+                        ctx.textBaseline = 'middle';
+                        ctx.fillText(val, tx + tileSize / 2, ty + tileSize / 2);
+                    }
+                }
+
+                // f값 배지 표시
+                ctx.fillStyle = '#0f172a';
+                ctx.font = 'bold 11px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'top';
+                ctx.fillText(`f=${node.f} (g:${node.g}, h:${node.h})`, pos.x, startY + boxHeight + 6);
+            });
+        }
+
+        function* simulateAStar(start, goal) {
+            let nodeIdCounter = 0;
+            const rootNode = {
+                id: nodeIdCounter++,
+                puzzle: start,
+                g: 0,
+                h: getH(start, goal),
+                f: getH(start, goal),
+                depth: 0,
+                parentId: null
+            };
+
+            const openSet = [rootNode];
+            const allNodes = [rootNode];
+            const allEdges = [];
+            const closedSet = new Set();
+
+            yield { nodes: [...allNodes], edges: [...allEdges], current: start, msg: "초기 노드 생성 및 탐색 시작" };
+
+            while (openSet.length > 0) {
+                openSet.sort((a, b) => a.f - b.f || a.h - b.h);
+                const current = openSet.shift();
+
+                current.state = 'current';
+                yield { nodes: [...allNodes], edges: [...allEdges], current: current.puzzle, msg: `노드 방문: f=${current.f} (g=${current.g}, h=${current.h})` };
+
+                if (current.puzzle === goal) {
+                    yield { nodes: [...allNodes], edges: [...allEdges], current: current.puzzle, msg: "목표 상태 도달 완료!" };
+                    return;
+                }
+
+                closedSet.add(current.puzzle);
+                current.state = 'visited';
+
+                for (let neighbor of getNeighbors(current.puzzle)) {
+                    if (closedSet.has(neighbor.state)) continue;
+
+                    const tentativeG = current.g + 1;
+                    const h = getH(neighbor.state, goal);
+                    const f = tentativeG + h;
+
+                    const existingOpenIdx = openSet.findIndex(item => item.puzzle === neighbor.state);
+                    if (existingOpenIdx !== -1) {
+                        if (tentativeG < openSet[existingOpenIdx].g) {
+                            openSet.splice(existingOpenIdx, 1);
+                        } else {
+                            continue;
+                        }
+                    }
+
+                    const childNode = {
+                        id: nodeIdCounter++,
+                        puzzle: neighbor.state,
+                        g: tentativeG,
+                        h: h,
+                        f: f,
+                        depth: current.depth + 1,
+                        parentId: current.id,
+                        state: 'pending'
+                    };
+
+                    openSet.push(childNode);
+                    allNodes.push(childNode);
+                    allEdges.push({ parentId: current.id, childId: childNode.id, dir: neighbor.dir });
+
+                    yield { nodes: [...allNodes], edges: [...allEdges], current: current.puzzle, msg: `자식 노드 확장 [${neighbor.dir} 이동] (f=${f})` };
+                }
+            }
+            throw new Error("해결할 수 없는 퍼즐입니다.");
+        }
+
+        function runSimulation() {
+            if (isRunning) return;
+
+            const start = getGridState(startInputs);
+            const goal = getGridState(goalInputs);
+
+            if (start.length !== 9 || goal.length !== 9) {
+                statusBox.innerHTML = "모든 칸을 올바르게 입력해주세요.";
+                return;
+            }
+
+            isRunning = true;
+            startBtn.disabled = true;
+
+            try {
+                const generator = simulateAStar(start, goal);
+
+                function step() {
+                    const res = generator.next();
+                    if (!res.done) {
+                        const data = res.value;
+                        drawTree(data.nodes, data.edges, data.current);
+                        statusBox.innerHTML = data.msg;
+                        animationTimer = setTimeout(step, 450);
+                    } else {
+                        statusBox.innerHTML += "<br><strong>탐색 완료!</strong>";
+                        isRunning = false;
+                        startBtn.disabled = false;
+                    }
+                }
+                step();
+            } catch (err) {
+                statusBox.innerHTML = err.message;
+                isRunning = false;
+                startBtn.disabled = false;
+            }
+        }
+
+        function resetSimulation() {
+            if (animationTimer) clearTimeout(animationTimer);
+            isRunning = false;
+            startBtn.disabled = false;
+            statusBox.innerHTML = "준비 완료";
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+
+        startBtn.addEventListener('click', runSimulation);
+        resetBtn.addEventListener('click', resetSimulation);
+    </script>
+</body>
+</html>

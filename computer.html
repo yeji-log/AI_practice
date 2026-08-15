@@ -1,0 +1,1046 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🚀 왜 컴퓨터가 필요했을까? - 히든 피겨스</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --primary:#E8A838;--secondary:#4A90D9;
+  --success:#43E97B;--warning:#FF6584;
+  --dark:#0f0c1a;--card:#1a1528;--card2:#120f20;--text:#e8e0d0;
+  --human:#E8A838;--computer:#4A90D9;
+}
+@import url('https://fonts.googleapis.com/css2?family=Special+Elite&family=Orbitron:wght@400;700;900&family=Nanum+Gothic:wght@400;700&display=swap');
+
+body{font-family:'Nanum Gothic',sans-serif;background:var(--dark);color:var(--text);min-height:100vh;overflow-x:hidden;}
+
+/* ── 배경 별 효과 ── */
+body::before{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:radial-gradient(ellipse at 20% 50%,rgba(232,168,56,0.04) 0%,transparent 60%),
+             radial-gradient(ellipse at 80% 20%,rgba(74,144,217,0.06) 0%,transparent 60%);
+}
+
+/* ── HEADER ── */
+header{
+  background:linear-gradient(135deg,#0f0c1a 0%,#1a1528 50%,#0d1a2e 100%);
+  padding:20px 30px;text-align:center;
+  border-bottom:1px solid rgba(232,168,56,0.3);
+  position:relative;overflow:hidden;z-index:1;
+}
+header::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse at 50% 0%,rgba(232,168,56,0.08) 0%,transparent 70%);
+}
+.header-eyebrow{
+  font-family:'Special Elite',serif;
+  font-size:0.75rem;color:var(--primary);letter-spacing:4px;
+  text-transform:uppercase;margin-bottom:8px;position:relative;opacity:0.8;
+}
+header h1{
+  font-family:'Orbitron',monospace;
+  font-size:1.7rem;color:#fff;position:relative;line-height:1.3;
+}
+header h1 span.h{color:var(--human);}
+header h1 span.c{color:var(--computer);}
+header p{color:#9a8f80;margin-top:8px;font-size:0.9rem;position:relative;letter-spacing:0.5px;}
+.header-stars{position:absolute;top:0;left:0;right:0;bottom:0;overflow:hidden;pointer-events:none;}
+.star{position:absolute;width:2px;height:2px;background:#fff;border-radius:50%;opacity:0.4;animation:twinkle var(--d,3s) infinite var(--delay,0s);}
+@keyframes twinkle{0%,100%{opacity:0.2;}50%{opacity:0.8;}}
+
+/* ── TABS ── */
+.tabs{display:flex;justify-content:center;gap:8px;padding:14px 20px;background:var(--card2);border-bottom:1px solid rgba(232,168,56,0.15);flex-wrap:wrap;position:relative;z-index:1;}
+.tab{padding:9px 22px;border-radius:4px;border:1px solid #333;background:transparent;color:#888;font-size:0.88rem;cursor:pointer;transition:all 0.3s;font-weight:700;font-family:'Nanum Gothic',sans-serif;letter-spacing:0.5px;}
+.tab:hover{border-color:var(--primary);color:var(--primary);}
+.tab.active{background:var(--primary);border-color:var(--primary);color:#000;}
+.section{display:none;padding:24px;max-width:1100px;margin:0 auto;position:relative;z-index:1;}
+.section.active{display:block;}
+
+/* ── COMMON ── */
+.callout{
+  background:linear-gradient(135deg,rgba(232,168,56,0.08),rgba(74,144,217,0.06));
+  border:1px solid rgba(232,168,56,0.4);border-radius:8px;
+  padding:22px 28px;margin:22px 0;font-size:0.97rem;line-height:1.9;color:#d4c9b8;
+}
+.callout strong{color:var(--primary);}
+.film-quote{
+  font-family:'Special Elite',serif;
+  font-size:1.05rem;color:var(--primary);
+  border-left:3px solid var(--primary);
+  padding:12px 20px;margin:20px 0;
+  background:rgba(232,168,56,0.05);border-radius:0 8px 8px 0;
+  line-height:1.7;
+}
+.film-quote cite{display:block;font-size:0.8rem;color:#888;margin-top:6px;font-style:normal;}
+.start-btn{
+  display:inline-block;margin-top:24px;padding:13px 36px;
+  background:linear-gradient(135deg,var(--primary),#d4922a);
+  color:#000;border:none;border-radius:4px;
+  font-size:1rem;font-weight:700;cursor:pointer;transition:all 0.3s;
+  font-family:'Nanum Gothic',sans-serif;letter-spacing:1px;
+}
+.start-btn:hover{transform:scale(1.04);box-shadow:0 6px 24px rgba(232,168,56,0.35);}
+
+/* ── INTRO ── */
+.intro-hero{text-align:center;padding:32px 20px;}
+.intro-hero .movie-badge{
+  display:inline-flex;align-items:center;gap:8px;
+  background:rgba(232,168,56,0.1);border:1px solid rgba(232,168,56,0.3);
+  border-radius:4px;padding:6px 16px;font-size:0.8rem;color:var(--primary);
+  letter-spacing:1px;margin-bottom:20px;font-family:'Special Elite',serif;
+}
+.intro-hero h2{font-size:1.8rem;color:#fff;margin-bottom:12px;line-height:1.4;}
+.intro-hero p{font-size:1rem;color:#a89880;max-width:660px;margin:0 auto;line-height:1.8;}
+
+.persons-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;margin-top:28px;}
+.person-card{
+  background:var(--card);border:1px solid #2a2040;border-radius:8px;
+  padding:22px;text-align:center;transition:all 0.3s;position:relative;overflow:hidden;
+}
+.person-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--human),transparent);}
+.person-card:hover{border-color:rgba(232,168,56,0.4);transform:translateY(-3px);}
+.person-card .avatar{font-size:2.8rem;margin-bottom:12px;display:block;}
+.person-card h3{font-size:0.95rem;color:#fff;margin-bottom:6px;}
+.person-card .role{font-size:0.75rem;color:var(--primary);letter-spacing:1px;margin-bottom:8px;font-family:'Special Elite',serif;}
+.person-card p{font-size:0.81rem;color:#887870;line-height:1.5;}
+
+.problem-box{
+  background:var(--card);border:1px solid #2a2040;border-radius:8px;
+  padding:24px 28px;margin-top:24px;
+}
+.problem-box h3{color:var(--primary);font-size:1rem;margin-bottom:16px;font-family:'Orbitron',monospace;font-size:0.85rem;letter-spacing:2px;}
+.prob-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+@media(max-width:600px){.prob-grid{grid-template-columns:1fr;}}
+.prob-item{background:#120f20;border-radius:6px;padding:14px;border-left:3px solid var(--human);}
+.prob-item.sol{border-left-color:var(--computer);}
+.prob-item .pi-label{font-size:0.7rem;color:#888;letter-spacing:1px;margin-bottom:4px;}
+.prob-item .pi-val{font-size:0.88rem;color:#d4c9b8;line-height:1.5;}
+
+/* ── SIMULATOR ── */
+.sim-main{display:grid;grid-template-columns:1fr 300px;gap:18px;align-items:start;}
+@media(max-width:880px){.sim-main{grid-template-columns:1fr;}}
+
+.sim-panel{background:var(--card);border-radius:8px;overflow:hidden;border:1px solid #2a2040;}
+.panel-hdr{padding:12px 18px;display:flex;align-items:center;gap:10px;border-bottom:1px solid #1a1528;}
+.panel-hdr h3{font-size:0.9rem;color:#fff;font-family:'Orbitron',monospace;letter-spacing:1px;}
+.panel-hdr .phbadge{margin-left:auto;font-size:0.72rem;padding:3px 10px;border-radius:3px;font-weight:700;}
+.pb-calc{background:rgba(232,168,56,0.15);color:var(--human);border:1px solid var(--human);}
+.pb-comp{background:rgba(74,144,217,0.15);color:var(--computer);border:1px solid var(--computer);}
+
+/* 계산 경기장 */
+#arena{display:block;width:100%;background:#0a0812;}
+
+/* ① AI 사고과정 말풍선과 동일 구조 — 인물 대사 */
+#speech-wrap{
+  background:#080612;border-top:1px solid #1a1528;
+  padding:10px 16px;min-height:40px;
+  display:flex;align-items:center;gap:10px;
+}
+.speech-icon{font-size:1.2rem;flex-shrink:0;}
+#speech{font-size:0.8rem;font-family:monospace;line-height:1.5;flex:1;}
+#speech.human-s{color:var(--human);}
+#speech.comp-s{color:var(--computer);}
+.speech-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;animation:blink 1s infinite;}
+.human-dot{background:var(--human);}
+.comp-dot{background:var(--computer);}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:0.2;}}
+
+/* 제어판 */
+.ctrl{padding:14px;}
+.mode-info{
+  border-radius:6px;padding:10px 12px;margin-bottom:12px;font-size:0.78rem;line-height:1.6;
+}
+.mode-info.human{background:rgba(232,168,56,0.08);border:1px solid rgba(232,168,56,0.25);color:#c4a878;}
+.mode-info.comp{background:rgba(74,144,217,0.08);border:1px solid rgba(74,144,217,0.25);color:#7aaed4;}
+.mtoggle{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;}
+.mbtn{padding:9px;border-radius:6px;border:1px solid #333;background:transparent;color:#888;font-size:0.78rem;font-weight:700;cursor:pointer;transition:all 0.3s;text-align:center;line-height:1.4;font-family:'Nanum Gothic',sans-serif;}
+.mbtn.mh{border-color:var(--human);background:rgba(232,168,56,0.1);color:var(--human);}
+.mbtn.mc{border-color:var(--computer);background:rgba(74,144,217,0.1);color:var(--computer);}
+.srow{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid #1a1528;font-size:0.82rem;}
+.srow:last-child{border-bottom:none;}
+.sl{color:#665a50;}.sv{color:#d4c9b8;font-weight:700;}
+.sv.h{color:var(--human);}.sv.c{color:var(--computer);}.sv.r{color:var(--warning);}
+.sbtn{width:100%;padding:10px;margin-top:8px;border-radius:6px;border:none;font-size:0.9rem;font-weight:700;cursor:pointer;transition:all 0.2s;font-family:'Nanum Gothic',sans-serif;}
+.sbtn:hover{transform:scale(1.02);}
+.bs-h{background:linear-gradient(135deg,var(--human),#d4922a);color:#000;}
+.bs-c{background:linear-gradient(135deg,var(--computer),#2a6ab0);color:#fff;}
+.bs-r{background:#1a1528;color:#888;border:1px solid #333;}
+.bs-go{background:linear-gradient(135deg,#43E97B,#0adb6e);color:#000;}
+.logbox{background:#060410;border:1px solid #1a1528;border-radius:6px;padding:9px 11px;margin-top:10px;height:110px;overflow-y:auto;font-size:0.74rem;font-family:monospace;}
+.le{padding:2px 0;border-bottom:1px solid #0f0c1a;}
+.lh{color:var(--human);}.lc{color:var(--computer);}.le_{color:var(--warning);}.li{color:#556;}
+
+/* ② 30초 대결 */
+.battle-wrap{background:var(--card);border:1px solid rgba(232,168,56,0.25);border-radius:8px;padding:20px;margin-top:16px;}
+.battle-wrap>h3{color:var(--primary);font-size:0.9rem;margin-bottom:4px;font-family:'Orbitron',monospace;letter-spacing:1px;}
+.battle-wrap>.sub{font-size:0.8rem;color:#887060;margin-bottom:12px;}
+.battle-grid{display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:center;margin-bottom:12px;}
+.bc-card{background:#0a0812;border-radius:8px;padding:14px;text-align:center;}
+.bc-card h4{font-size:0.8rem;margin-bottom:8px;}
+.bc-card.human h4{color:var(--human);}.bc-card.comp h4{color:var(--computer);}
+.bc-num{font-size:2rem;font-weight:800;margin:4px 0;font-family:'Orbitron',monospace;}
+.bc-card.human .bc-num{color:var(--human);}.bc-card.comp .bc-num{color:var(--computer);}
+.bc-sub{font-size:0.7rem;color:#665850;}
+.bc-bar{height:6px;background:#1a1528;border-radius:3px;margin-top:8px;overflow:hidden;}
+.bc-bar-h{height:100%;background:var(--human);border-radius:3px;transition:width 0.4s;width:0%;}
+.bc-bar-c{height:100%;background:var(--computer);border-radius:3px;transition:width 0.4s;width:0%;}
+.vs-badge{font-family:'Orbitron',monospace;font-size:1.1rem;font-weight:900;color:#fff;text-align:center;opacity:0.5;}
+#battleTimer{font-size:1.3rem;font-weight:800;color:#fff;text-align:center;margin:6px 0;font-family:'Orbitron',monospace;}
+.battle-status{text-align:center;font-size:0.82rem;color:#887060;min-height:20px;padding:4px 0;}
+.battle-status.win{color:var(--success);font-weight:700;}
+.battle-btns{display:flex;gap:8px;margin-top:10px;}
+
+/* ③ 직접 계산 체험 */
+.calc-wrap{background:var(--card);border:1px solid #2a2040;border-radius:8px;padding:20px;margin-top:16px;}
+.calc-wrap>h3{font-size:0.95rem;color:#fff;margin-bottom:4px;}
+.calc-wrap>.sub{font-size:0.8rem;color:#887060;margin-bottom:16px;}
+.calc-problem{
+  background:#0a0812;border:1px solid #1a2a40;border-radius:8px;
+  padding:20px;text-align:center;margin-bottom:14px;position:relative;
+}
+.calc-label{font-size:0.72rem;color:#4A90D9;letter-spacing:2px;margin-bottom:8px;font-family:'Special Elite',serif;}
+.calc-expr{font-size:1.6rem;color:#fff;font-family:'Orbitron',monospace;letter-spacing:2px;margin-bottom:14px;}
+.calc-input-row{display:flex;align-items:center;gap:10px;justify-content:center;flex-wrap:wrap;}
+.calc-input{
+  background:#1a1528;border:1px solid #3a3050;border-radius:6px;
+  color:#fff;padding:10px 14px;font-size:1.1rem;font-family:'Orbitron',monospace;
+  width:140px;text-align:center;outline:none;transition:all 0.2s;
+}
+.calc-input:focus{border-color:var(--primary);box-shadow:0 0 0 2px rgba(232,168,56,0.15);}
+.calc-submit{
+  padding:10px 22px;background:linear-gradient(135deg,var(--primary),#d4922a);
+  border:none;border-radius:6px;color:#000;font-weight:700;font-size:0.9rem;
+  cursor:pointer;transition:all 0.2s;font-family:'Nanum Gothic',sans-serif;
+}
+.calc-submit:hover{transform:scale(1.03);}
+.calc-feedback{margin-top:10px;font-size:0.85rem;min-height:24px;text-align:center;}
+.calc-feedback.ok{color:var(--success);}
+.calc-feedback.ng{color:var(--warning);}
+.calc-stats-row{display:flex;gap:12px;margin-bottom:14px;flex-wrap:wrap;}
+.calc-stat{flex:1;min-width:80px;background:#0a0812;border-radius:6px;padding:10px;text-align:center;border:1px solid #1a1528;}
+.calc-stat .cs-num{font-size:1.3rem;font-weight:800;font-family:'Orbitron',monospace;}
+.calc-stat .cs-label{font-size:0.68rem;color:#665850;margin-top:2px;}
+.computer-result{
+  background:rgba(74,144,217,0.08);border:1px solid rgba(74,144,217,0.2);
+  border-radius:8px;padding:14px;text-align:center;margin-top:10px;
+}
+.computer-result .cr-label{font-size:0.72rem;color:var(--computer);letter-spacing:1px;margin-bottom:4px;}
+.computer-result .cr-time{font-size:0.9rem;color:#fff;font-family:'Orbitron',monospace;}
+
+/* ── COMPARE ── */
+.cmp-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:20px;}
+@media(max-width:680px){.cmp-grid{grid-template-columns:1fr;}}
+.cmp-card{border-radius:8px;padding:20px;border:1px solid;}
+.cmp-card.hh{border-color:rgba(232,168,56,0.3);background:rgba(232,168,56,0.04);}
+.cmp-card.cc{border-color:rgba(74,144,217,0.3);background:rgba(74,144,217,0.04);}
+.cmp-card h3{font-size:1rem;margin-bottom:12px;font-family:'Orbitron',monospace;font-size:0.85rem;letter-spacing:1px;}
+.cmp-card.hh h3{color:var(--human);}.cmp-card.cc h3{color:var(--computer);}
+.ci{display:flex;gap:9px;margin-bottom:9px;font-size:0.86rem;line-height:1.5;}
+.ci .ix{flex-shrink:0;font-size:1rem;}.ci p{color:#a89880;}
+.thinkbox{background:var(--card);border-left:3px solid var(--primary);border-radius:0 8px 8px 0;padding:18px 22px;margin-top:16px;}
+.thinkbox h4{color:var(--primary);margin-bottom:8px;font-size:0.85rem;font-family:'Orbitron',monospace;letter-spacing:1px;}
+.thinkbox p{color:#a89880;font-size:0.88rem;line-height:1.7;}
+
+/* 히든피겨스 연결 박스 */
+.hf-connect{
+  display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:20px;
+}
+@media(max-width:620px){.hf-connect{grid-template-columns:1fr;}}
+.hf-card{background:var(--card);border:1px solid #2a2040;border-radius:8px;padding:18px;position:relative;overflow:hidden;}
+.hf-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;}
+.hf-card.movie::before{background:linear-gradient(90deg,var(--human),transparent);}
+.hf-card.today::before{background:linear-gradient(90deg,var(--computer),transparent);}
+.hf-tag{font-size:0.7rem;letter-spacing:1px;margin-bottom:8px;font-family:'Special Elite',serif;}
+.hf-card.movie .hf-tag{color:var(--human);}
+.hf-card.today .hf-tag{color:var(--computer);}
+.hf-card h4{font-size:0.9rem;color:#fff;margin-bottom:6px;line-height:1.4;}
+.hf-card p{font-size:0.8rem;color:#887870;line-height:1.6;}
+
+/* QUIZ */
+.qsec{margin-top:28px;}
+.qsec h3{font-size:0.9rem;color:#fff;margin-bottom:14px;text-align:center;font-family:'Orbitron',monospace;letter-spacing:2px;}
+.qcard{background:var(--card);border:1px solid #2a2040;border-radius:8px;padding:20px;margin-bottom:12px;}
+.qcard p{font-size:0.9rem;color:#c4b8a8;margin-bottom:12px;line-height:1.6;}
+.qopts{display:flex;flex-direction:column;gap:7px;}
+.qopt{padding:9px 14px;border-radius:6px;border:1px solid #2a2040;background:#0a0812;color:#a89880;cursor:pointer;font-size:0.84rem;text-align:left;transition:all 0.2s;}
+.qopt:hover:not(:disabled){border-color:var(--primary);color:#fff;}
+.qopt.ok{border-color:var(--success);background:rgba(67,233,123,0.08);color:var(--success);}
+.qopt.no{border-color:var(--warning);background:rgba(255,101,132,0.08);color:var(--warning);}
+.qfb{margin-top:8px;font-size:0.81rem;padding:9px;border-radius:6px;display:none;line-height:1.5;}
+.qfb.show{display:block;}
+.qfb.ok{background:rgba(67,233,123,0.07);color:var(--success);}
+.qfb.no{background:rgba(255,101,132,0.07);color:var(--warning);}
+
+::-webkit-scrollbar{width:5px;}
+::-webkit-scrollbar-track{background:#0f0c1a;}
+::-webkit-scrollbar-thumb{background:#2a2040;border-radius:3px;}
+</style>
+</head>
+<body>
+
+<!-- 별 배경 -->
+<div class="header-stars" id="stars"></div>
+
+<header>
+  <div class="header-eyebrow">🎬 Hidden Figures, 1962 NASA</div>
+  <h1>왜 <span class="h">컴퓨터</span>가 필요했을까?</h1>
+  <p>사람이 직접 계산하던 시대 → 전자 컴퓨터의 등장 — 그 차이를 직접 체험해봐요</p>
+</header>
+
+<div class="tabs">
+  <button class="tab active" id="tab-intro"    onclick="showTab('intro')">📽️ 도입</button>
+  <button class="tab"        id="tab-simulator" onclick="showTab('simulator')">🖥️ 시뮬레이터</button>
+  <button class="tab"        id="tab-compare"   onclick="showTab('compare')">📊 비교 &amp; 퀴즈</button>
+</div>
+
+<!-- ═══════════ INTRO ═══════════ -->
+<div id="intro" class="section active">
+  <div class="intro-hero">
+    <div class="movie-badge">🎬 실화 기반 영화 — HIDDEN FIGURES (2016)</div>
+    <h2>1960년대 NASA,<br>수십 명이 손으로 우주를 계산했다</h2>
+    <p>존 글렌의 우주 비행 궤도를 계산하기 위해 NASA의 "인간 컴퓨터"들은 며칠 동안 수백만 번의 계산을 손으로 수행했습니다. 과연 사람이 이것을 계속해야 했을까요?</p>
+  </div>
+
+  <div class="film-quote">
+    "컴퓨터가 그 숫자를 맞다고 하면, 나도 출발 준비가 된 거야."
+    <cite>— 존 글렌 (우주비행사), 전자 컴퓨터 계산을 믿지 못하고 캐서린 존슨에게 재확인을 요청하며</cite>
+  </div>
+
+  <div class="persons-grid">
+    <div class="person-card">
+      <span class="avatar">👩🏾‍💼</span>
+      <div class="role">HUMAN COMPUTER</div>
+      <h3>캐서린 존슨</h3>
+      <p>NASA의 수학자. 존 글렌의 궤도 재진입 계산을 손으로 수행. 전자 컴퓨터보다 정확하다는 신뢰를 받음.</p>
+    </div>
+    <div class="person-card">
+      <span class="avatar">👩🏾‍💻</span>
+      <div class="role">HUMAN COMPUTER</div>
+      <h3>도로시 본</h3>
+      <p>NASA 최초 흑인 여성 감독관. IBM 컴퓨터 도입을 예견하고 팀 전체에 FORTRAN 프로그래밍을 독학으로 가르침.</p>
+    </div>
+    <div class="person-card">
+      <span class="avatar">👩🏾‍🔬</span>
+      <div class="role">ENGINEER</div>
+      <h3>메리 잭슨</h3>
+      <p>NASA 최초 흑인 여성 엔지니어. 풍동 실험 데이터를 직접 분석하며 우주선 설계에 기여.</p>
+    </div>
+    <div class="person-card" style="border-color:#1a2a40;">
+      <span class="avatar">🖥️</span>
+      <div class="role" style="color:var(--computer);">ELECTRONIC COMPUTER</div>
+      <h3>IBM 7090</h3>
+      <p>1961년 도입. 사람 계산원 수십 명의 작업을 단 몇 초 만에 처리. 하지만 처음에는 아무도 믿지 않았습니다.</p>
+    </div>
+  </div>
+
+  <div class="problem-box">
+    <h3>THE CORE PROBLEM</h3>
+    <div class="prob-grid">
+      <div class="prob-item">
+        <div class="pi-label">문제 상황</div>
+        <div class="pi-val">우주선 궤도 계산 한 번에 수십만 번의 연산 → 사람이 며칠 걸림 → 우주 경쟁에서 소련에 밀림</div>
+      </div>
+      <div class="prob-item">
+        <div class="pi-label">한계</div>
+        <div class="pi-val">사람은 아무리 뛰어나도 ① 오래 걸리고 ② 실수가 생기고 ③ 한 번에 한 가지만 계산 가능</div>
+      </div>
+      <div class="prob-item sol">
+        <div class="pi-label">컴퓨터의 해답</div>
+        <div class="pi-val">같은 계산을 수천 배 빠르게, 실수 없이, 쉬지 않고 반복 → 우주 탐험이 가능해짐</div>
+      </div>
+      <div class="prob-item sol">
+        <div class="pi-label">오늘날의 연결</div>
+        <div class="pi-val">이 원리가 오늘날 AI·스마트폰·인터넷의 출발점 — "왜 컴퓨터가 필요했나"의 답</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="text-align:center;">
+    <button class="start-btn" onclick="showTab('simulator')">🖥️ 시뮬레이터 체험하기 →</button>
+  </div>
+</div>
+
+<!-- ═══════════ SIMULATOR ═══════════ -->
+<div id="simulator" class="section">
+  <div class="sim-main">
+    <!-- 경기장 패널 -->
+    <div class="sim-panel">
+      <div class="panel-hdr">
+        <span>🖥️</span>
+        <h3>계산 경기장</h3>
+        <span id="simBadge" class="phbadge pb-calc">대기 중</span>
+      </div>
+      <canvas id="arena" width="680" height="380"></canvas>
+      <!-- 대사 표시 -->
+      <div id="speech-wrap">
+        <span class="speech-icon" id="speechIcon">📋</span>
+        <div id="speech" class="human-s">[ 대기 중 ] 모드를 선택하고 시뮬레이션을 시작하세요</div>
+        <div class="speech-dot human-dot" id="speechDot"></div>
+      </div>
+    </div>
+
+    <!-- 제어판 -->
+    <div class="sim-panel">
+      <div class="panel-hdr"><span>⚙️</span><h3>제어판</h3></div>
+      <div class="ctrl">
+        <div class="mtoggle">
+          <button class="mbtn mh" id="btnH" onclick="setMode('human')">👩🏾 인간 계산원<br><span style="font-size:0.66rem;font-weight:400;">Katherine Johnson</span></button>
+          <button class="mbtn" id="btnC" onclick="setMode('computer')">🖥️ 전자 컴퓨터<br><span style="font-size:0.66rem;font-weight:400;">IBM 7090</span></button>
+        </div>
+        <div class="srow"><span class="sl">현재 모드</span><span class="sv h" id="stMode">인간 계산원</span></div>
+        <div class="srow"><span class="sl">완료한 계산</span><span class="sv h" id="stCalc">0 건</span></div>
+        <div class="srow"><span class="sl">실수 발생</span><span class="sv r" id="stErr">0 회</span></div>
+        <div class="srow"><span class="sl">소요 시간</span><span class="sv" id="stTime">0.0 초</span></div>
+        <div class="srow"><span class="sl">초당 계산 속도</span><span class="sv" id="stSpeed">— 건/초</span></div>
+        <div class="srow"><span class="sl">컴퓨터 대비</span><span class="sv" id="stRatio">—</span></div>
+        <button class="sbtn bs-h" id="btnSS" onclick="toggleSim()">▶ 시뮬레이션 시작</button>
+        <button class="sbtn bs-r" onclick="resetSim()">↺ 초기화</button>
+        <div class="logbox" id="lb">
+          <div class="le li">[ 시스템 ] 시뮬레이터 준비 완료</div>
+          <div class="le li">[ 안내 ] 인간 계산원과 전자 컴퓨터를 비교해보세요</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ② 60초 속도 대결 -->
+  <div class="battle-wrap">
+    <h3>⚔️ 60초 속도 대결 — 인간 계산원 vs IBM 7090</h3>
+    <p class="sub">같은 시간 동안 각각 몇 건의 계산을 완료하는지 직접 비교해보세요!</p>
+    <div class="battle-grid">
+      <div class="bc-card human">
+        <h4>👩🏾 인간 계산원</h4>
+        <div class="bc-num" id="bHNum">—</div>
+        <div class="bc-sub">완료 계산 수</div>
+        <div class="bc-bar"><div class="bc-bar-h" id="bHBar"></div></div>
+        <div style="font-size:0.7rem;color:#665850;margin-top:4px;">실수: <span id="bHErr">—</span>회</div>
+      </div>
+      <div class="vs-badge">VS</div>
+      <div class="bc-card comp">
+        <h4>🖥️ IBM 7090</h4>
+        <div class="bc-num" id="bCNum">—</div>
+        <div class="bc-sub">완료 계산 수</div>
+        <div class="bc-bar"><div class="bc-bar-c" id="bCBar"></div></div>
+        <div style="font-size:0.7rem;color:#665850;margin-top:4px;">실수: <span id="bCErr">—</span>회</div>
+      </div>
+    </div>
+    <div id="battleTimer">⏱ 60.0 초</div>
+    <div class="battle-status" id="battleStatus">대결 시작 → 인간 계산원 60초 → IBM 7090 60초 순서로 자동 진행됩니다</div>
+    <div class="battle-btns">
+      <button class="sbtn bs-go" style="flex:1" id="btnBattle" onclick="startBattle()">🏁 대결 시작</button>
+      <button class="sbtn bs-r" style="flex:0 0 70px" onclick="resetBattle()">↺</button>
+    </div>
+  </div>
+
+  <!-- ③ 직접 계산 체험 -->
+  <div class="calc-wrap">
+    <h3>✍️ 내가 직접 인간 계산원이 되어보자!</h3>
+    <p class="sub">1960년대 NASA 계산원처럼 수식을 직접 풀어보세요. 그리고 컴퓨터가 같은 문제를 푸는 속도와 비교해봐요.</p>
+    <div class="calc-stats-row">
+      <div class="calc-stat"><div class="cs-num h" id="myScore" style="color:var(--human)">0</div><div class="cs-label">내 정답 수</div></div>
+      <div class="calc-stat"><div class="cs-num" id="myTime" style="color:#fff">0.0s</div><div class="cs-label">내 소요 시간</div></div>
+      <div class="calc-stat"><div class="cs-num" id="myErr" style="color:var(--warning)">0</div><div class="cs-label">실수 횟수</div></div>
+      <div class="calc-stat"><div class="cs-num" id="mySpeed" style="color:#aaa">—</div><div class="cs-label">초당 계산</div></div>
+    </div>
+    <div class="calc-problem">
+      <div class="calc-label">📡 NASA 궤도 계산 문제</div>
+      <div class="calc-expr" id="calcExpr">준비 중...</div>
+      <div class="calc-input-row">
+        <input class="calc-input" type="number" id="calcInput" placeholder="답 입력" onkeydown="if(event.key==='Enter')submitCalc()">
+        <button class="calc-submit" onclick="submitCalc()">제출 →</button>
+      </div>
+      <div class="calc-feedback" id="calcFeedback"></div>
+    </div>
+    <div class="computer-result">
+      <div class="cr-label">🖥️ IBM 7090이 같은 문제를 푼다면</div>
+      <div class="cr-time" id="compTime">계산 시작 후 표시됩니다</div>
+    </div>
+    <div style="margin-top:10px;display:flex;gap:8px;">
+      <button class="sbtn bs-h" style="flex:1" onclick="startMyCalc()">▶ 계산 시작</button>
+      <button class="sbtn bs-r" style="flex:0 0 80px" onclick="resetMyCalc()">↺ 초기화</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ COMPARE & QUIZ ═══════════ -->
+<div id="compare" class="section">
+  <h2 style="text-align:center;font-size:1.3rem;margin-bottom:20px;color:#fff;font-family:'Orbitron',monospace;letter-spacing:2px;">HUMAN vs COMPUTER</h2>
+
+  <div class="cmp-grid">
+    <div class="cmp-card hh">
+      <h3>👩🏾 인간 계산원</h3>
+      <div class="ci"><span class="ix">✅</span><p>복잡한 판단과 맥락 이해 가능</p></div>
+      <div class="ci"><span class="ix">✅</span><p>새로운 문제에 창의적으로 대응</p></div>
+      <div class="ci"><span class="ix">✅</span><p>계산 과정을 설명하고 검증 가능</p></div>
+      <div class="ci"><span class="ix">❌</span><p>속도에 한계 — 초당 수 건 수준</p></div>
+      <div class="ci"><span class="ix">❌</span><p>피로·집중력 저하 → 실수 발생</p></div>
+      <div class="ci"><span class="ix">❌</span><p>동시에 여러 계산 처리 불가</p></div>
+      <div class="ci"><span class="ix">🚀</span><p>궤도 계산 한 번 = 며칠 소요</p></div>
+    </div>
+    <div class="cmp-card cc">
+      <h3>🖥️ 전자 컴퓨터 (IBM 7090)</h3>
+      <div class="ci"><span class="ix">✅</span><p>초당 수십만 건 이상 처리</p></div>
+      <div class="ci"><span class="ix">✅</span><p>24시간 쉬지 않고 정확하게 반복</p></div>
+      <div class="ci"><span class="ix">✅</span><p>동일한 계산을 동시에 대량 처리</p></div>
+      <div class="ci"><span class="ix">❌</span><p>프로그램을 직접 작성해야 함</p></div>
+      <div class="ci"><span class="ix">❌</span><p>예상치 못한 상황엔 스스로 판단 불가</p></div>
+      <div class="ci"><span class="ix">❌</span><p>처음엔 아무도 컴퓨터 결과를 신뢰하지 않음</p></div>
+      <div class="ci"><span class="ix">🚀</span><p>궤도 계산 한 번 = 몇 초 소요</p></div>
+    </div>
+  </div>
+
+  <div class="thinkbox">
+    <h4>💡 자율주행과 같은 구조</h4>
+    <p>
+      "사람이 직접 하면 느리고 실수가 생긴다 → 기계가 대체한다"는 흐름은
+      자율주행 수업과 완전히 같습니다.<br><br>
+      1960년대엔 <strong style="color:var(--human)">사람 계산원 → 전자 컴퓨터</strong>로,
+      오늘날엔 <strong style="color:var(--computer)">규칙 기반 코드 → 인공지능</strong>으로.
+      컴퓨터가 왜 필요했는지 이해하면, AI가 왜 필요한지도 자연스럽게 연결됩니다.
+    </p>
+  </div>
+
+  <div class="hf-connect">
+    <div class="hf-card movie">
+      <div class="hf-tag">🎬 영화 히든 피겨스에서</div>
+      <h4>도로시 본이 IBM 컴퓨터 도입 전에 먼저 FORTRAN을 배운 이유</h4>
+      <p>"기계가 우리 일을 빼앗기 전에, 우리가 기계를 다루는 사람이 되어야 해." — 기술 변화에 대응한 지혜</p>
+    </div>
+    <div class="hf-card today">
+      <div class="hf-tag">🌐 오늘날의 교훈</div>
+      <h4>AI가 많은 일을 대체하는 시대, 우리는 어떻게 준비해야 할까?</h4>
+      <p>AI를 두려워하기보다 AI를 다루는 사람이 되는 것 — 60년 전 도로시 본의 선택과 같은 답입니다.</p>
+    </div>
+  </div>
+
+  <div class="qsec">
+    <h3>QUIZ</h3>
+    <div class="qcard">
+      <p><strong>Q1.</strong> 영화 히든 피겨스에서 존 글렌이 발사 직전 캐서린 존슨에게 계산 재확인을 요청한 이유는?</p>
+      <div class="qopts">
+        <button class="qopt" onclick="ans(this,false,'q1','전자 컴퓨터는 충분히 빨랐습니다. 문제는 신뢰였습니다.')">① 전자 컴퓨터가 너무 느려서</button>
+        <button class="qopt" onclick="ans(this,true,'q1','정답! 당시 사람들은 전자 컴퓨터의 결과를 완전히 신뢰하지 못했습니다. 기술이 아무리 뛰어나도 신뢰를 얻는 데는 시간이 필요합니다.')">② 전자 컴퓨터 결과를 완전히 신뢰하지 못해서</button>
+        <button class="qopt" onclick="ans(this,false,'q1','비용이 아니라 신뢰의 문제였습니다.')">③ 컴퓨터 사용 비용이 너무 비싸서</button>
+      </div>
+      <div class="qfb" id="fb-q1"></div>
+    </div>
+    <div class="qcard">
+      <p><strong>Q2.</strong> 사람 계산원과 비교해 전자 컴퓨터의 가장 결정적인 장점은?</p>
+      <div class="qopts">
+        <button class="qopt" onclick="ans(this,false,'q2','컴퓨터는 창의적 판단을 스스로 하지 못합니다.')">① 새로운 상황에 창의적으로 대응 가능</button>
+        <button class="qopt" onclick="ans(this,true,'q2','정답! 컴퓨터는 실수 없이, 쉬지 않고, 수천 배 빠르게 같은 계산을 반복할 수 있습니다. 이것이 우주 경쟁을 가능하게 했습니다.')">② 빠른 속도로 실수 없이 반복 계산</button>
+        <button class="qopt" onclick="ans(this,false,'q2','컴퓨터는 사람보다 계산 과정 설명에 유리하지 않습니다.')">③ 계산 과정을 더 쉽게 설명 가능</button>
+      </div>
+      <div class="qfb" id="fb-q2"></div>
+    </div>
+    <div class="qcard">
+      <p><strong>Q3.</strong> 도로시 본이 IBM 컴퓨터 도입 전에 FORTRAN을 먼저 배운 이유는 무엇을 보여주나요?</p>
+      <div class="qopts">
+        <button class="qopt" onclick="ans(this,false,'q3','컴퓨터를 막으려 한 것이 아니라, 오히려 먼저 배워서 주도권을 잡았습니다.')">① 새로운 기술의 도입을 막기 위해</button>
+        <button class="qopt" onclick="ans(this,false,'q3','단순 의무가 아니라 미래를 내다본 전략적 선택이었습니다.')">② NASA의 의무 교육이어서</button>
+        <button class="qopt" onclick="ans(this,true,'q3','정답! 기술 변화 앞에서 기계를 두려워하는 대신, 기계를 다루는 사람이 되기로 선택했습니다. 오늘날 AI 시대에도 같은 전략이 유효합니다.')">③ 기술 변화에 능동적으로 대응하기 위해</button>
+      </div>
+      <div class="qfb" id="fb-q3"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ── 별 생성 ── */
+(function(){
+  const s=document.getElementById('stars');
+  for(let i=0;i<60;i++){
+    const el=document.createElement('div');el.className='star';
+    el.style.cssText=`left:${Math.random()*100}%;top:${Math.random()*100}%;--d:${2+Math.random()*4}s;--delay:${Math.random()*4}s;opacity:${0.2+Math.random()*0.5}`;
+    s.appendChild(el);
+  }
+})();
+
+/* ── Canvas ── */
+const canvas=document.getElementById('arena');
+const ctx=canvas.getContext('2d');
+function resizeCanvas(){const w=canvas.parentElement.clientWidth;canvas.style.width=w+'px';canvas.style.height=(w*380/680)+'px';}
+resizeCanvas();window.addEventListener('resize',resizeCanvas);
+
+/* ── State ── */
+let mode='human',running=false,animId=null;
+let elapsed=0,calcDone=0,errCount=0,lastTime=0,logCount=0;
+const HUMAN_RATE=0.8;   // 초당 계산 건수 (인간)
+const COMP_RATE=800;    // 초당 계산 건수 (IBM 7090, 실제 대비 시각화용 축소값)
+const HUMAN_ERR=0.06;   // 실수 확률
+const COMP_ERR=0.0002;  // 컴퓨터 실수 확률
+
+/* 계산 작업 큐 시각화용 */
+let tasks=[];     // {x,y,done,err,t}
+let calcParticles=[];
+let nextTaskTimer=0;
+
+/* ── 대사 ── */
+const LINES={
+  human:{
+    idle:'[ 대기 ] 연필과 계산자 준비 완료 — 지시를 기다립니다',
+    calc:'✏️ 계산 중... 로그표 참고, 소수점 세 자리까지 확인 중...',
+    ok:'✅ 계산 완료! 결과를 검토하고 다음 수식으로 넘어갑니다',
+    err:'❌ 잠깐, 다시 확인... 소수점이 틀렸어요. 지우고 다시 씁니다',
+    done:'📋 오늘 계산 완료. 내일 나머지를 이어서 합니다',
+  },
+  computer:{
+    idle:'[ 대기 ] IBM 7090 초기화 완료 — 입력 대기 중',
+    calc:'⚡ FORTRAN 명령 실행 중... 연산 처리 중...',
+    ok:'✅ 완료. 다음 연산으로 — 0.000001초',
+    err:'⚠️ 오류 체크 완료. 자동 수정 후 재실행',
+    done:'🖥️ 모든 연산 처리 완료. 출력 준비됨',
+  }
+};
+function setSpeech(key){
+  const el=document.getElementById('speech');
+  const icon=document.getElementById('speechIcon');
+  const dot=document.getElementById('speechDot');
+  el.textContent=LINES[mode][key]||LINES[mode].idle;
+  if(mode==='computer'){
+    el.className='comp-s';icon.textContent='🖥️';dot.className='speech-dot comp-dot';
+  }else{
+    el.className='human-s';icon.textContent='✏️';dot.className='speech-dot human-dot';
+  }
+}
+
+/* ── Draw ── */
+function drawArena(){
+  // 배경
+  ctx.fillStyle='#080610';ctx.fillRect(0,0,680,380);
+
+  // 격자 배경
+  ctx.strokeStyle='rgba(255,255,255,0.03)';ctx.lineWidth=1;
+  for(let x=0;x<680;x+=40){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,380);ctx.stroke();}
+  for(let y=0;y<380;y+=40){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(680,y);ctx.stroke();}
+
+  if(mode==='human'){
+    drawHumanScene();
+  }else{
+    drawComputerScene();
+  }
+
+  drawCalcParticles();
+  drawHUD();
+}
+
+/* 인간 계산원 씬 */
+let humanAnim=0;
+function drawHumanScene(){
+  humanAnim+=0.04;
+
+  // 책상
+  const DX=120,DY=200,DW=280,DH=20;
+  ctx.fillStyle='#3a2a1a';ctx.fillRect(DX,DY,DW,DH);
+  ctx.fillStyle='#2a1a0a';ctx.fillRect(DX,DY+DH,DW,8);
+
+  // 종이
+  ctx.fillStyle='#f5f0e8';ctx.fillRect(DX+20,DY-100,180,95);
+  ctx.fillStyle='#e8e0d0';
+  for(let i=0;i<6;i++){ctx.fillRect(DX+30,DY-90+i*14,160,2);}
+  // 수식 텍스트
+  ctx.fillStyle='#2a2020';ctx.font='9px monospace';
+  if(running){
+    ctx.fillText(`v = √(GM/r)`,DX+32,DY-76);
+    ctx.fillText(`r = 6.371×10⁶ + h`,DX+32,DY-62);
+    ctx.fillText(`T = 2π√(r³/GM)`,DX+32,DY-48);
+    ctx.fillText(`= ${(calcDone*1.23+3.7).toFixed(4)} m/s`,DX+32,DY-34);
+  }else{
+    ctx.fillText(`r = 6.371×10⁶ + h`,DX+32,DY-76);
+    ctx.fillText(`GM = 3.986×10¹⁴`,DX+32,DY-62);
+  }
+
+  // 계산자 (sliding rule)
+  ctx.fillStyle='#d4a860';ctx.fillRect(DX+210,DY-50,60,18);
+  ctx.fillStyle='#c49040';ctx.fillRect(DX+225,DY-50,8,18);
+  for(let i=0;i<12;i++){
+    ctx.fillStyle='#8a6020';ctx.fillRect(DX+212+i*4,DY-46,1,10);
+  }
+
+  // 사람 실루엣 (단순화)
+  // 머리
+  ctx.fillStyle='#8B5E3C';ctx.beginPath();ctx.arc(DX+80,DY-140,22,0,Math.PI*2);ctx.fill();
+  // 몸
+  ctx.fillStyle='#3a4a6a';ctx.fillRect(DX+58,DY-118,44,70);
+  // 팔 (글쓰기 동작 애니)
+  const armY=Math.sin(humanAnim*3)*4;
+  ctx.strokeStyle='#3a4a6a';ctx.lineWidth=10;ctx.lineCap='round';
+  ctx.beginPath();ctx.moveTo(DX+80,DY-100);ctx.lineTo(DX+130,DY-60+armY);ctx.stroke();
+  // 연필
+  ctx.strokeStyle='#d4a060';ctx.lineWidth=3;
+  ctx.beginPath();ctx.moveTo(DX+130,DY-60+armY);ctx.lineTo(DX+148,DY-44+armY);ctx.stroke();
+
+  // 완료 계산 스택 표시
+  const maxShow=Math.min(calcDone,8);
+  for(let i=0;i<maxShow;i++){
+    ctx.fillStyle=`rgba(245,240,232,${0.3+i*0.08})`;
+    ctx.fillRect(DX+220+i*3,DY-105+i*1,80,90);
+  }
+  ctx.fillStyle='#a89070';ctx.font='10px monospace';
+  ctx.fillText(`완료: ${calcDone}건`,DX+220,DY-110);
+
+  // 진행 중 계산 불꽃
+  if(running && Math.sin(humanAnim*5)>0.5){
+    ctx.fillStyle='rgba(232,168,56,0.3)';
+    ctx.beginPath();ctx.arc(DX+148,DY-44+Math.sin(humanAnim*3)*4,4,0,Math.PI*2);ctx.fill();
+  }
+}
+
+/* 컴퓨터 씬 */
+let compAnim=0,dataFlows=[];
+function drawComputerScene(){
+  compAnim+=0.06;
+
+  // IBM 7090 본체 (크고 투박한 메인프레임)
+  const CX=80,CY=60,CW=500,CH=260;
+
+  // 메인 유닛들
+  const units=[
+    {x:CX,y:CY,w:120,h:CH,label:'CPU UNIT'},
+    {x:CX+130,y:CY,w:120,h:CH,label:'MEMORY'},
+    {x:CX+260,y:CY,w:120,h:CH,label:'I/O UNIT'},
+    {x:CX+390,y:CY,w:110,h:CH,label:'STORAGE'},
+  ];
+  units.forEach((u,i)=>{
+    ctx.fillStyle='#1a1a2a';ctx.fillRect(u.x,u.y,u.w,u.h);
+    ctx.strokeStyle='#3a3a5a';ctx.lineWidth=2;ctx.strokeRect(u.x,u.y,u.w,u.h);
+    // 패널 라이트들
+    const colors=['#43E97B','#E8A838','#4A90D9','#FF6584'];
+    for(let j=0;j<6;j++){
+      const on=Math.sin(compAnim*8+i*2+j*1.3)>0.2;
+      ctx.fillStyle=on?colors[Math.floor(Math.random()*colors.length)]:'#1a1a1a';
+      ctx.beginPath();ctx.arc(u.x+15+j%3*18,u.y+20+Math.floor(j/3)*18,5,0,Math.PI*2);ctx.fill();
+    }
+    // 레이블
+    ctx.fillStyle='#556';ctx.font='8px monospace';ctx.fillText(u.label,u.x+8,u.y+CH-10);
+
+    // 계산 진행 바
+    if(running){
+      const pct=(Math.sin(compAnim*12+i*3)+1)/2;
+      ctx.fillStyle='#1a2a1a';ctx.fillRect(u.x+8,u.y+CH-30,u.w-16,10);
+      ctx.fillStyle='#43E97B';ctx.fillRect(u.x+8,u.y+CH-30,(u.w-16)*pct,10);
+    }
+  });
+
+  // 데이터 흐름 라인
+  if(running){
+    if(Math.random()<0.1) dataFlows.push({x:CX+120,y:CY+40+Math.random()*(CH-80),vx:8,life:1,col:mode==='computer'?'#4A90D9':'#E8A838'});
+    dataFlows.forEach(f=>{
+      ctx.fillStyle=f.col;ctx.globalAlpha=f.life;
+      ctx.fillRect(f.x,f.y,12,3);
+      f.x+=f.vx;f.life-=0.06;
+    });
+    ctx.globalAlpha=1;
+    dataFlows=dataFlows.filter(f=>f.life>0&&f.x<680);
+  }
+
+  // 완료 계산 카운터 표시
+  ctx.fillStyle='#43E97B';ctx.font='bold 11px monospace';
+  ctx.fillText(`CALCULATIONS: ${calcDone.toLocaleString()}`,CX+10,CY+CH+28);
+  ctx.fillStyle='#4A90D9';
+  ctx.fillText(`RATE: ~${Math.round(COMP_RATE)}/sec`,CX+280,CY+CH+28);
+
+  // 출력 테이프
+  ctx.fillStyle='#f0ead0';ctx.fillRect(CX+130,CY+CH+10,120,15);
+  ctx.fillStyle='#3a3020';ctx.font='7px monospace';
+  if(running) ctx.fillText(`OUTPUT: ${(calcDone*0.287).toFixed(3)} km/s`,CX+133,CY+CH+21);
+}
+
+function drawCalcParticles(){
+  calcParticles.forEach(p=>{
+    ctx.globalAlpha=p.life;
+    ctx.fillStyle=p.color;ctx.font=`${p.size}px monospace`;
+    ctx.fillText(p.char,p.x,p.y);
+    p.x+=p.vx;p.y+=p.vy;p.life-=0.025;
+  });
+  ctx.globalAlpha=1;
+  calcParticles=calcParticles.filter(p=>p.life>0);
+}
+
+function spawnCalcParticle(ok){
+  const chars=ok?['✓','OK','+1','→']:[' ✗','Err','?','재계산'];
+  const col=ok?(mode==='human'?'#E8A838':'#4A90D9'):'#FF6584';
+  const x=mode==='human'?280:400;
+  calcParticles.push({
+    x:x+Math.random()*60-30,y:150+Math.random()*60,
+    vx:(Math.random()-0.5)*1.5,vy:-1.5-Math.random(),
+    life:1,color:col,
+    char:chars[Math.floor(Math.random()*chars.length)],size:12+Math.random()*6
+  });
+}
+
+function drawHUD(){
+  ctx.fillStyle=mode==='human'?'rgba(232,168,56,0.8)':'rgba(74,144,217,0.8)';
+  ctx.font='bold 11px monospace';
+  ctx.fillText(mode==='human'?'👩🏾 인간 계산원 모드':'🖥️ IBM 7090 모드',10,372);
+  ctx.fillStyle='rgba(255,255,255,0.4)';ctx.font='10px monospace';
+  ctx.fillText(`완료: ${calcDone}건  실수: ${errCount}회  시간: ${elapsed.toFixed(1)}s`,220,372);
+}
+
+/* ── 메인 루프 ── */
+function loop(ts){
+  if(!running)return;
+  const dt=(ts-lastTime)/16.67;lastTime=ts;
+  elapsed+=dt*16.67/1000;
+
+  // 계산 처리
+  nextTaskTimer+=dt;
+  const rate=mode==='human'?HUMAN_RATE:COMP_RATE;
+  const interval=60/rate/60; // 프레임 단위
+  if(nextTaskTimer>=interval){
+    nextTaskTimer=0;
+    const isErr=Math.random()<(mode==='human'?HUMAN_ERR:COMP_ERR);
+    if(isErr){
+      errCount++;
+      spawnCalcParticle(false);
+      if(Math.random()<0.3) setSpeech('err');
+      addLog(mode==='human'?`✏️ 계산 오류 — 수정 중...`:`⚠️ 오류 감지 — 자동 재실행`,'le_');
+    }else{
+      calcDone++;
+      spawnCalcParticle(true);
+      if(Math.random()<0.05) setSpeech('ok');
+    }
+    updateStats();
+  }
+
+  if(mode==='computer'&&Math.random()<0.008) setSpeech('calc');
+  if(mode==='human'&&Math.random()<0.02) setSpeech('calc');
+
+  ctx.clearRect(0,0,680,380);
+  drawArena();
+
+  if(battlePhase>0) updateBattle(dt);
+  animId=requestAnimationFrame(loop);
+}
+
+/* ── 컨트롤 ── */
+function setMode(m){
+  mode=m;
+  document.getElementById('btnH').className='mbtn '+(m==='human'?'mh':'');
+  document.getElementById('btnC').className='mbtn '+(m==='computer'?'mc':'');
+  document.getElementById('simBadge').className='phbadge '+(m==='computer'?'pb-comp':'pb-calc');
+  document.getElementById('simBadge').textContent=m==='computer'?'IBM 7090':'인간 계산원';
+  document.getElementById('stMode').textContent=m==='computer'?'IBM 7090':'인간 계산원';
+  document.getElementById('stMode').className='sv '+(m==='computer'?'c':'h');
+  document.getElementById('btnSS').className='sbtn '+(m==='computer'?'bs-c':'bs-h');
+  setSpeech('idle');
+  addLog(m==='computer'?'🖥️ IBM 7090 모드 활성화':'👩🏾 인간 계산원 모드 활성화','li');
+}
+
+function toggleSim(){
+  running=!running;
+  const btn=document.getElementById('btnSS');
+  btn.textContent=running?'⏸ 일시정지':'▶ 시뮬레이션 시작';
+  if(running){
+    lastTime=performance.now();
+    setSpeech('calc');
+    addLog('▶ 시뮬레이션 시작!','li');
+    animId=requestAnimationFrame(loop);
+  }else{
+    cancelAnimationFrame(animId);
+    addLog('⏸ 일시정지','li');
+  }
+}
+
+function resetSim(){
+  running=false;cancelAnimationFrame(animId);
+  elapsed=0;calcDone=0;errCount=0;nextTaskTimer=0;calcParticles=[];dataFlows=[];humanAnim=0;compAnim=0;
+  updateStats();
+  document.getElementById('btnSS').textContent='▶ 시뮬레이션 시작';
+  document.getElementById('btnSS').className='sbtn '+(mode==='computer'?'bs-c':'bs-h');
+  ctx.clearRect(0,0,680,380);drawArena();setSpeech('idle');
+  document.getElementById('lb').innerHTML='<div class="le li">[ 초기화 완료 ]</div>';
+}
+
+function updateStats(){
+  document.getElementById('stCalc').textContent=calcDone.toLocaleString()+' 건';
+  document.getElementById('stErr').textContent=errCount+' 회';
+  document.getElementById('stTime').textContent=elapsed.toFixed(1)+' 초';
+  const rate=elapsed>0?(calcDone/elapsed).toFixed(1):'—';
+  document.getElementById('stSpeed').textContent=rate+' 건/초';
+  const compRate=COMP_RATE;
+  const humanRate=elapsed>0?calcDone/elapsed:0;
+  const ratio=humanRate>0?(compRate/humanRate).toFixed(0):'—';
+  document.getElementById('stRatio').textContent=mode==='human'?`컴퓨터가 약 ${ratio}배 빠름`:'인간보다 약 1,000배+ 빠름';
+  document.getElementById('stRatio').className='sv '+(mode==='computer'?'c':'');
+}
+
+function addLog(msg,cls){
+  const lb=document.getElementById('lb');
+  const d=document.createElement('div');d.className='le '+cls;
+  d.textContent=`[${elapsed.toFixed(1)}s] ${msg}`;
+  lb.appendChild(d);lb.scrollTop=lb.scrollHeight;
+  if(++logCount>100)lb.removeChild(lb.firstChild);
+}
+
+/* ═══════════ ② 60초 대결 ═══════════ */
+let battlePhase=0,battleTime=60;
+let bH={calc:0,err:0},bC={calc:0,err:0};
+let battleNextTask=0;
+
+function startBattle(){
+  resetSim();setMode('human');
+  bH={calc:0,err:0};bC={calc:0,err:0};
+  battleTime=60;battlePhase=1;
+  document.getElementById('battleStatus').textContent='👩🏾 인간 계산원 작업 중... (60초)';
+  document.getElementById('battleStatus').className='battle-status';
+  document.getElementById('btnBattle').disabled=true;
+  battleNextTask=0;
+  toggleSim();
+}
+
+function updateBattle(dt){
+  battleTime=Math.max(0,battleTime-dt*16.67/1000);
+  document.getElementById('battleTimer').textContent='⏱ '+battleTime.toFixed(1)+' 초';
+  if(battlePhase===1){
+    bH.calc=calcDone;bH.err=errCount;
+    document.getElementById('bHNum').textContent=calcDone;
+    document.getElementById('bHErr').textContent=errCount;
+    if(battleTime<=0){
+      battlePhase=2;battleTime=60;
+      document.getElementById('battleStatus').textContent='🖥️ IBM 7090 가동 중... (60초)';
+      setMode('computer');calcDone=0;errCount=0;updateStats();
+    }
+  }else if(battlePhase===2){
+    bC.calc=calcDone;bC.err=errCount;
+    document.getElementById('bCNum').textContent=calcDone.toLocaleString();
+    document.getElementById('bCErr').textContent=errCount;
+    if(battleTime<=0){
+      battlePhase=3;running=false;cancelAnimationFrame(animId);
+      document.getElementById('btnSS').textContent='▶ 시뮬레이션 시작';
+      showBattleResult();
+    }
+  }
+  const tot=Math.max(1,bH.calc+bC.calc);
+  document.getElementById('bHBar').style.width=Math.min(100,Math.round(bH.calc/tot*100))+'%';
+  document.getElementById('bCBar').style.width=Math.min(100,Math.round(bC.calc/tot*100))+'%';
+}
+
+function showBattleResult(){
+  const ratio=bH.calc>0?Math.round(bC.calc/bH.calc):0;
+  const msg=`🏆 IBM 7090이 인간보다 약 ${ratio.toLocaleString()}배 더 많은 계산을 완료! (인간: ${bH.calc}건 / 컴퓨터: ${bC.calc.toLocaleString()}건)`;
+  document.getElementById('battleStatus').textContent=msg;
+  document.getElementById('battleStatus').className='battle-status win';
+  document.getElementById('battleTimer').textContent='🏁 완료!';
+  document.getElementById('btnBattle').disabled=false;
+}
+
+function resetBattle(){
+  battlePhase=0;battleTime=60;running=false;cancelAnimationFrame(animId);resetSim();
+  ['bHNum','bCNum','bHErr','bCErr'].forEach(id=>document.getElementById(id).textContent='—');
+  document.getElementById('battleTimer').textContent='⏱ 60.0 초';
+  document.getElementById('battleStatus').textContent='대결 시작 → 인간 계산원 60초 → IBM 7090 60초 순서로 자동 진행됩니다';
+  document.getElementById('battleStatus').className='battle-status';
+  document.getElementById('btnBattle').disabled=false;
+  ['bHBar','bCBar'].forEach(id=>document.getElementById(id).style.width='0%');
+}
+
+/* ═══════════ ③ 직접 계산 체험 ═══════════ */
+const PROBLEMS=[
+  {a:247,b:389,op:'+'},
+  {a:512,b:278,op:'-'},
+  {a:37, b:48, op:'×'},
+  {a:936,b:312,op:'-'},
+  {a:184,b:76, op:'×'},
+  {a:629,b:487,op:'+'},
+  {a:83, b:67, op:'×'},
+  {a:748,b:293,op:'+'},
+  {a:56, b:89, op:'×'},
+  {a:823,b:547,op:'-'},
+];
+let myCalcActive=false,myScore=0,myErr=0,myStartTime=0,myElapsed=0,myProbIdx=0,myTimerInterval=null,myProbStart=0;
+
+function calcAnswer(p){
+  if(p.op==='+')return p.a+p.b;
+  if(p.op==='-')return p.a-p.b;
+  if(p.op==='×')return p.a*p.b;
+}
+
+function renderProblem(){
+  const p=PROBLEMS[myProbIdx%PROBLEMS.length];
+  document.getElementById('calcExpr').textContent=`${p.a} ${p.op} ${p.b} = ?`;
+  document.getElementById('calcInput').value='';
+  document.getElementById('calcFeedback').textContent='';
+  document.getElementById('calcFeedback').className='calc-feedback';
+  myProbStart=Date.now();
+  // 컴퓨터 기준 시간 계산 (마이크로초 단위)
+  const microsec=(1/COMP_RATE*1000).toFixed(3);
+  document.getElementById('compTime').textContent=`⚡ 약 ${microsec}ms — 눈 깜짝할 사이!`;
+}
+
+function startMyCalc(){
+  if(myCalcActive)return;
+  myCalcActive=true;myScore=0;myErr=0;myProbIdx=0;
+  myStartTime=Date.now();myElapsed=0;
+  renderProblem();
+  document.getElementById('calcInput').focus();
+  myTimerInterval=setInterval(()=>{
+    if(!myCalcActive)return;
+    myElapsed=(Date.now()-myStartTime)/1000;
+    document.getElementById('myTime').textContent=myElapsed.toFixed(1)+'s';
+    const spd=myElapsed>0?(myScore/myElapsed).toFixed(2):'—';
+    document.getElementById('mySpeed').textContent=spd;
+  },100);
+}
+
+function submitCalc(){
+  if(!myCalcActive){alert('먼저 계산 시작 버튼을 눌러주세요!');return;}
+  const val=parseInt(document.getElementById('calcInput').value);
+  if(isNaN(val)){document.getElementById('calcFeedback').textContent='숫자를 입력해주세요!';document.getElementById('calcFeedback').className='calc-feedback ng';return;}
+  const p=PROBLEMS[myProbIdx%PROBLEMS.length];
+  const correct=calcAnswer(p);
+  const timeTaken=(Date.now()-myProbStart)/1000;
+  if(val===correct){
+    myScore++;
+    document.getElementById('myScore').textContent=myScore;
+    document.getElementById('calcFeedback').textContent=`✅ 정답! (${timeTaken.toFixed(1)}초 소요) — 컴퓨터는 ${(1/COMP_RATE*1000).toFixed(3)}ms`;
+    document.getElementById('calcFeedback').className='calc-feedback ok';
+  }else{
+    myErr++;
+    document.getElementById('myErr').textContent=myErr;
+    document.getElementById('calcFeedback').textContent=`❌ 오답! 정답은 ${correct} 입니다. 컴퓨터는 이런 실수를 거의 하지 않습니다.`;
+    document.getElementById('calcFeedback').className='calc-feedback ng';
+  }
+  myProbIdx++;
+  setTimeout(()=>{if(myCalcActive)renderProblem();},800);
+}
+
+function resetMyCalc(){
+  myCalcActive=false;
+  clearInterval(myTimerInterval);
+  myScore=0;myErr=0;myElapsed=0;myProbIdx=0;
+  ['myScore','myErr'].forEach(id=>document.getElementById(id).textContent='0');
+  document.getElementById('myTime').textContent='0.0s';
+  document.getElementById('mySpeed').textContent='—';
+  document.getElementById('calcExpr').textContent='준비 중...';
+  document.getElementById('calcInput').value='';
+  document.getElementById('calcFeedback').textContent='';
+  document.getElementById('calcFeedback').className='calc-feedback';
+  document.getElementById('compTime').textContent='계산 시작 후 표시됩니다';
+}
+
+/* ── Quiz ── */
+function ans(btn,correct,qid,fb){
+  btn.parentElement.querySelectorAll('.qopt').forEach(b=>b.disabled=true);
+  btn.classList.add(correct?'ok':'no');
+  const el=document.getElementById('fb-'+qid);
+  el.textContent=(correct?'✅ ':'❌ ')+fb;
+  el.className='qfb show '+(correct?'ok':'no');
+}
+
+/* ── Tabs ── */
+function showTab(id){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.getElementById('tab-'+id).classList.add('active');
+}
+
+/* ── Init ── */
+ctx.clearRect(0,0,680,380);drawArena();setSpeech('idle');
+</script>
+</body>
+</html>
