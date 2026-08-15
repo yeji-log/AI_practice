@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>선형회귀 시뮬레이터</title>
+  <style>
+    body { font-family: sans-serif; text-align: center; }
+    canvas { border: 1px solid black; background-color: #f8f8f8; cursor: grab; }
+    #info { margin-top: 10px; font-weight: bold; }
+    #controls { margin-top: 10px; }
+    input[type="number"] { width: 60px; }
+    #resetBtn { margin-top: 10px; padding: 8px 16px; font-size: 14px; }
+  </style>
+</head>
+<body>
+  <h1>📊 선형회귀 시뮬레이터</h1>
+  <p>캔버스를 클릭하거나 좌표를 입력해 점을 추가하세요.<br>마우스 휠로 확대/축소, 드래그로 이동 가능합니다.</p>
+
+  <canvas id="canvas" width="600" height="400"></canvas>
+
+  <div id="controls">
+    X: <input type="number" id="inputX" value="0">
+    Y: <input type="number" id="inputY" value="0">
+    <button onclick="addPointManually()">점 추가</button>
+    <button id="resetBtn">초기화</button><br>
+    X축 범위: <input type="number" id="xRange" value="300"> px
+    Y축 범위: <input type="number" id="yRange" value="200"> px<br>
+    눈금 간격: <input type="number" id="gridStep" value="50"> px
+    <button onclick="updateAxisRange()">축 범위 적용</button>
+  </div>
+
+  <div id="info">점이 2개 이상 있어야 회귀선이 생성됩니다.</div>
+
+  <script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const resetBtn = document.getElementById('resetBtn');
+    const inputX = document.getElementById('inputX');
+    const inputY = document.getElementById('inputY');
+    const xRangeInput = document.getElementById('xRange');
+    const yRangeInput = document.getElementById('yRange');
+    const gridStepInput = document.getElementById('gridStep');
+
+    const points = [];
+    let scale = 1;
+    let originX = canvas.width / 2;
+    let originY = canvas.height / 2;
+    let xRange = parseInt(xRangeInput.value);
+    let yRange = parseInt(yRangeInput.value);
+    let gridStep = parseInt(gridStepInput.value);
+
+    let isDragging = false;
+    let wasDragging = false;
+    let dragStartX = 0;
+    let dragStartY = 0;
+
+    function updateAxisRange() {
+      xRange = parseInt(xRangeInput.value);
+      yRange = parseInt(yRangeInput.value);
+      gridStep = parseInt(gridStepInput.value);
+      draw();
+    }
+
+    canvas.addEventListener('wheel', (e) => {
+      e.preventDefault();
+      const rect = canvas.getBoundingClientRect();
+      const mouseX = e.clientX - rect.left;
+      const mouseY = e.clientY - rect.top;
+      const worldX = (mouseX - originX) / scale;
+      const worldY = (originY - mouseY) / scale;
+      const delta = e.deltaY > 0 ? 0.9 : 1.1;
+      scale *= delta;
+      originX = mouseX - worldX * scale;
+      originY = mouseY + worldY * scale;
+      draw();
+    });
+
+    canvas.addEventListener('mousedown', (e) => {
+      isDragging = true;
+      wasDragging = false;
+      dragStartX = e.clientX;
+      dragStartY = e.clientY;
+      canvas.style.cursor = 'grabbing';
+    });
+
+    canvas.addEventListener('mousemove', (e) => {
+      if (isDragging) {
+        const dx = e.clientX - dragStartX;
+        const dy = e.clientY - dragStartY;
+        if (Math.abs(dx) > 1 || Math.abs(dy) > 1) wasDragging = true;
+        originX += dx;
+        originY += dy;
+        dragStartX = e.clientX;
+        dragStartY = e.clientY;
+        draw();
+      }
+    });
+
+    canvas.addEventListener('mouseup', (e) => {
+      isDragging = false;
+      canvas.style.cursor = 'grab';
+      if (!wasDragging) handleClick(e);
+    });
+
+    canvas.addEventListener('mouseleave', () => {
+      isDragging = false;
+      canvas.style.cursor = 'grab';
+    });
+
+    function handleClick(event) {
+      const rect = canvas.getBoundingClientRect();
+      const x = (event.clientX - rect.left - originX) / scale;
+      const y = (originY - (event.clientY - rect.top)) / scale;
+      if (!isDuplicate(x, y)) {
+        points.push({ x, y, source: 'click' });
+        draw();
+      }
+    }
+
+    function isDuplicate(newX, newY) {
+      return points.some(p => Math.abs(p.x - newX) < 1 && Math.abs(p.y - newY) < 1);
+    }
+
+    function addPointManually() {
+      const x = parseFloat(inputX.value);
+      const y = parseFloat(inputY.value);
+      if (!isNaN(x) && !isNaN(y) && !isDuplicate(x, y)) {
+        points.push({ x: x, y: y, source: 'manual' });
+        draw();
+      }
+    }
+
+    resetBtn.addEventListener('click', () => {
+      points.length = 0;
+      scale = 1;
+      originX = canvas.width / 2;
+      originY = canvas.height / 2;
+      draw();
+    });
+
+    function drawAxes() {
+      ctx.strokeStyle = '#aaa';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      for (let x = -xRange; x <= xRange; x += gridStep) {
+        const screenX = originX + x * scale;
+        ctx.moveTo(screenX, 0);
+        ctx.lineTo(screenX, canvas.height);
+      }
+      for (let y = -yRange; y <= yRange; y += gridStep) {
+        const screenY = originY - y * scale;
+        ctx.moveTo(0, screenY);
+        ctx.lineTo(canvas.width, screenY);
+      }
+      ctx.stroke();
+
+      ctx.fillStyle = '#444';
+      ctx.font = '10px sans-serif';
+      for (let x = -xRange; x <= xRange; x += gridStep) {
+        const screenX = originX + x * scale;
+        ctx.fillText(x.toString(), screenX + 2, originY + 12);
+      }
+      for (let y = -yRange; y <= yRange; y += gridStep) {
+        const screenY = originY - y * scale;
+        if (y !== 0) ctx.fillText(y.toString(), originX + 2, screenY - 2);
+      }
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      drawAxes();
+      ctx.font = '10px sans-serif';
+      for (let p of points) {
+        const screenX = originX + p.x * scale;
+        const screenY = originY - p.y * scale;
+        ctx.fillStyle = p.source === 'manual' ? 'green' : 'blue';
+        ctx.beginPath();
+        ctx.arc(screenX, screenY, 4, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillText(`(${p.x.toFixed(0)}, ${p.y.toFixed(0)})`, screenX + 6, screenY - 6);
+      }
+      if (points.length >= 2) {
+        const { m, b } = linearRegression(points);
+        const x0 = -originX / scale;
+        const x1 = (canvas.width - originX) / scale;
+        const y0 = m * x0 + b;
+        const y1 = m * x1 + b;
+        ctx.strokeStyle = 'red';
+        ctx.beginPath();
+        ctx.moveTo(originX + x0 * scale, originY - y0 * scale);
+        ctx.lineTo(originX + x1 * scale, originY - y1 * scale);
+        ctx.stroke();
+        const fixedSlope = Math.abs(m) === Infinity || isNaN(m) ? '정의 불가' : m.toFixed(2);
+        document.getElementById('info').textContent = `기울기: ${fixedSlope}, 절편: ${b.toFixed(2)}`;
+      } else {
+        document.getElementById('info').textContent = '점이 2개 이상 있어야 회귀선이 생성됩니다.';
+      }
+    }
+
+    function linearRegression(data) {
+      const n = data.length;
+      const sumX = data.reduce((sum, p) => sum + p.x, 0);
+      const sumY = data.reduce((sum, p) => sum + p.y, 0);
+      const sumXY = data.reduce((sum, p) => sum + p.x * p.y, 0);
+      const sumX2 = data.reduce((sum, p) => sum + p.x * p.x, 0);
+      const denominator = (n * sumX2 - sumX * sumX);
+      const m = denominator === 0 ? Infinity : (n * sumXY - sumX * sumY) / denominator;
+      const b = denominator === 0 ? 0 : (sumY - m * sumX) / n;
+      return { m, b };
+    }
+
+    draw();
+  </script>
+</body>
+</html>
