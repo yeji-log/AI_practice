@@ -245,7 +245,8 @@
                 • <strong>노드 연결:</strong> 노드 클릭 후 다른 노드 클릭<br>
                 • <strong>노드 추가:</strong> 빈 곳 <strong>더블 클릭</strong><br>
                 • <strong>노드 삭제:</strong> <strong>Shift + 노드 클릭</strong><br>
-                • <strong>간선 삭제:</strong> 연결된 선 <strong>클릭</strong>
+                • <strong>간선 삭제:</strong> <strong>Shift + 연결된 선 클릭</strong><br>
+                • <strong>UCS 비용 수정:</strong> UCS 선택 후 연결된 선 <strong>클릭</strong>
             </div>
 
             <div class="control-group">
@@ -357,6 +358,14 @@
                 dataStructureLabel.textContent = "현재 스택 (Stack) 상태 [LIFO]";
             } else {
                 dataStructureLabel.textContent = "현재 우선순위 큐 (Priority Queue) [비용순]";
+
+                // UCS 선택 시 모든 간선의 비용을 자동으로 1~5 사이의 값으로 설정
+                edges.forEach(edge => {
+                    edge.weight = Math.floor(Math.random() * 5) + 1;
+                });
+
+                drawGraph();
+                statusBox.innerHTML = "UCS가 선택되었습니다. 간선 비용이 자동으로 설정되었습니다.";
             }
         });
 
@@ -391,13 +400,16 @@
                     ctx.lineWidth = 4;
                     ctx.stroke();
 
-                    const midX = (n1.x + n2.x) / 2;
-                    const midY = (n1.y + n2.y) / 2;
-                    ctx.fillStyle = '#475569';
-                    ctx.font = 'bold 12px Segoe UI';
-                    ctx.textAlign = 'center';
-                    ctx.textBaseline = 'middle';
-                    ctx.fillText(edge.weight, midX, midY - 10);
+                    // UCS일 때만 간선 비용 표시
+                    if (algorithmSelect.value === 'UCS') {
+                        const midX = (n1.x + n2.x) / 2;
+                        const midY = (n1.y + n2.y) / 2;
+                        ctx.fillStyle = '#475569';
+                        ctx.font = 'bold 12px Segoe UI';
+                        ctx.textAlign = 'center';
+                        ctx.textBaseline = 'middle';
+                        ctx.fillText(edge.weight, midX, midY - 10);
+                    }
                 }
             });
 
@@ -523,7 +535,12 @@
                     if (!exists) {
                         const randomWeight = Math.floor(Math.random() * 5) + 1;
                         edges.push({ u: selectedNodeForEdge, v: clickedNode.id, weight: randomWeight });
-                        statusBox.innerHTML = `간선 추가됨 (${selectedNodeForEdge} - ${clickedNode.id}, 비용:${randomWeight})`;
+
+                        if (algorithmSelect.value === 'UCS') {
+                            statusBox.innerHTML = `간선 추가됨 (${selectedNodeForEdge} - ${clickedNode.id}, 비용:${randomWeight})`;
+                        } else {
+                            statusBox.innerHTML = `간선 추가됨 (${selectedNodeForEdge} - ${clickedNode.id})`;
+                        }
                     } else {
                         statusBox.innerHTML = `이미 연결된 간선입니다.`;
                     }
@@ -533,9 +550,38 @@
             } else {
                 const edgeIndex = checkEdgeClick(x, y);
                 if (edgeIndex !== -1) {
-                    const removed = edges.splice(edgeIndex, 1)[0];
-                    drawGraph();
-                    statusBox.innerHTML = `간선(${removed.u} - ${removed.v})이 삭제되었습니다.`;
+                    const edge = edges[edgeIndex];
+
+                    // Shift + 간선 클릭: 간선 삭제
+                    if (e.shiftKey) {
+                        const removed = edges.splice(edgeIndex, 1)[0];
+                        drawGraph();
+                        statusBox.innerHTML = `간선(${removed.u} - ${removed.v})이 삭제되었습니다.`;
+                        return;
+                    }
+
+                    // UCS에서 일반 간선 클릭: 비용 수정
+                    if (algorithmSelect.value === 'UCS') {
+                        const newWeight = prompt(
+                            `간선 ${edge.u} - ${edge.v}의 비용을 입력하세요.`,
+                            edge.weight
+                        );
+
+                        if (newWeight !== null) {
+                            const parsedWeight = Number(newWeight);
+
+                            if (Number.isFinite(parsedWeight) && parsedWeight > 0) {
+                                edge.weight = parsedWeight;
+                                drawGraph();
+                                statusBox.innerHTML =
+                                    `간선(${edge.u} - ${edge.v})의 비용이 ${parsedWeight}로 변경되었습니다.`;
+                            } else {
+                                statusBox.innerHTML = `비용은 0보다 큰 숫자로 입력해주세요.`;
+                            }
+                        }
+                    } else {
+                        statusBox.innerHTML = `간선을 삭제하려면 Shift를 누른 상태에서 클릭하세요.`;
+                    }
                 }
             }
         });
@@ -602,33 +648,64 @@
                     yield { ds: [...queue], path: [...path], msg: `노드 ${currentId} 방문 완료` };
                 }
             } else if (type === 'DFS') {
+                // DFS: 스택에 넣을 때 방문 처리하여 중복 삽입을 방지
                 const stack = [startId];
-                
+                visited.add(startId);
+
+                const startNodeObj = nodes.find(n => n.id === startId);
+                if (startNodeObj) startNodeObj.state = 'pending';
+
+                yield {
+                    ds: [...stack],
+                    path: [...path],
+                    msg: `시작 노드 ${startId}을(를) 스택에 추가`
+                };
+
                 while (stack.length > 0) {
                     const currentId = stack.pop();
-                    
-                    if (!visited.has(currentId)) {
-                        visited.add(currentId);
-                        path.push(currentId);
-                        const currentNode = nodes.find(n => n.id === currentId);
-                        if (!currentNode) continue;
-                        
-                        currentNode.state = 'current';
-                        yield { ds: [...stack], path: [...path], msg: `스택에서 노드 ${currentId} 팝 및 방문` };
+                    const currentNode = nodes.find(n => n.id === currentId);
 
-                        const neighbors = [...adj[currentId]].reverse();
-                        for (const neighborObj of neighbors) {
-                            const neighbor = neighborObj.node;
-                            if (!visited.has(neighbor)) {
-                                stack.push(neighbor);
-                                const nObj = nodes.find(n => n.id === neighbor);
-                                if (nObj) nObj.state = 'pending';
-                                yield { ds: [...stack], path: [...path], msg: `인접 노드 ${neighbor} 스택에 푸시` };
-                            }
+                    if (!currentNode) continue;
+
+                    currentNode.state = 'current';
+                    path.push(currentId);
+
+                    yield {
+                        ds: [...stack],
+                        path: [...path],
+                        msg: `스택에서 노드 ${currentId} 팝 및 방문`
+                    };
+
+                    // 알파벳 순서로 방문하기 위해 역순으로 스택에 삽입
+                    const neighbors = [...adj[currentId]].sort((a, b) =>
+                        b.node.localeCompare(a.node)
+                    );
+
+                    for (const neighborObj of neighbors) {
+                        const neighbor = neighborObj.node;
+
+                        if (!visited.has(neighbor)) {
+                            visited.add(neighbor);
+                            stack.push(neighbor);
+
+                            const nObj = nodes.find(n => n.id === neighbor);
+                            if (nObj) nObj.state = 'pending';
+
+                            yield {
+                                ds: [...stack],
+                                path: [...path],
+                                msg: `인접 노드 ${neighbor} 스택에 푸시`
+                            };
                         }
-                        currentNode.state = 'visited';
-                        yield { ds: [...stack], path: [...path], msg: `노드 ${currentId} 처리 완료` };
                     }
+
+                    currentNode.state = 'visited';
+
+                    yield {
+                        ds: [...stack],
+                        path: [...path],
+                        msg: `노드 ${currentId} 처리 완료`
+                    };
                 }
             } else if (type === 'UCS') {
                 const pq = [{ id: startId, cost: 0 }];
