@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🔎다양한 탐색 알고리즘 시뮬레이터</title>
+
     <style>
         :root {
             --bg-color: #f8fafc;
@@ -168,26 +169,39 @@
         }
     </style>
 </head>
+
 <body>
 
     <h1>🔎 다양한 탐색 알고리즘 시뮬레이터</h1>
+
     <p class="subtitle">
         게임 트리 탐색과 지역 탐색 및 최적화 분야의 주요 인공지능 알고리즘의 이론과 동작 원리를 확인하세요.
     </p>
 
     <div class="container">
 
-        <!-- [분류 1] 게임 트리 탐색 -->
+        <!-- =====================================================
+             1. 게임 트리 탐색
+        ====================================================== -->
+
         <div class="category-section">
-            <h2 class="category-title">🎮 1. 게임 트리 탐색</h2>
+
+            <h2 class="category-title">
+                🎮 1. 게임 트리 탐색
+            </h2>
 
             <div class="grid-cards">
 
-                <!-- Min-Max 알고리즘 -->
+                <!-- =================================================
+                     Min-Max
+                ================================================== -->
+
                 <div class="card">
+
                     <h3>Min-Max 알고리즘</h3>
 
                     <div class="theory-box">
+
                         <span>
                             <strong>이론 설명:</strong>
                             2인 체제 게임(체스, 틱택토 등)에서 자신(MAX)은 이득을 최대화하고,
@@ -200,26 +214,50 @@
                             리프 노드 평가값을 시작으로 하위 노드에서 상위 노드로 값을 백트래킹하며,
                             MAX 계층은 최대값을, MIN 계층은 최소값을 선택하여 최적 경로를 확정합니다.
                         </span>
+
                     </div>
 
-                    <canvas id="mmCanvas" width="510" height="190"></canvas>
+                    <canvas
+                        id="mmCanvas"
+                        width="510"
+                        height="190">
+                    </canvas>
 
-                    <div id="mmLog" class="sim-screen">
+                    <div
+                        id="mmLog"
+                        class="sim-screen">
                         &gt; [대기] 확장형 Min-Max 트리 탐색을 시작하세요.
                     </div>
 
                     <div class="controls">
-                        <button onclick="runExpandedMM()">트리 탐색 실행</button>
-                        <button class="secondary" onclick="resetExpandedMM()">초기화</button>
+
+                        <button
+                            id="mmRunBtn"
+                            onclick="runExpandedMM()">
+                            트리 탐색 실행
+                        </button>
+
+                        <button
+                            class="secondary"
+                            onclick="resetExpandedMM()">
+                            초기화
+                        </button>
+
                     </div>
+
                 </div>
 
 
-                <!-- 확률적 방법 및 강화 학습 -->
+                <!-- =================================================
+                     강화 학습
+                ================================================== -->
+
                 <div class="card">
+
                     <h3>확률적 방법 및 강화 학습</h3>
 
                     <div class="theory-box">
+
                         <span>
                             <strong>이론 설명:</strong>
                             체스나 바둑처럼 경우의 수가 너무 방대해 완전 탐색이 불가능할 때 사용합니다.
@@ -232,25 +270,45 @@
                             에이전트가 상태 간을 이동하며 패널티 또는 보상을 받고,
                             가치 점수를 갱신하여 목표 지점까지의 최적 경로를 찾아냅니다.
                         </span>
+
                     </div>
 
-                    <canvas id="rlCanvas" width="510" height="190"></canvas>
+                    <canvas
+                        id="rlCanvas"
+                        width="510"
+                        height="190">
+                    </canvas>
 
-                    <div id="rlLog" class="sim-screen">
+                    <div
+                        id="rlLog"
+                        class="sim-screen">
                         &gt; [대기] 에이전트 미로 학습 에피소드를 진행하세요.
                     </div>
 
                     <div class="controls">
-                        <button onclick="runRLStep()">학습 스텝 진행</button>
-                        <button class="secondary" onclick="resetRL()">초기화</button>
+
+                        <button onclick="runRLStep()">
+                            학습 스텝 진행
+                        </button>
+
+                        <button
+                            class="secondary"
+                            onclick="resetRL()">
+                            초기화
+                        </button>
+
                     </div>
+
                 </div>
 
             </div>
         </div>
 
 
-        <!-- [분류 2] 지역 탐색 및 최적화 알고리즘 -->
+        <!-- =====================================================
+             2. 지역 탐색 및 최적화
+        ====================================================== -->
+
         <div class="category-section">
 
             <h2 class="category-title">
@@ -259,12 +317,16 @@
 
             <div class="grid-cards">
 
-                <!-- 언덕 오르기 탐색 -->
+                <!-- =================================================
+                     Hill Climbing
+                ================================================== -->
+
                 <div class="card">
 
                     <h3>언덕 오르기 탐색</h3>
 
                     <div class="theory-box">
+
                         <span>
                             <strong>이론 설명:</strong>
                             전체 해를 찾는 대신 현재 위치에서 인접한 이웃 해들을 탐색한 뒤,
@@ -279,28 +341,48 @@
                             <strong>국소 최적점(Local Maximum)</strong>에 도달하면
                             더 나아가지 못하고 멈추는 <strong>지역성(Locality)의 한계</strong>가 있습니다.
                         </span>
+
                     </div>
 
-                    <canvas id="hcCanvas" width="510" height="190"></canvas>
+                    <canvas
+                        id="hcCanvas"
+                        width="510"
+                        height="190">
+                    </canvas>
 
-                    <div id="hcLog" class="sim-screen">
+                    <div
+                        id="hcLog"
+                        class="sim-screen">
                         &gt; [대기] 언덕 오르기 탐색을 시작하세요. (국소 최적점 함정 주의)
                     </div>
 
                     <div class="controls">
-                        <button onclick="runHC()">다음 이동 수행</button>
-                        <button class="secondary" onclick="resetHC()">초기화</button>
+
+                        <button onclick="runHC()">
+                            다음 이동 수행
+                        </button>
+
+                        <button
+                            class="secondary"
+                            onclick="resetHC()">
+                            초기화
+                        </button>
+
                     </div>
 
                 </div>
 
 
-                <!-- 유전자 알고리즘 -->
+                <!-- =================================================
+                     Genetic Algorithm
+                ================================================== -->
+
                 <div class="card">
 
                     <h3>유전자 알고리즘</h3>
 
                     <div class="theory-box">
+
                         <span>
                             <strong>이론 설명:</strong>
                             다윈의 진화론(적자생존)을 모방한 메타휴리스틱 최적화 기법입니다.
@@ -315,17 +397,35 @@
                             무작위 변화를 주는 <strong>돌연변이(Mutation)</strong> 연산을 거듭하여
                             세대를 진화시킵니다.
                         </span>
+
                     </div>
 
-                    <canvas id="gaCanvas" width="510" height="190"></canvas>
+                    <canvas
+                        id="gaCanvas"
+                        width="510"
+                        height="190">
+                    </canvas>
 
-                    <div id="gaLog" class="sim-screen">
+                    <div
+                        id="gaLog"
+                        class="sim-screen">
                         &gt; [대기] 동적 유전 연산 진화를 시작하세요.
                     </div>
 
                     <div class="controls">
-                        <button id="gaBtn" onclick="runGA()">세대 진화 수행</button>
-                        <button class="secondary" onclick="resetGA()">초기화</button>
+
+                        <button
+                            id="gaBtn"
+                            onclick="runGA()">
+                            세대 진화 수행
+                        </button>
+
+                        <button
+                            class="secondary"
+                            onclick="resetGA()">
+                            초기화
+                        </button>
+
                     </div>
 
                 </div>
@@ -339,25 +439,58 @@
     <script>
 
         // =========================================================
-        // 1. Min-Max 심층 트리 시뮬레이션
+        // 1. Min-Max 알고리즘
         // =========================================================
 
-        const mmCtx = document
-            .getElementById('mmCanvas')
-            .getContext('2d');
+        const mmCtx =
+            document
+                .getElementById('mmCanvas')
+                .getContext('2d');
+
+        let mmAnimationTimers = [];
+
+        let mmRunning = false;
 
 
-        function drawExpandedMM(activeState = 0) {
+        // ---------------------------------------------------------
+        // Min-Max 트리 데이터
+        // ---------------------------------------------------------
 
-            mmCtx.clearRect(0, 0, 510, 190);
+        const mmLeaves = [
+            3, 5,
+            2, 8,
+            4, 2,
+            9, 6
+        ];
+
+
+        // ---------------------------------------------------------
+        // Min-Max 트리 그리기
+        //
+        // stage
+        // 0 = 초기
+        // 1 = 리프 평가
+        // 2 = MAX 계산
+        // 3 = MIN 계산
+        // 4 = Root MAX 계산
+        // ---------------------------------------------------------
+
+        function drawExpandedMM(stage = 0) {
+
+            mmCtx.clearRect(
+                0,
+                0,
+                510,
+                190
+            );
+
+
+            // -----------------------------------------------------
+            // 연결선
+            // -----------------------------------------------------
 
             mmCtx.strokeStyle = '#cbd5e1';
             mmCtx.lineWidth = 2;
-
-
-            // -----------------------------------------------------
-            // 트리 연결선
-            // -----------------------------------------------------
 
             mmCtx.beginPath();
 
@@ -367,7 +500,6 @@
 
             mmCtx.moveTo(255, 18);
             mmCtx.lineTo(380, 60);
-
 
             // MIN → MAX
             mmCtx.moveTo(130, 60);
@@ -381,7 +513,6 @@
 
             mmCtx.moveTo(380, 60);
             mmCtx.lineTo(440, 110);
-
 
             // MAX → Leaf
             mmCtx.moveTo(70, 110);
@@ -412,127 +543,202 @@
 
 
             // -----------------------------------------------------
-            // 노드 그리기
+            // 노드 그리기 함수
             // -----------------------------------------------------
 
-            const drawNode = (x, y, text, type, threshold) => {
+            const drawNode =
+                (x, y, text, type, visible) => {
 
-                let bg = '#1e293b';
+                    let bg = '#94a3b8';
 
-                if (type === 'max') bg = '#4f46e5';
-                if (type === 'min') bg = '#0ea5e9';
-                if (type === 'leaf') bg = '#0d9488';
+                    if (type === 'max') {
+                        bg = '#4f46e5';
+                    }
 
+                    if (type === 'min') {
+                        bg = '#0ea5e9';
+                    }
 
-                mmCtx.fillStyle =
-                    activeState >= threshold
-                        ? bg
-                        : '#94a3b8';
-
-
-                mmCtx.beginPath();
-                mmCtx.arc(x, y, 13, 0, Math.PI * 2);
-                mmCtx.fill();
+                    if (type === 'leaf') {
+                        bg = '#0d9488';
+                    }
 
 
-                mmCtx.fillStyle = '#ffffff';
-                mmCtx.font = 'bold 9px sans-serif';
-                mmCtx.textAlign = 'center';
-                mmCtx.textBaseline = 'middle';
+                    // 아직 계산하지 않은 노드는 회색
+                    if (!visible) {
+                        bg = '#94a3b8';
+                    }
 
-                mmCtx.fillText(text, x, y);
-            };
+
+                    mmCtx.fillStyle = bg;
+
+                    mmCtx.beginPath();
+
+                    mmCtx.arc(
+                        x,
+                        y,
+                        13,
+                        0,
+                        Math.PI * 2
+                    );
+
+                    mmCtx.fill();
+
+
+                    mmCtx.fillStyle = '#ffffff';
+
+                    mmCtx.font =
+                        'bold 9px sans-serif';
+
+                    mmCtx.textAlign = 'center';
+                    mmCtx.textBaseline = 'middle';
+
+                    mmCtx.fillText(
+                        text,
+                        x,
+                        y
+                    );
+                };
 
 
             // -----------------------------------------------------
-            // Min-Max 계산
-            //
-            // MAX(3, 5) = 5
-            // MAX(2, 8) = 8
-            // MIN(5, 8) = 5
-            //
-            // MAX(4, 2) = 4
-            // MAX(9, 6) = 9
-            // MIN(4, 9) = 4
-            //
-            // MAX(5, 4) = 5
+            // Root
             // -----------------------------------------------------
 
-
-            // Root MAX
             drawNode(
                 255,
                 18,
-                activeState >= 10 ? "MAX=5" : "MAX",
+                stage >= 4 ? 'MAX=5' : 'MAX',
                 'max',
-                1
+                stage >= 4
             );
 
 
-            // MIN nodes
+            // -----------------------------------------------------
+            // MIN
+            // -----------------------------------------------------
+
             drawNode(
                 130,
                 60,
-                activeState >= 8 ? "MIN=5" : "MIN",
+                stage >= 3 ? 'MIN=5' : 'MIN',
                 'min',
-                2
+                stage >= 3
             );
 
             drawNode(
                 380,
                 60,
-                activeState >= 9 ? "MIN=4" : "MIN",
+                stage >= 3 ? 'MIN=4' : 'MIN',
                 'min',
-                6
+                stage >= 3
             );
 
 
-            // MAX nodes
+            // -----------------------------------------------------
+            // MAX
+            // -----------------------------------------------------
+
             drawNode(
                 70,
                 110,
-                activeState >= 7 ? "MAX=5" : "MAX",
+                stage >= 2 ? 'MAX=5' : 'MAX',
                 'max',
-                3
+                stage >= 2
             );
 
             drawNode(
                 190,
                 110,
-                activeState >= 8 ? "MAX=8" : "MAX",
+                stage >= 2 ? 'MAX=8' : 'MAX',
                 'max',
-                4
+                stage >= 2
             );
 
             drawNode(
                 320,
                 110,
-                activeState >= 9 ? "MAX=4" : "MAX",
+                stage >= 2 ? 'MAX=4' : 'MAX',
                 'max',
-                5
+                stage >= 2
             );
 
             drawNode(
                 440,
                 110,
-                activeState >= 10 ? "MAX=9" : "MAX",
+                stage >= 2 ? 'MAX=9' : 'MAX',
                 'max',
-                6
+                stage >= 2
             );
 
 
-            // Leaf nodes
-            drawNode(45, 165, "3", 'leaf', 7);
-            drawNode(95, 165, "5", 'leaf', 7);
+            // -----------------------------------------------------
+            // Leaf
+            // -----------------------------------------------------
 
-            drawNode(165, 165, "2", 'leaf', 8);
-            drawNode(215, 165, "8", 'leaf', 8);
+            drawNode(
+                45,
+                165,
+                '3',
+                'leaf',
+                stage >= 1
+            );
 
-            drawNode(295, 165, "4", 'leaf', 9);
-            drawNode(345, 165, "2", 'leaf', 9);
+            drawNode(
+                95,
+                165,
+                '5',
+                'leaf',
+                stage >= 1
+            );
 
-            drawNode(415, 165, "9", 'leaf', 10);
-            drawNode(465, 165, "6", 'leaf', 10);
+            drawNode(
+                165,
+                165,
+                '2',
+                'leaf',
+                stage >= 1
+            );
+
+            drawNode(
+                215,
+                165,
+                '8',
+                'leaf',
+                stage >= 1
+            );
+
+            drawNode(
+                295,
+                165,
+                '4',
+                'leaf',
+                stage >= 1
+            );
+
+            drawNode(
+                345,
+                165,
+                '2',
+                'leaf',
+                stage >= 1
+            );
+
+            drawNode(
+                415,
+                165,
+                '9',
+                'leaf',
+                stage >= 1
+            );
+
+            drawNode(
+                465,
+                165,
+                '6',
+                'leaf',
+                stage >= 1
+            );
         }
 
 
@@ -541,29 +747,181 @@
 
 
         // ---------------------------------------------------------
-        // Min-Max 실행
+        // 로그 추가 함수
+        // ---------------------------------------------------------
+
+        function addMMLog(text) {
+
+            const log =
+                document.getElementById('mmLog');
+
+            log.innerHTML +=
+                `<div>> ${text}</div>`;
+
+            log.scrollTop =
+                log.scrollHeight;
+        }
+
+
+        // ---------------------------------------------------------
+        // Min-Max 애니메이션 실행
         // ---------------------------------------------------------
 
         function runExpandedMM() {
 
-            drawExpandedMM(10);
+            // 이미 실행 중이면 무시
+            if (mmRunning) {
+                return;
+            }
 
-            document.getElementById('mmLog').innerHTML =
 
-                "> [리프 탐색] 리프 노드의 평가값 확인 완료<br>" +
+            mmRunning = true;
 
-                "> [백트래킹] MAX(3, 5) = <strong>5</strong> / " +
-                "MAX(2, 8) = <strong>8</strong><br>" +
 
-                "> [백트래킹] MIN(5, 8) = <strong>5</strong><br>" +
+            // 기존 타이머 제거
+            mmAnimationTimers.forEach(
+                timer => clearTimeout(timer)
+            );
 
-                "> [백트래킹] MAX(4, 2) = <strong>4</strong> / " +
-                "MAX(9, 6) = <strong>9</strong><br>" +
+            mmAnimationTimers = [];
 
-                "> [백트래킹] MIN(4, 9) = <strong>4</strong><br>" +
 
-                "> [최종 결정] MAX(5, 4) = " +
-                "<strong>5</strong> 도출 완료";
+            // 버튼 비활성화
+            document
+                .getElementById('mmRunBtn')
+                .disabled = true;
+
+
+            // 초기 상태
+            drawExpandedMM(0);
+
+            document
+                .getElementById('mmLog')
+                .innerHTML =
+                '> [탐색 시작] Min-Max 트리 탐색을 시작합니다.';
+
+
+            // -----------------------------------------------------
+            // STEP 1
+            // 리프 노드 평가
+            // -----------------------------------------------------
+
+            mmAnimationTimers.push(
+
+                setTimeout(() => {
+
+                    drawExpandedMM(1);
+
+                    addMMLog(
+                        '[1단계] 리프 노드 평가값 확인'
+                    );
+
+                    addMMLog(
+                        '3, 5, 2, 8, 4, 2, 9, 6'
+                    );
+
+                }, 800)
+
+            );
+
+
+            // -----------------------------------------------------
+            // STEP 2
+            // MAX 계산
+            // -----------------------------------------------------
+
+            mmAnimationTimers.push(
+
+                setTimeout(() => {
+
+                    drawExpandedMM(2);
+
+                    addMMLog(
+                        '[2단계] MAX 노드 계산'
+                    );
+
+                    addMMLog(
+                        'MAX(3, 5) = 5'
+                    );
+
+                    addMMLog(
+                        'MAX(2, 8) = 8'
+                    );
+
+                    addMMLog(
+                        'MAX(4, 2) = 4'
+                    );
+
+                    addMMLog(
+                        'MAX(9, 6) = 9'
+                    );
+
+                }, 2000)
+
+            );
+
+
+            // -----------------------------------------------------
+            // STEP 3
+            // MIN 계산
+            // -----------------------------------------------------
+
+            mmAnimationTimers.push(
+
+                setTimeout(() => {
+
+                    drawExpandedMM(3);
+
+                    addMMLog(
+                        '[3단계] MIN 노드 계산'
+                    );
+
+                    addMMLog(
+                        'MIN(5, 8) = 5'
+                    );
+
+                    addMMLog(
+                        'MIN(4, 9) = 4'
+                    );
+
+                }, 4000)
+
+            );
+
+
+            // -----------------------------------------------------
+            // STEP 4
+            // Root MAX 계산
+            // -----------------------------------------------------
+
+            mmAnimationTimers.push(
+
+                setTimeout(() => {
+
+                    drawExpandedMM(4);
+
+                    addMMLog(
+                        '[4단계] 루트 MAX 계산'
+                    );
+
+                    addMMLog(
+                        'MAX(5, 4) = 5'
+                    );
+
+                    addMMLog(
+                        '[최종 결정] 최적의 가치 5 도출 완료'
+                    );
+
+
+                    mmRunning = false;
+
+                    document
+                        .getElementById('mmRunBtn')
+                        .disabled = false;
+
+                }, 6000)
+
+            );
         }
 
 
@@ -573,68 +931,102 @@
 
         function resetExpandedMM() {
 
+            mmAnimationTimers.forEach(
+                timer => clearTimeout(timer)
+            );
+
+            mmAnimationTimers = [];
+
+            mmRunning = false;
+
             drawExpandedMM(0);
 
-            document.getElementById('mmLog').innerHTML =
-                "> [대기] 확장형 Min-Max 트리 탐색을 시작하세요.";
+            document
+                .getElementById('mmLog')
+                .innerHTML =
+                '> [대기] 확장형 Min-Max 트리 탐색을 시작하세요.';
+
+            document
+                .getElementById('mmRunBtn')
+                .disabled = false;
         }
 
 
 
         // =========================================================
-        // 2. 강화 학습 Q-Learning 시뮬레이션
+        // 2. 강화 학습 Q-Learning
         // =========================================================
 
-        const rlCtx = document
-            .getElementById('rlCanvas')
-            .getContext('2d');
+        const rlCtx =
+            document
+                .getElementById('rlCanvas')
+                .getContext('2d');
 
         let rlStep = 0;
 
 
         function drawRL() {
 
-            rlCtx.clearRect(0, 0, 510, 190);
+            rlCtx.clearRect(
+                0,
+                0,
+                510,
+                190
+            );
+
 
             const states = [
-                "S0",
-                "S1",
-                "S2",
-                "S3",
-                "Goal"
+                'S0',
+                'S1',
+                'S2',
+                'S3',
+                'Goal'
             ];
 
 
-            states.forEach((s, idx) => {
+            states.forEach(
+                (s, idx) => {
 
-                rlCtx.fillStyle =
-                    (idx === rlStep)
-                        ? '#4f46e5'
-                        : (idx === 4 ? '#10b981' : '#e2e8f0');
-
-                rlCtx.fillRect(
-                    20 + idx * 95,
-                    65,
-                    75,
-                    55
-                );
+                    rlCtx.fillStyle =
+                        idx === rlStep
+                            ? '#4f46e5'
+                            : idx === 4
+                                ? '#10b981'
+                                : '#e2e8f0';
 
 
-                rlCtx.fillStyle =
-                    (idx === 4 || idx === rlStep)
-                        ? '#fff'
-                        : '#1e293b';
+                    rlCtx.fillRect(
+                        20 + idx * 95,
+                        65,
+                        75,
+                        55
+                    );
 
-                rlCtx.font = 'bold 12px sans-serif';
-                rlCtx.textAlign = 'center';
-                rlCtx.textBaseline = 'middle';
 
-                rlCtx.fillText(
-                    s,
-                    20 + idx * 95 + 37.5,
-                    92.5
-                );
-            });
+                    rlCtx.fillStyle =
+                        idx === 4 ||
+                        idx === rlStep
+                            ? '#fff'
+                            : '#1e293b';
+
+
+                    rlCtx.font =
+                        'bold 12px sans-serif';
+
+                    rlCtx.textAlign =
+                        'center';
+
+                    rlCtx.textBaseline =
+                        'middle';
+
+
+                    rlCtx.fillText(
+                        s,
+                        20 + idx * 95 + 37.5,
+                        92.5
+                    );
+                }
+            );
         }
 
 
@@ -650,7 +1042,9 @@
                 drawRL();
 
 
-                document.getElementById('rlLog').innerHTML =
+                document
+                    .getElementById('rlLog')
+                    .innerHTML =
 
                     `> 에이전트 이동: State ${rlStep - 1} ➔ State ${rlStep}<br>` +
 
@@ -666,8 +1060,10 @@
 
                 drawRL();
 
-                document.getElementById('rlLog').innerHTML =
-                    "> 에이전트 위치 초기화 완료.";
+                document
+                    .getElementById('rlLog')
+                    .innerHTML =
+                    '> 에이전트 위치 초기화 완료.';
             }
         }
 
@@ -678,8 +1074,10 @@
 
             drawRL();
 
-            document.getElementById('rlLog').innerHTML =
-                "> [대기] 에이전트 미로 학습 에피소드를 진행하세요.";
+            document
+                .getElementById('rlLog')
+                .innerHTML =
+                '> [대기] 에이전트 미로 학습 에피소드를 진행하세요.';
         }
 
 
@@ -688,11 +1086,13 @@
         // 3. 언덕 오르기 탐색
         // =========================================================
 
-        const hcCtx = document
-            .getElementById('hcCanvas')
-            .getContext('2d');
+        const hcCtx =
+            document
+                .getElementById('hcCanvas')
+                .getContext('2d');
 
         let hcStep = 0;
+
 
         const terrainValues = [
             15,
@@ -706,56 +1106,89 @@
 
         function drawHC() {
 
-            hcCtx.clearRect(0, 0, 510, 190);
+            hcCtx.clearRect(
+                0,
+                0,
+                510,
+                190
+            );
 
-            hcCtx.strokeStyle = '#64748b';
+            hcCtx.strokeStyle =
+                '#64748b';
+
             hcCtx.lineWidth = 2;
-
 
             hcCtx.beginPath();
 
-            terrainValues.forEach((val, idx) => {
 
-                const x = 45 + idx * 82;
-                const y = 160 - val;
+            terrainValues.forEach(
+                (val, idx) => {
 
-                if (idx === 0) {
-                    hcCtx.moveTo(x, y);
-                } else {
-                    hcCtx.lineTo(x, y);
+                    const x =
+                        45 + idx * 82;
+
+                    const y =
+                        160 - val;
+
+
+                    if (idx === 0) {
+                        hcCtx.moveTo(x, y);
+                    } else {
+                        hcCtx.lineTo(x, y);
+                    }
                 }
-            });
+            );
+
 
             hcCtx.stroke();
 
 
-            terrainValues.forEach((val, idx) => {
+            terrainValues.forEach(
+                (val, idx) => {
 
-                const x = 45 + idx * 82;
-                const y = 160 - val;
+                    const x =
+                        45 + idx * 82;
 
-
-                hcCtx.fillStyle =
-                    idx === hcStep
-                        ? '#ef4444'
-                        : '#4f46e5';
+                    const y =
+                        160 - val;
 
 
-                hcCtx.beginPath();
-                hcCtx.arc(x, y, 6, 0, Math.PI * 2);
-                hcCtx.fill();
+                    hcCtx.fillStyle =
+                        idx === hcStep
+                            ? '#ef4444'
+                            : '#4f46e5';
 
 
-                hcCtx.fillStyle = '#1e293b';
-                hcCtx.font = '11px sans-serif';
-                hcCtx.textAlign = 'center';
+                    hcCtx.beginPath();
 
-                hcCtx.fillText(
-                    `v:${val}`,
-                    x,
-                    y - 12
-                );
-            });
+                    hcCtx.arc(
+                        x,
+                        y,
+                        6,
+                        0,
+                        Math.PI * 2
+                    );
+
+                    hcCtx.fill();
+
+
+                    hcCtx.fillStyle =
+                        '#1e293b';
+
+                    hcCtx.font =
+                        '11px sans-serif';
+
+                    hcCtx.textAlign =
+                        'center';
+
+
+                    hcCtx.fillText(
+                        `v:${val}`,
+                        x,
+                        y - 12
+                    );
+                }
+            );
         }
 
 
@@ -770,8 +1203,10 @@
 
                 drawHC();
 
-                document.getElementById('hcLog').innerHTML =
-                    `> 이동 [인덱스 1]: 가치 45로 상승 (경사 탐색 중)`;
+                document
+                    .getElementById('hcLog')
+                    .innerHTML =
+                    '> 이동 [인덱스 1]: 가치 45로 상승 (경사 탐색 중)';
 
             } else if (hcStep === 1) {
 
@@ -779,27 +1214,31 @@
 
                 drawHC();
 
-                document.getElementById('hcLog').innerHTML =
+                document
+                    .getElementById('hcLog')
+                    .innerHTML =
 
-                    `> 이동 [인덱스 2]: 가치 60 도달.<br>` +
+                    '> 이동 [인덱스 2]: 가치 60 도달.<br>' +
 
-                    `<span style="color:#f87171;">` +
-                    `> [경고] 주변보다 높으나 전체 최고점이 아닌 ` +
-                    `<strong>국소 최적점(Local Maximum)</strong> ` +
-                    `함정에 빠졌습니다!` +
-                    `</span>`;
+                    '<span style="color:#f87171;">' +
+                    '> [경고] 주변보다 높으나 전체 최고점이 아닌 ' +
+                    '<strong>국소 최적점(Local Maximum)</strong> ' +
+                    '함정에 빠졌습니다!' +
+                    '</span>';
 
             } else if (hcStep === 2) {
 
-                document.getElementById('hcLog').innerHTML =
-
-                    `> 탐색 실패: 더 이상 높은 방향이 없어 알고리즘이 멈췄습니다. ` +
-                    `(지역성의 한계)`;
+                document
+                    .getElementById('hcLog')
+                    .innerHTML =
+                    '> 탐색 실패: 더 이상 높은 방향이 없어 알고리즘이 멈췄습니다. (지역성의 한계)';
 
             } else {
 
-                document.getElementById('hcLog').innerHTML =
-                    `> 이미 탐색이 종료되었습니다. 초기화 후 다시 확인하세요.`;
+                document
+                    .getElementById('hcLog')
+                    .innerHTML =
+                    '> 이미 탐색이 종료되었습니다. 초기화 후 다시 확인하세요.';
             }
         }
 
@@ -810,8 +1249,10 @@
 
             drawHC();
 
-            document.getElementById('hcLog').innerHTML =
-                "> [대기] 언덕 오르기 탐색을 시작하세요. (국소 최적점 함정 주의)";
+            document
+                .getElementById('hcLog')
+                .innerHTML =
+                '> [대기] 언덕 오르기 탐색을 시작하세요. (국소 최적점 함정 주의)';
         }
 
 
@@ -820,19 +1261,23 @@
         // 4. 유전자 알고리즘
         // =========================================================
 
-        const gaCtx = document
-            .getElementById('gaCanvas')
-            .getContext('2d');
+        const gaCtx =
+            document
+                .getElementById('gaCanvas')
+                .getContext('2d');
+
 
         const startPos = {
             x: 50,
             y: 95
         };
 
+
         const goalPos = {
             x: 450,
             y: 95
         };
+
 
         let gaGen = 0;
         let population = [];
@@ -845,9 +1290,13 @@
 
             isConverged = false;
 
-            document.getElementById('gaBtn').disabled = false;
+            document
+                .getElementById('gaBtn')
+                .disabled = false;
 
-            document.getElementById('gaBtn').style.background =
+            document
+                .getElementById('gaBtn')
+                .style.background =
                 'var(--primary)';
 
 
@@ -857,12 +1306,15 @@
 
                     x:
                         startPos.x +
-                        Math.floor(Math.random() * 80) +
+                        Math.floor(
+                            Math.random() * 80
+                        ) +
                         20,
 
                     y:
                         startPos.y +
                         (Math.random() * 120 - 60)
+
                 });
             }
         }
@@ -873,11 +1325,17 @@
 
         function drawGA() {
 
-            gaCtx.clearRect(0, 0, 510, 190);
+            gaCtx.clearRect(
+                0,
+                0,
+                510,
+                190
+            );
 
 
-            // 출발지
-            gaCtx.fillStyle = '#10b981';
+            // START
+            gaCtx.fillStyle =
+                '#10b981';
 
             gaCtx.fillRect(
                 startPos.x - 15,
@@ -887,20 +1345,28 @@
             );
 
 
-            gaCtx.fillStyle = '#fff';
-            gaCtx.font = 'bold 10px sans-serif';
-            gaCtx.textAlign = 'center';
-            gaCtx.textBaseline = 'middle';
+            gaCtx.fillStyle =
+                '#fff';
+
+            gaCtx.font =
+                'bold 10px sans-serif';
+
+            gaCtx.textAlign =
+                'center';
+
+            gaCtx.textBaseline =
+                'middle';
 
             gaCtx.fillText(
-                "START",
+                'START',
                 startPos.x,
                 startPos.y
             );
 
 
-            // 목표지
-            gaCtx.fillStyle = '#ef4444';
+            // GOAL
+            gaCtx.fillStyle =
+                '#ef4444';
 
             gaCtx.beginPath();
 
@@ -915,56 +1381,60 @@
             gaCtx.fill();
 
 
-            gaCtx.fillStyle = '#fff';
+            gaCtx.fillStyle =
+                '#fff';
 
             gaCtx.fillText(
-                "GOAL",
+                'GOAL',
                 goalPos.x,
                 goalPos.y
             );
 
 
-            // 로봇 개체들
-            population.forEach((ind) => {
+            // 개체
+            population.forEach(
+                ind => {
 
-                gaCtx.strokeStyle = isConverged
-                    ? 'rgba(16, 185, 129, 0.6)'
-                    : 'rgba(79, 70, 229, 0.3)';
+                    gaCtx.strokeStyle =
+                        isConverged
+                            ? 'rgba(16, 185, 129, 0.6)'
+                            : 'rgba(79, 70, 229, 0.3)';
 
-                gaCtx.lineWidth = 1.2;
+                    gaCtx.lineWidth = 1.2;
 
-                gaCtx.beginPath();
+                    gaCtx.beginPath();
 
-                gaCtx.moveTo(
-                    startPos.x,
-                    startPos.y
-                );
+                    gaCtx.moveTo(
+                        startPos.x,
+                        startPos.y
+                    );
 
-                gaCtx.lineTo(
-                    ind.x,
-                    ind.y
-                );
+                    gaCtx.lineTo(
+                        ind.x,
+                        ind.y
+                    );
 
-                gaCtx.stroke();
+                    gaCtx.stroke();
 
 
-                gaCtx.fillStyle =
-                    isConverged
-                        ? '#10b981'
-                        : '#4f46e5';
+                    gaCtx.fillStyle =
+                        isConverged
+                            ? '#10b981'
+                            : '#4f46e5';
 
-                gaCtx.beginPath();
+                    gaCtx.beginPath();
 
-                gaCtx.arc(
-                    ind.x,
-                    ind.y,
-                    6,
-                    0,
-                    Math.PI * 2
-                );
+                    gaCtx.arc(
+                        ind.x,
+                        ind.y,
+                        6,
+                        0,
+                        Math.PI * 2
+                    );
 
-                gaCtx.fill();
-            });
+                    gaCtx.fill();
+                }
+            );
         }
 
 
@@ -973,43 +1443,51 @@
 
         function runGA() {
 
-            if (isConverged) return;
+            if (isConverged) {
+                return;
+            }
+
 
             gaGen++;
 
 
-            // -----------------------------------------------------
-            // 1. 적합도 평가
-            // -----------------------------------------------------
+            // 적합도 평가
+            population.forEach(
+                ind => {
 
-            population.forEach(ind => {
+                    let dist =
+                        Math.sqrt(
+                            Math.pow(
+                                goalPos.x - ind.x,
+                                2
+                            ) +
+                            Math.pow(
+                                goalPos.y - ind.y,
+                                2
+                            )
+                        );
 
-                let dist = Math.sqrt(
-                    Math.pow(goalPos.x - ind.x, 2) +
-                    Math.pow(goalPos.y - ind.y, 2)
-                );
-
-                ind.fitness =
-                    1 / (dist + 1);
-            });
-
-
-            // -----------------------------------------------------
-            // 2. 선택
-            // -----------------------------------------------------
-
-            population.sort(
-                (a, b) => b.fitness - a.fitness
+                    ind.fitness =
+                        1 / (dist + 1);
+                }
             );
 
-            let parent1 = population[0];
-            let parent2 = population[1];
+
+            // 선택
+            population.sort(
+                (a, b) =>
+                    b.fitness - a.fitness
+            );
 
 
-            // -----------------------------------------------------
-            // 3. 교차 및 변이
-            // -----------------------------------------------------
+            let parent1 =
+                population[0];
 
+            let parent2 =
+                population[1];
+
+
+            // 교차 + 변이
             let newPopulation = [];
 
 
@@ -1018,17 +1496,19 @@
                 let childX =
                     (parent1.x + parent2.x) / 2 +
                     (Math.random() * 40 - 20) +
-                    (goalPos.x -
-                        (parent1.x + parent2.x) / 2) *
-                    0.4;
+                    (
+                        goalPos.x -
+                        (parent1.x + parent2.x) / 2
+                    ) * 0.4;
 
 
                 let childY =
                     (parent1.y + parent2.y) / 2 +
                     (Math.random() * 50 - 25) +
-                    (goalPos.y -
-                        (parent1.y + parent2.y) / 2) *
-                    0.4;
+                    (
+                        goalPos.y -
+                        (parent1.y + parent2.y) / 2
+                    ) * 0.4;
 
 
                 childX =
@@ -1036,6 +1516,7 @@
                         80,
                         Math.min(450, childX)
                     );
+
 
                 childY =
                     Math.max(
@@ -1051,63 +1532,69 @@
             }
 
 
-            population = newPopulation;
+            population =
+                newPopulation;
 
 
-            // -----------------------------------------------------
-            // 평균 거리 계산
-            // -----------------------------------------------------
+            let avgDist =
+                Math.round(
 
-            let avgDist = Math.round(
-
-                population.reduce(
-                    (acc, ind) =>
-                        acc +
-                        Math.hypot(
-                            goalPos.x - ind.x,
-                            goalPos.y - ind.y
-                        ),
-                    0
-                ) / population.length
-
-            );
+                    population.reduce(
+                        (acc, ind) =>
+                            acc +
+                            Math.hypot(
+                                goalPos.x - ind.x,
+                                goalPos.y - ind.y
+                            ),
+                        0
+                    ) / population.length
+                );
 
 
-            // -----------------------------------------------------
-            // 수렴 완료 판정
-            // -----------------------------------------------------
+            // 수렴 완료
+            if (
+                avgDist <= 25 ||
+                gaGen >= 5
+            ) {
 
-            if (avgDist <= 25 || gaGen >= 5) {
+                population.forEach(
+                    ind => {
 
-                population.forEach(ind => {
+                        ind.x =
+                            goalPos.x +
+                            (Math.random() * 10 - 5);
 
-                    ind.x =
-                        goalPos.x +
-                        (Math.random() * 10 - 5);
-
-                    ind.y =
-                        goalPos.y +
-                        (Math.random() * 10 - 5);
-                });
+                        ind.y =
+                            goalPos.y +
+                            (Math.random() * 10 - 5);
+                    }
+                );
 
 
                 isConverged = true;
 
                 drawGA();
 
-                document.getElementById('gaBtn').disabled = true;
 
-                document.getElementById('gaBtn').style.background =
+                document
+                    .getElementById('gaBtn')
+                    .disabled = true;
+
+                document
+                    .getElementById('gaBtn')
+                    .style.background =
                     '#10b981';
 
 
-                document.getElementById('gaLog').innerHTML =
+                document
+                    .getElementById('gaLog')
+                    .innerHTML =
 
                     `> [제 ${gaGen}세대] ` +
                     `<strong>최적 해 수렴 완료!</strong><br>` +
 
-                    `> 선택➔교차➔변이 연산 성공으로 ` +
-                    `모든 개체가 목표에 도달했습니다.`;
+                    '> 선택➔교차➔변이 연산 성공으로 ' +
+                    '모든 개체가 목표에 도달했습니다.';
 
                 return;
             }
@@ -1116,12 +1603,14 @@
             drawGA();
 
 
-            document.getElementById('gaLog').innerHTML =
+            document
+                .getElementById('gaLog')
+                .innerHTML =
 
                 `> [제 ${gaGen}세대 진화 연산]<br>` +
 
-                `> 1.선택 ➔ 2.교차(Crossover) ➔ ` +
-                `3.돌연변이(Mutation) 반복 진행 중<br>` +
+                '> 1.선택 ➔ 2.교차(Crossover) ➔ ' +
+                '3.돌연변이(Mutation) 반복 진행 중<br>' +
 
                 `> 현재 세대 평균 오차 거리: ` +
                 `<strong>${avgDist}px</strong>`;
@@ -1136,8 +1625,10 @@
 
             drawGA();
 
-            document.getElementById('gaLog').innerHTML =
-                "> [대기] 동적 유전 연산 진화를 시작하세요.";
+            document
+                .getElementById('gaLog')
+                .innerHTML =
+                '> [대기] 동적 유전 연산 진화를 시작하세요.';
         }
 
     </script>
