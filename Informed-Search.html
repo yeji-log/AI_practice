@@ -1,0 +1,1048 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="경험을 이용한 탐색: 휴리스틱 함수와 최상우선탐색 개념 설명 및 격자 미로 시뮬레이터">
+<title>🎯경험적 탐색</title>
+<style>
+  :root{
+    --paper:#F3F5F4;
+    --surface:#FFFFFF;
+    --surface-2:#EBEEED;
+    --ink:#16202A;
+    --ink-soft:#55626C;
+    --ink-faint:#879298;
+    --rule:#DCE2E4;
+    --accent:#C97A2B;
+    --accent-soft:#F1DDBE;
+    --accent-ink:#7A4816;
+    --frontier:#2E7BA6;
+    --frontier-soft:#D9EAF2;
+    --visited:#94A3AC;
+    --visited-soft:#E7EBEC;
+    --path:#2F8F5B;
+    --path-soft:#D9F0E2;
+    --wall:#232A33;
+    --start:#7C3AED;
+    --start-soft:#EAE1FC;
+    --goal:#C93B3B;
+    --goal-soft:#F8DEDD;
+    --shadow: 0 1px 2px rgba(22,32,42,0.06), 0 8px 24px rgba(22,32,42,0.06);
+
+    --font-display:"Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR",system-ui,sans-serif;
+    --font-body:Georgia,"Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR",serif;
+    --font-mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,"Noto Sans Mono CJK KR",monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --paper:#1C232D;
+      --surface:#262F3A;
+      --surface-2:#303A45;
+      --ink:#F1F5F7;
+      --ink-soft:#AEBBC4;
+      --ink-faint:#818D96;
+      --rule:#3C4854;
+      --accent:#EBAF6F;
+      --accent-soft:#4C3821;
+      --accent-ink:#F9E0B9;
+      --frontier:#78C1E6;
+      --frontier-soft:#1C3749;
+      --visited:#707C85;
+      --visited-soft:#28313B;
+      --path:#6EDC9C;
+      --path-soft:#193C28;
+      --wall:#0B1015;
+      --start:#B69DFB;
+      --start-soft:#2E2349;
+      --goal:#F68B87;
+      --goal-soft:#47221A;
+      --shadow: 0 1px 2px rgba(0,0,0,0.25), 0 8px 28px rgba(0,0,0,0.3);
+    }
+  }
+  :root[data-theme="dark"]{
+    --paper:#1C232D;
+    --surface:#262F3A;
+    --surface-2:#303A45;
+    --ink:#F1F5F7;
+    --ink-soft:#AEBBC4;
+    --ink-faint:#818D96;
+    --rule:#3C4854;
+    --accent:#EBAF6F;
+    --accent-soft:#4C3821;
+    --accent-ink:#F9E0B9;
+    --frontier:#78C1E6;
+    --frontier-soft:#1C3749;
+    --visited:#707C85;
+    --visited-soft:#28313B;
+    --path:#6EDC9C;
+    --path-soft:#193C28;
+    --wall:#0B1015;
+    --start:#B69DFB;
+    --start-soft:#2E2349;
+    --goal:#F68B87;
+    --goal-soft:#47221A;
+    --shadow: 0 1px 2px rgba(0,0,0,0.25), 0 8px 28px rgba(0,0,0,0.3);
+  }
+
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:var(--font-body);
+    font-size:16px;
+    line-height:1.75;
+    -webkit-font-smoothing:antialiased;
+  }
+  ::selection{ background:var(--accent-soft); color:var(--accent-ink); }
+
+  a{ color:var(--frontier); }
+
+  .wrap{
+    max-width:1320px;
+    margin:0 auto;
+    padding: clamp(20px,4vw,48px) clamp(16px,4vw,40px) 80px;
+  }
+
+  header.top{
+    display:flex;
+    flex-wrap:wrap;
+    align-items:baseline;
+    gap:10px 20px;
+    padding-bottom:20px;
+    margin-bottom:32px;
+    border-bottom:1px solid var(--rule);
+  }
+  .eyebrow{
+    font-family:var(--font-display);
+    font-size:0.72rem;
+    font-weight:700;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color:var(--accent);
+  }
+  h1{
+    font-family:var(--font-display);
+    font-weight:800;
+    font-size:clamp(1.5rem,3vw,2.05rem);
+    letter-spacing:-0.01em;
+    margin:2px 0 0;
+    text-wrap:balance;
+    flex:1 1 auto;
+  }
+  .top-sub{
+    font-family:var(--font-mono);
+    font-size:0.82rem;
+    color:var(--ink-soft);
+    white-space:nowrap;
+  }
+
+  .layout{
+    display:grid;
+    grid-template-columns: minmax(0,1fr) minmax(340px,620px);
+    gap: clamp(24px,4vw,56px);
+    align-items:start;
+  }
+  @media (max-width: 900px){
+    .layout{ grid-template-columns: 1fr; }
+    .sim-section{ order:-1; margin-bottom:8px; }
+  }
+
+  .prose{ max-width:64ch; }
+  .prose h2{
+    font-family:var(--font-display);
+    font-weight:800;
+    font-size:1.28rem;
+    letter-spacing:-0.005em;
+    margin:2.4em 0 0.6em;
+    text-wrap:balance;
+  }
+  .prose h2:first-child{ margin-top:0; }
+  .prose h2 .num{
+    display:inline-block;
+    font-family:var(--font-mono);
+    font-size:0.7rem;
+    font-weight:600;
+    color:var(--ink-faint);
+    letter-spacing:0.06em;
+    vertical-align:middle;
+    margin-right:10px;
+    border:1px solid var(--rule);
+    border-radius:99px;
+    padding:3px 8px;
+  }
+  .prose p{ margin:0 0 1em; color:var(--ink); }
+  .prose p.lead{ color:var(--ink-soft); font-style:italic; }
+  .prose b{ color:var(--ink); font-weight:700; }
+  .prose .term{
+    font-family:var(--font-mono);
+    font-style:normal;
+    background:var(--surface-2);
+    border-radius:5px;
+    padding:0.05em 0.4em;
+    font-size:0.9em;
+    color:var(--ink);
+  }
+
+  .callout{
+    background:var(--surface);
+    border:1px solid var(--rule);
+    border-radius:12px;
+    padding:16px 18px;
+    margin:1.2em 0;
+    box-shadow:var(--shadow);
+  }
+  .callout.formula{
+    display:flex;
+    align-items:center;
+    gap:16px;
+    flex-wrap:wrap;
+  }
+  .formula .f{
+    font-family:var(--font-mono);
+    font-size:1.05rem;
+    font-weight:600;
+    color:var(--accent-ink);
+    background:var(--accent-soft);
+    border-radius:8px;
+    padding:8px 12px;
+  }
+  .formula .desc{ font-family:var(--font-display); font-size:0.88rem; color:var(--ink-soft); flex:1 1 200px; }
+
+  .compare{
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap:12px;
+    margin:1.2em 0;
+  }
+  @media (max-width:520px){ .compare{ grid-template-columns:1fr; } }
+  .compare .card{
+    border:1px solid var(--rule);
+    border-radius:12px;
+    padding:14px 16px;
+    background:var(--surface);
+  }
+  .compare .card .tag{
+    font-family:var(--font-display);
+    font-weight:700;
+    font-size:0.82rem;
+    display:block;
+    margin-bottom:6px;
+  }
+  .compare .card.blind .tag{ color:var(--ink-soft); }
+  .compare .card.informed .tag{ color:var(--accent); }
+  .compare .card p{ margin:0; font-size:0.92rem; color:var(--ink-soft); }
+
+  pre.pseudo{
+    font-family:var(--font-mono);
+    font-size:0.84rem;
+    line-height:1.85;
+    background:var(--surface);
+    border:1px solid var(--rule);
+    border-radius:12px;
+    padding:16px 18px;
+    overflow-x:auto;
+    margin:1.2em 0;
+    box-shadow:var(--shadow);
+  }
+  pre.pseudo .pc-line{
+    display:block;
+    padding:1px 8px;
+    margin:0 -8px;
+    border-radius:5px;
+    color:var(--ink-soft);
+    transition:background 0.25s ease, color 0.25s ease;
+  }
+  pre.pseudo .pc-line .ln{
+    display:inline-block;
+    width:1.4em;
+    color:var(--ink-faint);
+    user-select:none;
+  }
+  pre.pseudo .pc-line.active{
+    background:var(--accent-soft);
+    color:var(--accent-ink);
+    font-weight:600;
+  }
+
+  .note{
+    font-size:0.9rem;
+    color:var(--ink-soft);
+    border-top:1px dashed var(--rule);
+    padding-top:14px;
+    margin-top:2em;
+  }
+  .fineprint{ font-size:0.82rem; color:var(--ink-faint); margin:-0.6em 0 1.2em; }
+
+  .table-scroll{ overflow-x:auto; margin:1.2em 0; }
+  table.cmp{
+    width:100%;
+    min-width:480px;
+    border-collapse:collapse;
+    font-size:0.86rem;
+    background:var(--surface);
+    border:1px solid var(--rule);
+    border-radius:12px;
+    overflow:hidden;
+    box-shadow:var(--shadow);
+  }
+  table.cmp th, table.cmp td{ border-bottom:1px solid var(--rule); padding:9px 12px; text-align:left; vertical-align:top; }
+  table.cmp tr:last-child td{ border-bottom:none; }
+  table.cmp th{
+    font-family:var(--font-display);
+    font-weight:700;
+    font-size:0.74rem;
+    letter-spacing:0.03em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+    background:var(--surface-2);
+  }
+  table.cmp td.f{ font-family:var(--font-mono); color:var(--accent-ink); background:var(--accent-soft); font-weight:600; }
+  table.cmp .sub{ font-size:0.78rem; color:var(--ink-faint); }
+  table.cmp .ok{ color:var(--path); font-weight:700; }
+  table.cmp .no{ color:var(--goal); font-weight:700; }
+
+  /* ---------- simulator ---------- */
+  .sim-section{ position:sticky; top:20px; }
+  .sim-card{
+    background:var(--surface);
+    border:1px solid var(--rule);
+    border-radius:16px;
+    box-shadow:var(--shadow);
+    overflow:hidden;
+  }
+  .sim-head{
+    padding:16px 18px 14px;
+    border-bottom:1px solid var(--rule);
+  }
+  .sim-head h2{
+    font-family:var(--font-display);
+    font-weight:800;
+    font-size:1.05rem;
+    margin:0 0 4px;
+  }
+  .sim-head p{
+    margin:0;
+    font-size:0.84rem;
+    color:var(--ink-soft);
+    font-family:var(--font-display);
+  }
+
+  .toolbar{
+    display:flex;
+    flex-wrap:wrap;
+    gap:6px;
+    padding:12px 18px;
+    border-bottom:1px solid var(--rule);
+    background:var(--surface-2);
+  }
+  .btn{
+    font-family:var(--font-display);
+    font-size:0.78rem;
+    font-weight:600;
+    color:var(--ink);
+    background:var(--surface);
+    border:1px solid var(--rule);
+    border-radius:8px;
+    padding:6px 11px;
+    cursor:pointer;
+    transition:background 0.15s ease, border-color 0.15s ease, transform 0.05s ease;
+  }
+  .btn:hover{ border-color:var(--ink-faint); }
+  .btn:active{ transform:translateY(1px); }
+  .btn:focus-visible{ outline:2px solid var(--accent); outline-offset:2px; }
+  .btn[aria-pressed="true"]{
+    background:var(--accent-soft);
+    border-color:var(--accent);
+    color:var(--accent-ink);
+  }
+  .btn.primary{ background:var(--ink); border-color:var(--ink); color:var(--paper); }
+  .btn.primary:hover{ opacity:0.88; }
+  .btn:disabled{ opacity:0.45; cursor:not-allowed; }
+
+  .mode-group{ display:flex; gap:6px; flex-wrap:wrap; }
+  .toolbar-label{
+    font-family:var(--font-display);
+    font-size:0.75rem;
+    font-weight:700;
+    color:var(--ink-soft);
+    align-self:center;
+    margin-right:2px;
+  }
+
+  .grid-wrap{
+    padding:16px 18px;
+    overflow-x:auto;
+  }
+  .maze{
+    display:grid;
+    gap:2px;
+    width:max-content;
+    margin:0 auto;
+  }
+  .cell{
+    width: clamp(16px,2.1vw,24px);
+    height: clamp(16px,2.1vw,24px);
+    padding:0;
+    border:none;
+    border-radius:3px;
+    background:var(--surface-2);
+    cursor:pointer;
+    position:relative;
+    font-family:var(--font-mono);
+    font-size:0.55rem;
+    color:var(--ink-faint);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    transition:background-color 0.18s ease, color 0.18s ease, transform 0.12s ease;
+  }
+  .cell:focus-visible{ outline:2px solid var(--accent); outline-offset:1px; z-index:2; }
+  .cell.type-wall{ background:var(--wall); cursor:default; }
+  .cell.st-open{ background:var(--frontier-soft); color:var(--frontier); }
+  .cell.st-closed{ background:var(--visited-soft); color:var(--ink-faint); }
+  .cell.st-current{ background:var(--accent); color:var(--surface); transform:scale(1.12); z-index:1; box-shadow:0 0 0 2px var(--accent-soft); }
+  .cell.st-path{ background:var(--path-soft); }
+  .cell.st-path::after{
+    content:"";
+    position:absolute; inset:28%;
+    background:var(--path);
+    border-radius:2px;
+  }
+  .cell.type-start, .cell.type-goal{
+    font-family:var(--font-display);
+    font-weight:800;
+    font-size:0.62rem;
+  }
+  .cell.type-start{ background:var(--start-soft); color:var(--start); }
+  .cell.type-goal{ background:var(--goal-soft); color:var(--goal); }
+  .cell.type-start.st-path, .cell.type-goal.st-path{ box-shadow:inset 0 0 0 2px var(--path); }
+
+  .grid-wrap.locked .cell:not(.type-start):not(.type-goal){ cursor:default; }
+
+  .controls-row{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:12px 18px;
+    border-top:1px solid var(--rule);
+    flex-wrap:wrap;
+  }
+  .controls-row .spacer{ flex:1 1 auto; }
+  .speed-wrap{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    font-family:var(--font-display);
+    font-size:0.75rem;
+    color:var(--ink-soft);
+  }
+  input[type="range"]{ accent-color:var(--accent); width:80px; }
+  label.chk{
+    display:flex;
+    align-items:center;
+    gap:5px;
+    font-family:var(--font-display);
+    font-size:0.75rem;
+    color:var(--ink-soft);
+    cursor:pointer;
+  }
+  input[type="checkbox"]{ accent-color:var(--accent); }
+
+  .state-panel{
+    padding:14px 18px 18px;
+    border-top:1px solid var(--rule);
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px 18px;
+    font-family:var(--font-mono);
+  }
+  .state-panel .stat{ display:flex; flex-direction:column; gap:2px; }
+  .state-panel .stat .k{ font-size:0.66rem; letter-spacing:0.06em; text-transform:uppercase; color:var(--ink-faint); font-family:var(--font-display); font-weight:700; }
+  .state-panel .stat .v{ font-size:0.86rem; color:var(--ink); font-variant-numeric:tabular-nums; }
+  .state-panel .stat.wide{ grid-column:1 / -1; }
+  .state-panel .stat .v.msg{ font-family:var(--font-display); font-weight:700; }
+  .state-panel .stat .v.msg.running{ color:var(--frontier); }
+  .state-panel .stat .v.msg.found{ color:var(--path); }
+  .state-panel .stat .v.msg.nopath{ color:var(--goal); }
+  .open-chips{ display:flex; flex-wrap:wrap; gap:4px; }
+  .open-chips span{
+    background:var(--frontier-soft);
+    color:var(--frontier);
+    border-radius:5px;
+    padding:1px 6px;
+    font-size:0.72rem;
+  }
+
+  .pseudo-panel{
+    padding:14px 18px 18px;
+    border-top:1px solid var(--rule);
+  }
+  .pseudo-panel .pseudo{ margin:0; font-size:0.78rem; }
+  .pseudo-panel .fineprint{ margin:10px 0 0; }
+
+  .legend{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px 16px;
+    padding:12px 18px 16px;
+    border-top:1px solid var(--rule);
+    font-family:var(--font-display);
+    font-size:0.72rem;
+    color:var(--ink-soft);
+  }
+  .legend .item{ display:flex; align-items:center; gap:6px; }
+  .legend .sw{ width:11px; height:11px; border-radius:3px; flex:none; }
+  .sw.empty{ background:var(--surface-2); border:1px solid var(--rule); }
+  .sw.open{ background:var(--frontier); }
+  .sw.closed{ background:var(--visited); }
+  .sw.current{ background:var(--accent); }
+  .sw.path{ background:var(--path); }
+  .sw.wall{ background:var(--wall); }
+  .sw.start{ background:var(--start); }
+  .sw.goal{ background:var(--goal); }
+
+  @media (prefers-reduced-motion: reduce){
+    .cell, .btn, pre.pseudo .pc-line{ transition:none !important; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <header class="top">
+    <div>
+      <div class="eyebrow">경험을 이용한 탐색 · Informed Search</div>
+      <h1>휴리스틱 탐색과 최상우선탐색, 그리고 A*</h1>
+    </div>
+    <div class="top-sub" id="topSub">f(n) = h(n) · Greedy Best-First Search</div>
+  </header>
+
+  <div class="layout">
+
+    <article class="prose">
+
+      <p class="lead">맹목적으로 사방을 다 뒤지는 대신, 목표에 대한 "감"을 이용해서 더 그럴듯한 방향부터 먼저 확인해본다면 훨씬 빠르게 답을 찾을 수 있지 않을까요?</p>
+
+      <h2><span class="num">01</span>경험을 이용한 탐색</h2>
+      <p>너비우선탐색이나 깊이우선탐색처럼 문제에 대한 사전 지식 없이 정해진 순서대로만 노드를 확장하는 방식을 <b>맹목적 탐색</b>(blind search)이라 부릅니다. 반면 <b>경험을 이용한 탐색</b>(informed search)은 문제 영역에 대해 미리 알고 있는 지식 — 즉 <span class="term">경험적 지식</span> — 을 활용해서, 목표에 더 가까워 보이는 노드를 먼저 살펴봅니다.</p>
+      <div class="compare">
+        <div class="card blind">
+          <span class="tag">맹목적 탐색</span>
+          <p>목표 방향에 대한 정보 없이 정해진 순서로만 확장. 너비우선탐색, 깊이우선탐색.</p>
+        </div>
+        <div class="card informed">
+          <span class="tag">경험을 이용한 탐색</span>
+          <p>"어느 쪽이 목표에 더 가까운가"를 어림잡아 판단에 활용. 탐욕적 최상우선탐색, A*.</p>
+        </div>
+      </div>
+
+      <h2><span class="num">02</span>휴리스틱 함수 h(n)</h2>
+      <p>이 어림짐작을 수치로 표현한 것이 <b>휴리스틱 함수</b> <span class="term">h(n)</span>입니다. 노드 n에서 목표까지 실제로 드는 비용은 아직 모르지만, 경험을 바탕으로 "대략 이 정도일 것"이라 추정한 값입니다.</p>
+      <div class="callout formula">
+        <span class="f">h(n) = |Δrow| + |Δcol|</span>
+        <span class="desc">이 미로 시뮬레이터는 격자 위에서 목표까지의 <b>맨해튼 거리</b>를 휴리스틱으로 사용합니다 — 벽은 없다고 가정하고 상하좌우로만 움직였을 때 필요한 최소 칸 수, 즉 가로·세로 칸 차이를 그냥 더한 값입니다.</span>
+      </div>
+      <p>휴리스틱은 정답을 보장하지 않는 <b>안내자</b>일 뿐입니다. 벽 같은 실제 장애물을 모르기 때문에, 종종 틀린 방향을 그럴듯하다고 가리키기도 합니다 — 오른쪽 시뮬레이터에서 이 점을 직접 확인할 수 있습니다.</p>
+
+      <h2><span class="num">03</span>최상우선탐색, 그리고 A*</h2>
+      <p><b>최상우선탐색</b>(Best-First Search)은 open list에서 <span class="term">f(n)</span>이 가장 작은 노드부터 확장하는 전략의 틀입니다. f(n)을 무엇으로 정의하느냐에 따라 아래 세 알고리즘으로 나뉩니다.</p>
+
+      <div class="callout formula">
+        <span class="f">f(n) = g(n) + h(n)</span>
+        <span class="desc">g(n)은 지금까지 <b>실제로 든 비용</b>, h(n)은 위에서 정의한 <b>휴리스틱 함수</b>(맨해튼 거리)입니다.</span>
+      </div>
+
+      <div class="table-scroll">
+        <table class="cmp">
+          <thead>
+            <tr><th>알고리즘</th><th>f(n)</th><th>사용하는 정보</th><th>최적 경로</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>블라인드 탐색<br><span class="sub">(균일비용, 격자에서는 BFS와 동일)</span></td>
+              <td class="f">g(n)</td>
+              <td>실제 비용만</td>
+              <td><span class="ok">보장</span></td>
+            </tr>
+            <tr>
+              <td>탐욕적 최상우선탐색<br>[Greedy Best-First Search]<br><span class="sub">(지금까지 온 비용(g)은 신경안 씀)</span></td>
+              <td class="f">h(n)</td>
+              <td>휴리스틱만</td>
+              <td><span class="no">불보장</span></td>
+            </tr>
+            <tr>
+              <td>A* 알고리즘</td>
+              <td class="f">g(n) + h(n)</td>
+              <td>둘 다</td>
+              <td><span class="ok">보장*</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="fineprint">* h(n)이 admissible(과대추정 없음)할 때. 맨해튼 거리는 이를 만족합니다.</p>
+
+      <p>즉 블라인드 탐색만 h(n)을 쓰지 않아 맹목적 탐색으로 남고, 나머지 둘은 휴리스틱 탐색입니다. 오른쪽에서 세 알고리즘의 차이를 비교해보세요.</p>
+
+    </article>
+
+    <section class="sim-section" id="simulator">
+      <div class="sim-card">
+        <div class="sim-head">
+          <h2>미로 시뮬레이터</h2>
+          <p>알고리즘을 고르고, 벽을 그려 미로를 만든 뒤 한 단계씩 혹은 자동으로 실행해보세요.</p>
+        </div>
+
+        <div class="toolbar">
+          <span class="toolbar-label">알고리즘</span>
+          <div class="mode-group" role="group" aria-label="탐색 알고리즘" id="algoGroup">
+            <button class="btn" data-algo="bfs" aria-pressed="false">🐌 블라인드(BFS)</button>
+            <button class="btn" data-algo="greedy" aria-pressed="true">🎯 최상우선(그리디)</button>
+            <button class="btn" data-algo="astar" aria-pressed="false">⭐ A*</button>
+          </div>
+        </div>
+
+        <div class="toolbar">
+          <span class="toolbar-label">편집</span>
+          <div class="mode-group" role="group" aria-label="편집 모드">
+            <button class="btn" data-mode="wall" aria-pressed="true">🧱 벽 그리기</button>
+            <button class="btn" data-mode="start" aria-pressed="false">🟣 시작점</button>
+            <button class="btn" data-mode="goal" aria-pressed="false">🔴 목표점</button>
+          </div>
+          <button class="btn" id="btnRandom">🎲 무작위 미로</button>
+          <button class="btn" id="btnClear">지우기</button>
+        </div>
+
+        <div class="grid-wrap" id="gridWrap">
+          <div class="maze" id="grid" role="grid" aria-label="탐색 격자"></div>
+        </div>
+
+        <div class="controls-row">
+          <button class="btn" id="btnStep">▸ 한 단계</button>
+          <button class="btn primary" id="btnPlay">▶ 자동 실행</button>
+          <button class="btn" id="btnReset">↺ 초기화</button>
+          <div class="spacer"></div>
+          <div class="speed-wrap">
+            <span>느림</span>
+            <input type="range" id="speedRange" min="1" max="5" value="3" step="1" aria-label="속도">
+            <span>빠름</span>
+          </div>
+        </div>
+        <div class="controls-row" style="padding-top:0;border-top:none;">
+          <label class="chk"><input type="checkbox" id="toggleH" checked> 휴리스틱 값 h(n) 표시</label>
+        </div>
+
+        <div class="state-panel">
+          <div class="stat"><span class="k">현재 노드</span><span class="v" id="stCurrent">–</span></div>
+          <div class="stat"><span class="k">탐색한 노드 수</span><span class="v" id="stClosed">0</span></div>
+          <div class="stat"><span class="k">단계</span><span class="v" id="stStep">0</span></div>
+          <div class="stat"><span class="k">경로 길이</span><span class="v" id="stPath">–</span></div>
+          <div class="stat wide"><span class="k">열린 목록 (f(n) 오름차순)</span><span class="v"><div class="open-chips" id="stOpen"></div></span></div>
+          <div class="stat wide"><span class="k">상태</span><span class="v msg" id="stMsg">준비됨 — 한 단계 또는 자동 실행을 눌러보세요</span></div>
+        </div>
+
+        <div class="pseudo-panel">
+          <pre class="pseudo" id="pseudo">
+<span class="pc-line" data-ln="1"><span class="ln">1</span>open ← [ 시작 노드 ]   (f값 계산)</span><span class="pc-line" data-ln="2"><span class="ln">2</span>while open이 비어있지 않다:</span><span class="pc-line" data-ln="3"><span class="ln">3</span>    n ← open에서 f(n)이 최소인 노드</span><span class="pc-line" data-ln="4"><span class="ln">4</span>    open에서 n 제거, closed에 n 추가</span><span class="pc-line" data-ln="5"><span class="ln">5</span>    if n = 목표 노드 → 경로 반환 후 종료</span><span class="pc-line" data-ln="6"><span class="ln">6</span>    for each 이웃 in n의 이웃:</span><span class="pc-line" data-ln="7"><span class="ln">7</span>        if 이웃이 벽 or closed or open에 있음 → 건너뜀</span><span class="pc-line" data-ln="8"><span class="ln">8</span>        이웃의 g, h 계산 후 open에 추가</span></pre>
+          <p class="fineprint" id="algoFormulaNote">현재 선택된 알고리즘: <b id="algoFormulaText">탐욕적 최상우선탐색 — f(n) = h(n)</b></p>
+        </div>
+
+        <div class="legend">
+          <span class="item"><span class="sw start"></span>시작(S)</span>
+          <span class="item"><span class="sw goal"></span>목표(G)</span>
+          <span class="item"><span class="sw wall"></span>벽</span>
+          <span class="item"><span class="sw open"></span>열린 목록</span>
+          <span class="item"><span class="sw closed"></span>탐색 완료</span>
+          <span class="item"><span class="sw current"></span>현재 확장 중</span>
+          <span class="item"><span class="sw path"></span>최종 경로</span>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var COLS = 21, ROWS = 11;
+  var gridEl = document.getElementById('grid');
+  gridEl.style.gridTemplateColumns = 'repeat(' + COLS + ', var(--cs))';
+  gridEl.style.setProperty('--cs', 'clamp(16px,2.1vw,24px)');
+
+  var start = {r:5, c:1};
+  var goal = {r:5, c:19};
+
+  // cell type grid: 'empty' | 'wall'
+  var typeGrid = [];
+  for (var r=0;r<ROWS;r++){
+    var row = [];
+    for (var c=0;c<COLS;c++) row.push('empty');
+    typeGrid.push(row);
+  }
+
+  function applyDefaultMaze(){
+    for (var r=0;r<ROWS;r++) for (var c=0;c<COLS;c++) typeGrid[r][c] = 'empty';
+    // zigzag comb: every tooth keeps the corridor close to the start/goal row,
+    // so h(n) always looks good inside it. Greedy best-first walks the whole
+    // winding path and never considers going around — A*/blind search do,
+    // and find the much shorter route instead.
+    var topTeeth = [4,8,12,16];  // blocks rows 3-5, forces a detour down to row 6-7
+    var botTeeth = [2,6,10,14];  // blocks rows 5-7, forces a detour up to row 3-4
+    var i;
+    for (i=0;i<topTeeth.length;i++){ c = topTeeth[i]; for (r=3;r<=5;r++) typeGrid[r][c] = 'wall'; }
+    for (i=0;i<botTeeth.length;i++){ c = botTeeth[i]; for (r=5;r<=7;r++) typeGrid[r][c] = 'wall'; }
+    typeGrid[start.r][start.c] = 'empty';
+    typeGrid[goal.r][goal.c] = 'empty';
+  }
+  applyDefaultMaze();
+
+  // build DOM cells
+  var cells = [];
+  for (var r=0;r<ROWS;r++){
+    var rowArr = [];
+    for (var c=0;c<COLS;c++){
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'cell';
+      btn.dataset.r = r; btn.dataset.c = c;
+      btn.setAttribute('role','gridcell');
+      gridEl.appendChild(btn);
+      rowArr.push(btn);
+    }
+    cells.push(rowArr);
+  }
+
+  function key(r,c){ return r+','+c; }
+  function computeH(r,c){ return Math.abs(r-goal.r) + Math.abs(c-goal.c); }
+  function inBounds(r,c){ return r>=0 && r<ROWS && c>=0 && c<COLS; }
+
+  // ---- algorithm selection: f(n) definition is the only thing that changes ----
+  var ALGO_INFO = {
+    bfs:    { formula:'f(n) = g(n)',         full:'블라인드 탐색(균일비용) — f(n) = g(n)' },
+    greedy: { formula:'f(n) = h(n)',         full:'탐욕적 최상우선탐색 — f(n) = h(n)' },
+    astar:  { formula:'f(n) = g(n) + h(n)',  full:'A* 탐색 — f(n) = g(n) + h(n)' }
+  };
+  var algoMode = 'greedy';
+  function computeF(node){
+    if (algoMode === 'bfs') return node.g;
+    if (algoMode === 'astar') return node.g + node.h;
+    return node.h;
+  }
+  function updateAlgoLabels(){
+    var info = ALGO_INFO[algoMode];
+    document.getElementById('topSub').textContent = info.formula;
+    document.getElementById('algoFormulaText').textContent = info.full;
+  }
+
+  // ---- search state ----
+  var open = [], closedSet, queuedSet, current, status, path, started, stepCount, nextSeq;
+
+  function resetSearch(){
+    nextSeq = 1;
+    open = [{r:start.r, c:start.c, g:0, h:computeH(start.r,start.c), parent:null, seq:0}];
+    closedSet = {};
+    queuedSet = {}; queuedSet[key(start.r,start.c)] = true;
+    current = null;
+    status = 'idle';
+    path = [];
+    started = false;
+    stepCount = 0;
+    stopPlaying();
+    lockMaze(false);
+    renderAll();
+    updateStatePanel();
+    highlightLines([]);
+  }
+
+  function renderCell(r,c){
+    var el = cells[r][c];
+    var t = typeGrid[r][c];
+    var k = key(r,c);
+    el.className = 'cell';
+    el.textContent = '';
+    if (t === 'wall'){ el.classList.add('type-wall'); return; }
+    var isStart = (r===start.r && c===start.c);
+    var isGoal = (r===goal.r && c===goal.c);
+    if (isStart){ el.classList.add('type-start'); el.textContent = 'S'; }
+    else if (isGoal){ el.classList.add('type-goal'); el.textContent = 'G'; }
+
+    if (path.length && pathHas(r,c)) el.classList.add('st-path');
+    else if (closedSet[k]) el.classList.add('st-closed');
+    else if (queuedSet[k]) el.classList.add('st-open');
+
+    if (current && current.r===r && current.c===c) el.classList.add('st-current');
+
+    if (!isStart && !isGoal && t==='empty' && showH && !closedSet[k] && !(path.length && pathHas(r,c))){
+      el.textContent = computeH(r,c);
+    }
+  }
+  function pathHas(r,c){
+    for (var i=0;i<path.length;i++) if (path[i].r===r && path[i].c===c) return true;
+    return false;
+  }
+  function renderAll(){
+    for (var r=0;r<ROWS;r++) for (var c=0;c<COLS;c++) renderCell(r,c);
+  }
+
+  // ---- heuristic display toggle ----
+  var showH = true;
+  var toggleHEl = document.getElementById('toggleH');
+  toggleHEl.addEventListener('change', function(){
+    showH = toggleHEl.checked;
+    renderAll();
+  });
+
+  // ---- pseudocode highlight ----
+  var pcLines = document.querySelectorAll('.pc-line');
+  function highlightLines(set){
+    pcLines.forEach(function(el){
+      var ln = parseInt(el.dataset.ln, 10);
+      el.classList.toggle('active', set.indexOf(ln) !== -1);
+    });
+  }
+
+  // ---- state panel ----
+  var stCurrent = document.getElementById('stCurrent');
+  var stClosed = document.getElementById('stClosed');
+  var stStep = document.getElementById('stStep');
+  var stPath = document.getElementById('stPath');
+  var stOpen = document.getElementById('stOpen');
+  var stMsg = document.getElementById('stMsg');
+
+  function updateStatePanel(){
+    stCurrent.textContent = current ? ('(' + current.r + ',' + current.c + ')  g=' + current.g + ' h=' + current.h + ' f=' + computeF(current)) : '–';
+    stClosed.textContent = Object.keys(closedSet).length;
+    stStep.textContent = stepCount;
+    stPath.textContent = (status === 'found') ? (path.length - 1) + ' 칸' : '–';
+
+    var sorted = open.slice().sort(function(a,b){ return computeF(a) - computeF(b) || a.seq - b.seq; }).slice(0,6);
+    stOpen.innerHTML = '';
+    if (sorted.length === 0){
+      stOpen.innerHTML = '<span style="background:none;color:var(--ink-faint);padding:0;">비어있음</span>';
+    } else {
+      sorted.forEach(function(n){
+        var s = document.createElement('span');
+        s.textContent = '(' + n.r + ',' + n.c + ') f=' + computeF(n);
+        stOpen.appendChild(s);
+      });
+    }
+
+    stMsg.classList.remove('running','found','nopath');
+    if (status === 'idle') stMsg.textContent = '준비됨 — 한 단계 또는 자동 실행을 눌러보세요';
+    else if (status === 'running'){ stMsg.textContent = '탐색 중…'; stMsg.classList.add('running'); }
+    else if (status === 'found'){
+      stMsg.textContent = (algoMode === 'greedy')
+        ? '목표 도달! 최단으로 보이지만 실제로 최적은 아닐 수 있습니다.'
+        : '목표 도달! 이 알고리즘은 최단 경로를 보장합니다.';
+      stMsg.classList.add('found');
+    }
+    else if (status === 'nopath'){ stMsg.textContent = '열린 목록이 비었습니다 — 경로를 찾을 수 없습니다.'; stMsg.classList.add('nopath'); }
+  }
+
+  // ---- algorithm ----
+  var DIRS = [[-1,0],[1,0],[0,-1],[0,1]];
+
+  function doStep(){
+    if (status === 'found' || status === 'nopath') return status;
+    started = true;
+    lockMaze(true);
+
+    if (open.length === 0){
+      status = 'nopath';
+      highlightLines([2]);
+      updateStatePanel();
+      return status;
+    }
+
+    var idx = 0;
+    for (var i=1;i<open.length;i++){
+      var fi = computeF(open[i]), fIdx = computeF(open[idx]);
+      if (fi < fIdx || (fi === fIdx && open[i].seq < open[idx].seq)) idx = i;
+    }
+    var node = open.splice(idx,1)[0];
+    delete queuedSet[key(node.r,node.c)];
+    closedSet[key(node.r,node.c)] = node;
+    current = node;
+    stepCount++;
+
+    if (node.r === goal.r && node.c === goal.c){
+      status = 'found';
+      var p = node, chain = [];
+      while (p){ chain.unshift({r:p.r,c:p.c}); p = p.parent; }
+      path = chain;
+      highlightLines([2,3,4,5]);
+      renderAll();
+      updateStatePanel();
+      return status;
+    }
+
+    for (var d=0; d<DIRS.length; d++){
+      var nr = node.r + DIRS[d][0], nc = node.c + DIRS[d][1];
+      if (!inBounds(nr,nc)) continue;
+      if (typeGrid[nr][nc] === 'wall') continue;
+      var k = key(nr,nc);
+      if (closedSet[k] || queuedSet[k]) continue;
+      open.push({ r:nr, c:nc, g:node.g+1, h:computeH(nr,nc), parent:node, seq:nextSeq++ });
+      queuedSet[k] = true;
+    }
+
+    status = 'running';
+    highlightLines([2,3,4,5,6,7,8]);
+    renderAll();
+    updateStatePanel();
+    return status;
+  }
+
+  // ---- play/pause ----
+  var playTimer = null;
+  var btnPlay = document.getElementById('btnPlay');
+  var speedRange = document.getElementById('speedRange');
+  var speedMap = {1:900, 2:650, 3:480, 4:320, 5:180};
+
+  function stopPlaying(){
+    if (playTimer){ clearInterval(playTimer); playTimer = null; }
+    btnPlay.textContent = '▶ 자동 실행';
+  }
+  function startPlaying(){
+    stopPlaying();
+    btnPlay.textContent = '⏸ 일시정지';
+    playTimer = setInterval(function(){
+      var res = doStep();
+      if (res === 'found' || res === 'nopath') stopPlaying();
+    }, speedMap[speedRange.value]);
+  }
+  btnPlay.addEventListener('click', function(){
+    if (playTimer) stopPlaying();
+    else startPlaying();
+  });
+  speedRange.addEventListener('input', function(){
+    if (playTimer) startPlaying();
+  });
+  document.getElementById('btnStep').addEventListener('click', function(){
+    stopPlaying();
+    doStep();
+  });
+  document.getElementById('btnReset').addEventListener('click', function(){
+    resetSearch();
+  });
+
+  // ---- algorithm mode buttons ----
+  var algoButtons = document.querySelectorAll('#algoGroup [data-algo]');
+  algoButtons.forEach(function(btn){
+    btn.addEventListener('click', function(){
+      if (algoMode === btn.dataset.algo) return;
+      algoMode = btn.dataset.algo;
+      algoButtons.forEach(function(b){ b.setAttribute('aria-pressed', b === btn ? 'true' : 'false'); });
+      updateAlgoLabels();
+      resetSearch();
+    });
+  });
+
+  // ---- maze editing ----
+  var mode = 'wall';
+  var modeButtons = document.querySelectorAll('[data-mode]');
+  modeButtons.forEach(function(btn){
+    btn.addEventListener('click', function(){
+      mode = btn.dataset.mode;
+      modeButtons.forEach(function(b){ b.setAttribute('aria-pressed', b === btn ? 'true' : 'false'); });
+    });
+  });
+
+  var gridWrap = document.getElementById('gridWrap');
+  function lockMaze(on){
+    gridWrap.classList.toggle('locked', on);
+  }
+
+  var mouseDown = false;
+  document.addEventListener('mouseup', function(){ mouseDown = false; });
+
+  function handleCellAction(r,c){
+    if (started) return;
+    if (mode === 'wall'){
+      if ((r===start.r && c===start.c) || (r===goal.r && c===goal.c)) return;
+      typeGrid[r][c] = (typeGrid[r][c] === 'wall') ? 'empty' : 'wall';
+      renderCell(r,c);
+    } else if (mode === 'start'){
+      if (typeGrid[r][c] === 'wall' || (r===goal.r && c===goal.c)) return;
+      var old = start; start = {r:r,c:c};
+      renderCell(old.r, old.c);
+      resetSearch();
+    } else if (mode === 'goal'){
+      if (typeGrid[r][c] === 'wall' || (r===start.r && c===start.c)) return;
+      var oldG = goal; goal = {r:r,c:c};
+      renderCell(oldG.r, oldG.c);
+      resetSearch();
+    }
+  }
+
+  gridEl.addEventListener('mousedown', function(e){
+    var el = e.target.closest('.cell');
+    if (!el) return;
+    mouseDown = true;
+    if (mode === 'wall') handleCellAction(parseInt(el.dataset.r,10), parseInt(el.dataset.c,10));
+  });
+  gridEl.addEventListener('mouseover', function(e){
+    if (!mouseDown || mode !== 'wall') return;
+    var el = e.target.closest('.cell');
+    if (!el) return;
+    handleCellAction(parseInt(el.dataset.r,10), parseInt(el.dataset.c,10));
+  });
+  gridEl.addEventListener('click', function(e){
+    var el = e.target.closest('.cell');
+    if (!el) return;
+    // e.detail === 0 means keyboard activation (Enter/Space), not a mouse click.
+    // Mouse clicks in wall mode are already handled by mousedown above.
+    if (mode !== 'wall' || e.detail === 0) handleCellAction(parseInt(el.dataset.r,10), parseInt(el.dataset.c,10));
+  });
+
+  document.getElementById('btnClear').addEventListener('click', function(){
+    if (started) return;
+    for (var r=0;r<ROWS;r++) for (var c=0;c<COLS;c++) typeGrid[r][c] = 'empty';
+    resetSearch();
+  });
+
+  document.getElementById('btnRandom').addEventListener('click', function(){
+    if (started) return;
+    var attempts = 0, ok = false;
+    while (attempts < 25 && !ok){
+      attempts++;
+      for (var r=0;r<ROWS;r++) for (var c=0;c<COLS;c++){
+        typeGrid[r][c] = (Math.random() < 0.24) ? 'wall' : 'empty';
+      }
+      typeGrid[start.r][start.c] = 'empty';
+      typeGrid[goal.r][goal.c] = 'empty';
+      ok = isReachable();
+    }
+    if (!ok) applyDefaultMaze();
+    resetSearch();
+  });
+
+  function isReachable(){
+    var seen = {}; seen[key(start.r,start.c)] = true;
+    var q = [start];
+    while (q.length){
+      var n = q.shift();
+      if (n.r === goal.r && n.c === goal.c) return true;
+      for (var d=0; d<DIRS.length; d++){
+        var nr = n.r+DIRS[d][0], nc = n.c+DIRS[d][1];
+        if (!inBounds(nr,nc)) continue;
+        if (typeGrid[nr][nc] === 'wall') continue;
+        var k = key(nr,nc);
+        if (seen[k]) continue;
+        seen[k] = true;
+        q.push({r:nr,c:nc});
+      }
+    }
+    return false;
+  }
+
+  updateAlgoLabels();
+  resetSearch();
+})();
+</script>
+
+</body>
+</html>
