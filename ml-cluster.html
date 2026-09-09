@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>머신러닝 군집화 알고리즘</title>
+    <title>머신러닝 군집화와 연관 규칙</title>
     <style>
         :root {
             --bg-color: #fcfdfd;
@@ -12,6 +12,7 @@
             --text-sub: #64748b;
             --accent-1: #6366f1;
             --accent-2: #0ea5e9;
+            --accent-3: #10b981;
             --border-card: #e2e8f0;
         }
 
@@ -91,6 +92,13 @@
             color: #0369a1;
             border-color: var(--accent-2);
             box-shadow: 0 0 0 2px var(--accent-2), 0 6px 15px -4px rgb(0 0 0 / 0.05);
+        }
+
+        .tab-btn.active.btn-3 {
+            background: #d1fae5;
+            color: #047857;
+            border-color: var(--accent-3);
+            box-shadow: 0 0 0 2px var(--accent-3), 0 6px 15px -4px rgb(0 0 0 / 0.05);
         }
 
         /* 컨텐츠 패널 영역 */
@@ -225,13 +233,153 @@
             margin-top: 10px;
             min-height: 24px;
         }
+        /* ---- 연관 규칙 시뮬레이터 ---- */
+        .assoc-shelf {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 16px;
+        }
+
+        .item-btn {
+            background: #ffffff;
+            border: 2px solid var(--border-card);
+            border-radius: 12px;
+            padding: 10px 16px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text-main);
+            cursor: pointer;
+            transition: all 0.15s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .item-btn:hover { border-color: var(--accent-3); }
+
+        .item-btn.picked {
+            background: #d1fae5;
+            border-color: var(--accent-3);
+            color: #047857;
+        }
+
+        .basket-box {
+            width: 100%;
+            max-width: 500px;
+            background: #f8fafc;
+            border: 1px dashed #cbd5e1;
+            border-radius: 12px;
+            padding: 14px;
+            box-sizing: border-box;
+            min-height: 42px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 8px;
+            font-size: 0.95rem;
+            color: var(--text-sub);
+        }
+
+        .receipt-list {
+            width: 100%;
+            max-width: 500px;
+            max-height: 120px;
+            overflow-y: auto;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            justify-content: center;
+            margin-top: 14px;
+        }
+
+        .receipt-chip {
+            background: #ffffff;
+            border: 1px solid var(--border-card);
+            border-radius: 8px;
+            padding: 4px 9px;
+            font-size: 0.8rem;
+            color: var(--text-sub);
+            white-space: nowrap;
+        }
+
+        .rule-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+
+        .rule-name {
+            width: 120px;
+            flex-shrink: 0;
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: var(--text-main);
+            text-align: right;
+        }
+
+        .rule-track {
+            flex-grow: 1;
+            height: 22px;
+            background: #ffffff;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .rule-fill {
+            height: 100%;
+            background: var(--accent-3);
+            border-radius: 5px 0 0 5px;
+            transition: width 0.5s ease;
+        }
+
+        .rule-pct {
+            width: 100px;
+            flex-shrink: 0;
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: var(--text-main);
+        }
+
+        .rule-pct small {
+            display: block;
+            font-weight: 500;
+            font-size: 0.72rem;
+            color: var(--text-sub);
+        }
+
+        .rule-insight {
+            background: #0f172a;
+            color: #ffffff;
+            border-radius: 12px;
+            padding: 16px;
+            margin-top: 18px;
+            font-weight: 700;
+            font-size: 0.98rem;
+            line-height: 1.5;
+            text-align: center;
+        }
+
+        .rule-insight em {
+            color: #6ee7b7;
+            font-style: normal;
+        }
+
+        @media (max-width: 560px) {
+            .rule-name { width: 88px; font-size: 0.85rem; }
+            .rule-pct { width: 72px; font-size: 0.85rem; }
+        }
     </style>
 </head>
 <body>
 
     <header>
-        <h1>🎯 머신러닝 군집화 알고리즘</h1>
-        <p class="subtitle">K-평균 군집화와 밀도 기반 군집화(DBSCAN)의 원리를 비교해 보세요.</p>
+        <h1>🎯 머신러닝 군집화와 연관 규칙</h1>
+        <p class="subtitle">정답 없이 데이터 속 구조를 찾아내는 세 가지 방법을 직접 실행해 보세요.</p>
     </header>
 
     <!-- 탭 네비게이션 영역 -->
@@ -241,6 +389,9 @@
         </button>
         <button class="tab-btn btn-2" id="tab-2" onclick="switchTab(2)">
             <span>🌊</span> 2. 밀도 기반 군집화 (DBSCAN)
+        </button>
+        <button class="tab-btn btn-3" id="tab-3" onclick="switchTab(3)">
+            <span>🛒</span> 3. 연관 규칙 (Association)
         </button>
     </div>
 
@@ -316,10 +467,60 @@
         </div>
     </div>
 
+    <!-- [TAB 3] 연관 규칙 (Association Rules) 패널 -->
+    <div class="content-panel" id="panel-3">
+        <div class="section-block">
+            <h3>💡 연관 규칙(Association Rules) 핵심 원리</h3>
+            <p>속성들의 <strong>상호 관련성</strong>을 분석해 <strong>함께 등장하는 규칙</strong>을 발견하는 방법입니다. 군집이 "비슷한 것끼리 묶어 봐"라면, 연관 규칙은 <strong>"같이 사는 것끼리 찾아 봐"</strong>에 가깝습니다. 영수증 더미를 뒤져 "A를 산 사람은 B도 사더라"를 찾아내는 셈입니다.</p>
+            <ul>
+                <li><strong>지지도(support):</strong> 전체 영수증 중 두 상품이 <strong>함께</strong> 담긴 비율 &mdash; 그 규칙이 얼마나 <strong>자주</strong> 나타나는가.</li>
+                <li><strong>신뢰도(confidence):</strong> 기준 상품을 산 영수증 중 다른 상품도 담긴 비율 &mdash; 그 규칙이 얼마나 <strong>잘 들어맞는가</strong>.</li>
+            </ul>
+        </div>
+
+        <div class="sim-stage">
+            <p style="margin: 0 0 12px 0; font-size: 0.9rem; color: var(--text-sub);">상품을 눌러 장바구니에 담고 <strong>영수증 추가</strong>를 눌러 보세요. 영수증이 쌓일수록 규칙이 달라집니다!</p>
+
+            <div class="assoc-shelf" id="assoc-shelf"></div>
+
+            <div class="basket-box" id="assoc-basket">장바구니가 비어 있습니다.</div>
+
+            <div class="sim-controls">
+                <button class="sim-btn" onclick="addAssocReceipt()">🧾 영수증 추가 ▶</button>
+                <button class="sim-btn secondary" onclick="resetAssoc()">초기화</button>
+            </div>
+
+            <div class="receipt-list" id="assoc-receipts"></div>
+            <div class="status-text" id="assoc-status"></div>
+        </div>
+
+        <div class="section-block">
+            <h3>📊 발견된 연관 규칙</h3>
+            <div class="sim-controls" style="margin: 0 0 18px 0; justify-content: flex-start;">
+                <div class="input-group">
+                    <label for="assoc-base">기준 상품:</label>
+                    <select id="assoc-base" onchange="renderAssocRules()"></select>
+                </div>
+            </div>
+            <div id="assoc-rules"></div>
+            <div class="rule-insight" id="assoc-insight"></div>
+        </div>
+
+        <div class="section-block" style="margin-bottom: 0;">
+            <h3>✨ 어디에 쓰일까?</h3>
+            <ul>
+                <li><strong>1+1 마케팅 &middot; 상품 추천:</strong> 함께 잘 팔리는 조합을 묶어 할인하거나 "이 상품을 산 분들이 함께 본 상품"으로 띄웁니다.</li>
+                <li><strong>매장 진열 &middot; 재고 관리:</strong> 우유 옆에 빵을 두고, 한쪽이 팔리면 다른 쪽 재고도 함께 준비합니다.</li>
+                <li><strong>신상품 개발:</strong> 늘 함께 팔리는 조합을 아예 한 상품으로 만듭니다.</li>
+                <li><strong>주의:</strong> 함께 등장한다고 해서 <strong>원인과 결과인 것은 아닙니다.</strong> 연관 규칙이 찾아 주는 것은 어디까지나 &ldquo;같이 나타나더라&rdquo;까지입니다.</li>
+            </ul>
+        </div>
+    </div>
+
     <script>
         // --- 탭 전환 기능 ---
         function switchTab(tabNum) {
-            for (let i = 1; i <= 2; i++) {
+            for (let i = 1; i <= 3; i++) {
                 document.getElementById(`tab-${i}`).classList.remove('active', `btn-${i}`);
                 document.getElementById(`panel-${i}`).classList.remove('active');
             }
@@ -499,13 +700,186 @@
             });
 
             drawDBSCAN();
-            dbStatus.innerText = `🌊 밀도 기반 군집화 완료! (생성된 군집 수: ${clusterId개})`;
+            dbStatus.innerText = `🌊 밀도 기반 군집화 완료! (생성된 군집 수: ${clusterId}개)`;
+        }
+
+
+        // --- [연관 규칙 (Association Rules) 시뮬레이터 로직] ---
+        const ASSOC_ITEMS = [
+            { id: 'milk',   name: '우유', emoji: '🥛' },
+            { id: 'bread',  name: '빵',   emoji: '🍞' },
+            { id: 'egg',    name: '달걀', emoji: '🥚' },
+            { id: 'tissue', name: '휴지', emoji: '🧻' },
+            { id: 'coffee', name: '커피', emoji: '☕' },
+            { id: 'snack',  name: '과자', emoji: '🍪' }
+        ];
+
+        // 교과서 90쪽 수치(우유+빵 70% / 우유+달걀 40% / 우유+휴지 20%)가
+        // 그대로 나오도록 맞춘 기본 영수증 12장.
+        // 우유가 든 영수증은 10장이고 그중 빵 7 · 달걀 4 · 휴지 2 장이다.
+        const ASSOC_PRESET = [
+            ['milk', 'bread'],
+            ['milk', 'bread', 'egg'],
+            ['milk', 'bread'],
+            ['milk', 'bread', 'egg', 'tissue'],
+            ['milk', 'bread', 'egg'],
+            ['milk', 'bread'],
+            ['milk', 'bread', 'egg', 'tissue'],
+            ['milk', 'coffee'],
+            ['milk', 'snack'],
+            ['milk', 'coffee', 'snack'],
+            ['bread', 'coffee'],
+            ['snack', 'tissue']
+        ];
+
+        let assocReceipts = [];
+        let assocBasket = [];
+
+        // 한국어 조사는 앞말의 받침 유무로 갈린다.
+        // "우유를/빵을" 처럼 상품 이름이 바뀌어도 문장이 어색해지지 않게 골라 준다.
+        function josa(word, type) {
+            const code = word.charCodeAt(word.length - 1);
+            const hasJong = code >= 0xAC00 && code <= 0xD7A3 && (code - 0xAC00) % 28 !== 0;
+            const pair = { eul: ['를', '을'], i: ['가', '이'], gwa: ['와', '과'] }[type];
+            return pair[hasJong ? 1 : 0];
+        }
+
+        const itemById = (id) => ASSOC_ITEMS.find(it => it.id === id);
+        const itemLabel = (id) => { const it = itemById(id); return it ? it.emoji + ' ' + it.name : id; };
+
+        function resetAssoc() {
+            assocReceipts = ASSOC_PRESET.map(r => [...r]);
+            assocBasket = [];
+            renderAssocShelf();
+            renderAssocBasket();
+            renderAssocReceipts();
+            renderAssocRules();
+            document.getElementById('assoc-status').innerText =
+                '기본 영수증 ' + assocReceipts.length + '장이 준비되었습니다.';
+        }
+
+        function renderAssocShelf() {
+            const shelf = document.getElementById('assoc-shelf');
+            shelf.innerHTML = '';
+            ASSOC_ITEMS.forEach(it => {
+                const btn = document.createElement('button');
+                btn.className = 'item-btn' + (assocBasket.includes(it.id) ? ' picked' : '');
+                btn.innerHTML = '<span>' + it.emoji + '</span> ' + it.name;
+                btn.onclick = () => toggleAssocItem(it.id);
+                shelf.appendChild(btn);
+            });
+        }
+
+        function toggleAssocItem(id) {
+            const i = assocBasket.indexOf(id);
+            if (i === -1) assocBasket.push(id); else assocBasket.splice(i, 1);
+            renderAssocShelf();
+            renderAssocBasket();
+        }
+
+        function renderAssocBasket() {
+            const box = document.getElementById('assoc-basket');
+            if (assocBasket.length === 0) {
+                box.innerHTML = '장바구니가 비어 있습니다.';
+                return;
+            }
+            box.innerHTML = assocBasket.map(id =>
+                '<span class="receipt-chip">' + itemLabel(id) + '</span>').join('');
+        }
+
+        function addAssocReceipt() {
+            const status = document.getElementById('assoc-status');
+            if (assocBasket.length < 2) {
+                status.innerText = '⚠️ 상품을 2개 이상 담아야 "함께 산 규칙"을 만들 수 있습니다.';
+                return;
+            }
+            assocReceipts.push([...assocBasket]);
+            assocBasket = [];
+            renderAssocShelf();
+            renderAssocBasket();
+            renderAssocReceipts();
+            renderAssocRules();
+            status.innerText = '🧾 영수증이 추가되었습니다. (총 ' + assocReceipts.length + '장) 규칙이 어떻게 바뀌었는지 보세요.';
+        }
+
+        function renderAssocReceipts() {
+            const list = document.getElementById('assoc-receipts');
+            list.innerHTML = assocReceipts.map((r, i) =>
+                '<span class="receipt-chip">#' + (i + 1) + ' ' +
+                r.map(id => { const it = itemById(id); return it ? it.emoji : '?'; }).join('') +
+                '</span>').join('');
+
+            const sel = document.getElementById('assoc-base');
+            const keep = sel.value;
+            sel.innerHTML = ASSOC_ITEMS.map(it =>
+                '<option value="' + it.id + '">' + it.emoji + ' ' + it.name + '</option>').join('');
+            sel.value = keep && ASSOC_ITEMS.some(it => it.id === keep) ? keep : 'milk';
+        }
+
+        function renderAssocRules() {
+            const box = document.getElementById('assoc-rules');
+            const insight = document.getElementById('assoc-insight');
+            const baseId = document.getElementById('assoc-base').value || 'milk';
+            const base = itemById(baseId);
+            const total = assocReceipts.length;
+
+            const baseCount = assocReceipts.filter(r => r.includes(baseId)).length;
+
+            if (total === 0 || baseCount === 0) {
+                box.innerHTML = '<p style="color: var(--text-sub); font-size: 0.95rem; margin: 0;">' +
+                    (total === 0
+                        ? '영수증이 없습니다. 상품을 담아 영수증을 추가해 보세요.'
+                        : '&ldquo;' + base.name + '&rdquo;' + josa(base.name, 'i') + ' 담긴 영수증이 아직 없습니다. 다른 기준 상품을 골라 보세요.') +
+                    '</p>';
+                insight.innerHTML = '규칙을 만들려면 영수증이 더 필요합니다.';
+                return;
+            }
+
+            const rules = ASSOC_ITEMS
+                .filter(it => it.id !== baseId)
+                .map(it => {
+                    const co = assocReceipts.filter(r => r.includes(baseId) && r.includes(it.id)).length;
+                    return {
+                        item: it,
+                        co: co,
+                        confidence: co / baseCount,   // 신뢰도
+                        support: co / total           // 지지도
+                    };
+                })
+                .filter(r => r.co > 0)
+                .sort((a, b) => b.confidence - a.confidence);
+
+            if (rules.length === 0) {
+                box.innerHTML = '<p style="color: var(--text-sub); font-size: 0.95rem; margin: 0;">&ldquo;' +
+                    base.name + '&rdquo;' + josa(base.name, 'gwa') + ' 함께 담긴 상품이 아직 없습니다.</p>';
+                insight.innerHTML = '함께 담긴 상품이 없어 규칙을 만들 수 없습니다.';
+                return;
+            }
+
+            box.innerHTML = rules.map(r =>
+                '<div class="rule-row">' +
+                    '<div class="rule-name">' + base.name + ' + ' + r.item.name + '</div>' +
+                    '<div class="rule-track"><div class="rule-fill" style="width: ' +
+                        (r.confidence * 100).toFixed(1) + '%;"></div></div>' +
+                    '<div class="rule-pct">' + Math.round(r.confidence * 100) + '%' +
+                        '<small>지지도 ' + Math.round(r.support * 100) + '%</small></div>' +
+                '</div>').join('');
+
+            const top = rules[0];
+            insight.innerHTML =
+                '&ldquo;<em>' + base.name + '</em>&rdquo;' + josa(base.name, 'eul') +
+                ' 산 영수증 ' + baseCount + '장 중 ' +
+                '<em>' + Math.round(top.confidence * 100) + '%</em>(' + top.co + '장)에 ' +
+                '&ldquo;<em>' + top.item.name + '</em>&rdquo;' + josa(top.item.name, 'i') +
+                ' 있다 &rarr; ' + base.name + ' 옆에 ' + top.item.name +
+                josa(top.item.name, 'eul') + ' 배치!';
         }
 
         // 페이지 로드 시 초기화
         window.onload = () => {
             resetKMeans();
             resetDBSCAN();
+            resetAssoc();
         };
     </script>
 </body>
