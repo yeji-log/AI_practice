@@ -180,25 +180,7 @@
 
         .formula-text {
             flex: 1;
-            /* 시그모이드 함수식이 한 줄에 들어가려면 이만큼은 필요하다.
-               이보다 좁아지면 옆의 그래프가 아래로 내려가고 글이 폭을 다 쓴다. */
-            min-width: 430px;
-        }
-
-        /* 휴대폰 폭에서는 430px 를 지킬 수 없어 가로 스크롤이 생긴다.
-           그럴 땐 그래프를 글 아래로 내려서 글이 폭을 다 쓰게 한다.
-           (min-width 만 풀면 글 칸이 그래프에 눌려 오히려 더 좁아진다) */
-        @media (max-width: 560px) {
-            .concept-formula-box {
-                flex-direction: column;
-                align-items: stretch;
-            }
-
-            .formula-text,
-            .formula-img-container {
-                min-width: 0;
-                width: 100%;
-            }
+            min-width: 280px;
         }
 
         .formula-img-container {
@@ -429,7 +411,7 @@
                 <div class="formula-text">
                     <p style="margin: 0 0 6px 0; font-weight: bold; color: #1e293b;">📌 시그모이드 변환의 핵심 포인트</p>
                     <ul style="margin: 0; padding-left: 15px; font-size: 0.9rem;">
-                        <li><strong>시그모이드 함수식:</strong> <span style="white-space: nowrap;">S(<em>z</em>) = 1 / (1 + e<sup>-<em>z</em></sup>)</span>, 여기서 <span style="white-space: nowrap;"><em>z</em> = ax + b</span></li>
+                        <li><strong>시그모이드 함수식:</strong> S(<em>z</em>) = 1 / (1 + e<sup>-<em>z</em></sup>) &nbsp;&mdash;&nbsp; 여기서 <em>z</em> = ax + b (선형 회귀의 결과값)</li>
                         <li><strong>기준선(0.5):</strong> 확률이 정확히 0.5라면 두 그룹 중 어디에도 속하지 않는 경계선입니다.</li>
                         <li><strong>합격 그룹(1에 수렴):</strong> 점수가 높을수록 1에 가까워지며 확실한 합격으로 판정합니다.</li>
                         <li><strong>불합격 그룹(0에 수렴):</strong> 점수가 낮을수록 0에 가까워지며 확실한 불합격으로 판정합니다.</li>
